@@ -219,4 +219,4 @@ std::string ExprTree::TreeString()
 	return output;
 }
 
-} // namespace jasc
+} // namespace yaasc

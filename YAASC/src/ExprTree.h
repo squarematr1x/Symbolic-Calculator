@@ -32,4 +32,4 @@ public:
 	void Print();
 };
 
-} // namespace jasc
+} // namespace yaasc

@@ -1056,4 +1056,4 @@ bool IsMulByNumber(const std::unique_ptr<Expr>& expr)
 	return true;
 }
 
-} // namespace symbolic_tool
+} // namespace yaasc

@@ -22,6 +22,7 @@ void Simplify(std::unique_ptr<Expr>& root)
 		ReduceToOne(root);
 		RemoveAdditiveZeros(root);
 		RemoveMulOne(root);
+		Flatten(root);
 		i++;
 
 		// When simplification is done
@@ -801,8 +802,6 @@ void Canonize(std::unique_ptr<Expr>& root)
 		CanonizeGenNode(root);
 		ReduceGenNodeToBinNode(root);
 	}
-
-	Flatten(root);
 }
 
 void CanonizeBinNode(std::unique_ptr<Expr>& root)
@@ -927,30 +926,6 @@ void RemoveMulOne(std::unique_ptr<Expr>& root)
 			if (root->Right()->Name() == "1")
 				root = std::move(root->Left());
 		}
-	}
-	else
-	{
-		std::vector<int> one_indicies;
-		bool have_non_ones = false;
-
-		if (root->ChildrenSize() > 1)
-		{
-			for (int i = 0; i < root->ChildrenSize(); i++)
-			{
-				if (root->ChildAt(i)->IsOne())
-					one_indicies.push_back(i);
-				else
-					have_non_ones = true;
-			}
-		}
-
-		if (have_non_ones)
-		{
-			for (auto i : one_indicies)
-				root->RemoveChild(i);
-		}
-		else
-			root = std::make_unique<Integer>(1);
 	}
 }
 

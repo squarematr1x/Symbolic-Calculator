@@ -81,6 +81,7 @@ void MultiplyBinNode(std::unique_ptr<Expr>& root)
 		{
 			tree_util::DeepCopy(copy, root->Left());
 			std::unique_ptr<Expr> new_child = std::make_unique<Mul>(std::move(copy), std::move(root->Right()->ChildAt(i)));
+			Flatten(new_child);
 			root->Right()->SetChildAt(i, std::move(new_child));
 		}
 		root = std::move(root->Right());
@@ -91,13 +92,14 @@ void MultiplyBinNode(std::unique_ptr<Expr>& root)
 		{
 			tree_util::DeepCopy(copy, root->Right());
 			std::unique_ptr<Expr> new_child = std::make_unique<Mul>(std::move(copy), std::move(root->Left()->ChildAt(i)));
+			Flatten(new_child);
 			root->Left()->SetChildAt(i, std::move(new_child));
 		}
 		root = std::move(root->Left());
 	}
 }
 
-void MultiplyGenNode(std::unique_ptr<Expr>& root)
+void MultiplyGenNode(std::unique_ptr<Expr>& root) // FIXME: Doesn't work in all cases
 {
 	int remove_index = 0;
 	bool has_add_child = false;

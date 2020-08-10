@@ -117,6 +117,12 @@ void Associative::SetChildAt(int i, std::unique_ptr<Expr> child)
 
 void Associative::SortChildren() // FIXTHIS: Make this compare only terminal nodes
 {
+	if (IsGeneric())
+	{
+		for (int i = 0; i < ChildrenSize(); i++)
+			ChildAt(i)->SortChildren();
+	}
+
 	std::sort(m_children.begin(), m_children.end(),
 		[](std::unique_ptr<Expr> const& a, std::unique_ptr<Expr> const& b) {
 			return LeftmostChild(a)->Name() < LeftmostChild(b)->Name();

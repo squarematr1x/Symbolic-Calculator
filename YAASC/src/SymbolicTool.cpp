@@ -109,6 +109,7 @@ void MultiplyGenNode(std::unique_ptr<Expr>& root)
 		if (root->ChildAt(i)->IsAdd())
 		{
 			add_child = std::move(root->ChildAt(i));
+			remove_index = i;
 			has_add_child = true;
 			break;
 		}
@@ -124,7 +125,7 @@ void MultiplyGenNode(std::unique_ptr<Expr>& root)
 		for (int i = 0; i < add_child->ChildrenSize(); i++)
 		{
 			std::unique_ptr<Expr> new_child = std::make_unique<Mul>(nullptr, nullptr);
-
+			
 			for (int j = 0; j < root->ChildrenSize(); j++)
 			{
 				tree_util::DeepCopy(copy, root->ChildAt(j));
@@ -902,7 +903,7 @@ bool RaisedToOne(const std::unique_ptr<Expr>& expr)
 
 void RemoveMulOne(std::unique_ptr<Expr>& root)
 {
-	if (root->HasNoChildren() && !root->IsGeneric())
+	if (root->HasNoChildren())
 		return;
 
 	if (!IsTerminal(root->Left()))

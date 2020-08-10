@@ -1,0 +1,8 @@
+Debug/
+
+**.vcxproj
+**.vcxproj.filters
+**.vcxproj.user
+
+**.APS
+**.rc

@@ -117,19 +117,9 @@ void Associative::SetChildAt(int i, std::unique_ptr<Expr> child)
 
 void Associative::SortChildren() // FIXTHIS: Make this compare only terminal nodes
 {
-	for (int i = 0; i < ChildrenSize(); i++)
-	{
-		if (ChildAt(i)->IsGeneric())
-			ChildAt(i)->SortChildren();
-	}
-
 	std::sort(m_children.begin(), m_children.end(),
 		[](std::unique_ptr<Expr> const& a, std::unique_ptr<Expr> const& b) {
-
-			if (!a->IsTerminal() && a->HasLeftChild() && b->HasLeftChild())
-				return a->Left()->Name() < b->Left()->Name(); 
-			else
-				return a->Name() < b->Name();
+			return LeftmostChild(a)->Name() < LeftmostChild(b)->Name();
 		});
 }
 
@@ -292,9 +282,9 @@ void CheckExpressions(const std::unique_ptr<Expr>& expr_a, const std::unique_ptr
 const std::unique_ptr<Expr>& LeftmostChild(const std::unique_ptr<Expr>& expr)
 {
 	if (expr->HasLeftChild())
-		LeftmostChild(std::move(expr->Left()));
+		return LeftmostChild(expr->Left());
 	else if (expr->IsGeneric())
-		LeftmostChild(std::move(expr->ChildAt(0)));
+		return LeftmostChild(expr->ChildAt(0));
 
 	return expr;
 }

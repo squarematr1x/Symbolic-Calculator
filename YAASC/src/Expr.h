@@ -95,6 +95,8 @@ public:
 
 	friend bool SameExpressions(const std::unique_ptr<Expr>& expr_a, const std::unique_ptr<Expr>& expr_b);
 	friend void CheckExpressions(const std::unique_ptr<Expr>& expr_a, const std::unique_ptr<Expr>& expr_b, bool& same);
+
+	friend const std::unique_ptr<Expr>& LeftmostChild(const std::unique_ptr<Expr>& expr);
 };
 
 class Associative : public Expr

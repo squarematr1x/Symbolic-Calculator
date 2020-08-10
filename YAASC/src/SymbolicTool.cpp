@@ -182,7 +182,7 @@ void AddVariables(std::unique_ptr<Expr>& root)
 *   / \  -->  / \
 *  a   a     2   a
 */
-void AddBinNode(std::unique_ptr<Expr>& root, std::unique_ptr<Expr>& left, std::unique_ptr<Expr>& right) // Adding gen to bin doesn't work properly
+void AddBinNode(std::unique_ptr<Expr>& root, std::unique_ptr<Expr>& left, std::unique_ptr<Expr>& right)
 {
 	int multiplier = 0;
 

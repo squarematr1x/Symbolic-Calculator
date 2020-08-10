@@ -903,7 +903,7 @@ bool RaisedToOne(const std::unique_ptr<Expr>& expr)
 
 void RemoveMulOne(std::unique_ptr<Expr>& root)
 {
-	if (root->HasNoChildren())
+	if (root->HasNoChildren() && !root->IsGeneric())
 		return;
 
 	if (!IsTerminal(root->Left()))
@@ -912,31 +912,46 @@ void RemoveMulOne(std::unique_ptr<Expr>& root)
 	if (!IsTerminal(root->Right()))
 		RemoveMulOne(root->Right());
 
-	bool simplify = false;
-	std::unique_ptr<Expr> new_expr;
+	if (!root->IsMul())
+		return;
 
-	if (root->IsMul())
+	if (!root->IsGeneric())
 	{
 		if (root->Left()->IsNumber() && root->HasRightChild())
 		{
 			if (root->Left()->Name() == "1")
-			{
-				new_expr = std::move(root->Right());
-				simplify = true;
-			}
+				root = std::move(root->Right());
 		}
 		else if (root->Right()->IsNumber() && root->HasLeftChild())
 		{
 			if (root->Right()->Name() == "1")
-			{
-				new_expr = std::move(root->Left());
-				simplify = true;
-			}
+				root = std::move(root->Left());
 		}
 	}
+	else
+	{
+		std::vector<int> one_indicies;
+		bool have_non_ones = false;
 
-	if (simplify)
-		root = std::move(new_expr);
+		if (root->ChildrenSize() > 1)
+		{
+			for (int i = 0; i < root->ChildrenSize(); i++)
+			{
+				if (root->ChildAt(i)->IsOne())
+					one_indicies.push_back(i);
+				else
+					have_non_ones = true;
+			}
+		}
+
+		if (have_non_ones)
+		{
+			for (auto i : one_indicies)
+				root->RemoveChild(i);
+		}
+		else
+			root = std::make_unique<Integer>(1);
+	}
 }
 
 void RemoveAdditiveZeros(std::unique_ptr<Expr>& root)

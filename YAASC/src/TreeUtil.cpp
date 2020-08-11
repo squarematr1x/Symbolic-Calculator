@@ -68,9 +68,9 @@ void CopyToStack(std::stack<std::unique_ptr<Expr>>& expr_stack, const std::uniqu
 	else
 	{
 		if (expr->IsMul())
-			expr_stack.push(std::make_unique<Mul>(nullptr, nullptr));
+			expr_stack.push(std::make_unique<Mul>());
 		else
-			expr_stack.push(std::make_unique<Add>(nullptr, nullptr));
+			expr_stack.push(std::make_unique<Add>());
 
 		std::queue<std::unique_ptr<Expr>> expr_queue;
 		std::stack<std::unique_ptr<Expr>> sub_stack; // Used for each children in queue

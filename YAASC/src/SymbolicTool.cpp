@@ -123,7 +123,7 @@ void MultiplyGenNode(std::unique_ptr<Expr>& root)
 	{
 		for (int i = 0; i < add_child->ChildrenSize(); i++)
 		{
-			std::unique_ptr<Expr> new_child = std::make_unique<Mul>(nullptr, nullptr);
+			std::unique_ptr<Expr> new_child = std::make_unique<Mul>();
 			
 			for (int j = 0; j < root->ChildrenSize(); j++)
 			{
@@ -137,8 +137,8 @@ void MultiplyGenNode(std::unique_ptr<Expr>& root)
 	}
 	else if (add_child->HasChildren())
 	{
-		std::unique_ptr<Expr> new_left = std::make_unique<Mul>(nullptr, nullptr);
-		std::unique_ptr<Expr> new_right = std::make_unique<Mul>(nullptr, nullptr);
+		std::unique_ptr<Expr> new_left = std::make_unique<Mul>();
+		std::unique_ptr<Expr> new_right = std::make_unique<Mul>();
 
 		for (int j = 0; j < root->ChildrenSize(); j++)
 		{
@@ -182,7 +182,7 @@ void AddVariables(std::unique_ptr<Expr>& root)
 *   / \  -->  / \
 *  a   a     2   a
 */
-void AddBinNode(std::unique_ptr<Expr>& root, std::unique_ptr<Expr>& left, std::unique_ptr<Expr>& right)
+void AddBinNode(std::unique_ptr<Expr>& root, std::unique_ptr<Expr>& left, std::unique_ptr<Expr>& right) // FIXME: How about gen nodes (2xyz + 4yzx)
 {
 	int multiplier = 0;
 
@@ -489,7 +489,7 @@ void ExponentRuleParenthesis(std::unique_ptr<Expr>& root)
 					new_children.push(std::move(expr));
 				}
 
-				root = std::make_unique<Mul>(nullptr, nullptr);
+				root = std::make_unique<Mul>();
 				tree_util::MoveQueueToGenericNode(root, new_children);
 				root->SortChildren();
 			}
@@ -792,9 +792,9 @@ void ToGeneric(std::unique_ptr<Expr>& root, std::unique_ptr<Expr>& parent, std::
 		if ((IsNull(parent) || parent->IsPow()) && !children.empty()) // When at root
 		{
 			if (root->IsMul())
-				root = std::make_unique<Mul>(nullptr, nullptr);
+				root = std::make_unique<Mul>();
 			else
-				root = std::make_unique<Add>(nullptr, nullptr);
+				root = std::make_unique<Add>();
 
 			tree_util::MoveQueueToGenericNode(root, children);
 			root->SortChildren();

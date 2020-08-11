@@ -389,12 +389,9 @@ void ApplyExponentRuleMulGenNode(std::unique_ptr<Expr>& root)
 					if (root->ChildAt(i)->Left() == root->ChildAt(i + 1)->Left())
 					{
 						if (exponent == 0)
-						{
 							exponent += std::stoi(root->ChildAt(i)->Right()->Name());
-							exponent += std::stoi(root->ChildAt(i + 1)->Right()->Name());
-						}
-						else
-							exponent += std::stoi(root->ChildAt(i + 1)->Right()->Name());
+
+						exponent += std::stoi(root->ChildAt(i + 1)->Right()->Name());
 					}
 					else if (exponent == 0)
 						new_children.push(std::move(root->ChildAt(i)));

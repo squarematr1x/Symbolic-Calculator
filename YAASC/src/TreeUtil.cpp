@@ -23,7 +23,9 @@ void MoveQueueToGenericNode(std::unique_ptr<Expr>& expr, std::queue<std::unique_
 void DeepCopy(std::unique_ptr<Expr>& to_expr, const std::unique_ptr<Expr>& from_expr)
 {
 	std::stack<std::unique_ptr<Expr>> expr_stack;
-	CopyToStack(expr_stack, from_expr);
+
+	if (from_expr)
+		CopyToStack(expr_stack, from_expr);
 
 	if (!expr_stack.empty())
 	{
@@ -53,17 +55,30 @@ void CopyToStack(std::stack<std::unique_ptr<Expr>>& expr_stack, const std::uniqu
 	}
 	else if (!expr->IsGeneric())
 	{
-		std::unique_ptr<Expr> right = std::move(expr_stack.top());
-		expr_stack.pop();
-		std::unique_ptr<Expr> left = std::move(expr_stack.top());
-		expr_stack.pop();
+		std::unique_ptr<Expr> right = nullptr;
+		std::unique_ptr<Expr> left = nullptr;
 
-		if (expr->IsMul())
-			expr_stack.push(std::make_unique<Mul>(std::move(left), std::move(right)));
-		else if (expr->IsAdd())
-			expr_stack.push(std::make_unique<Add>(std::move(left), std::move(right)));
-		else if (expr->IsPow())
-			expr_stack.push(std::make_unique<Pow>(std::move(left), std::move(right)));
+		if (!expr_stack.empty())
+		{
+			right = std::move(expr_stack.top());
+			expr_stack.pop();
+		}
+
+		if (!expr_stack.empty())
+		{
+			left = std::move(expr_stack.top());
+			expr_stack.pop();
+		}
+
+		if (right && left)
+		{
+			if (expr->IsMul())
+				expr_stack.push(std::make_unique<Mul>(std::move(left), std::move(right)));
+			else if (expr->IsAdd())
+				expr_stack.push(std::make_unique<Add>(std::move(left), std::move(right)));
+			else if (expr->IsPow())
+				expr_stack.push(std::make_unique<Pow>(std::move(left), std::move(right)));
+		}
 	}
 	else
 	{
@@ -85,7 +100,9 @@ void CopyToStack(std::stack<std::unique_ptr<Expr>>& expr_stack, const std::uniqu
 void CopyToQueue(std::queue<std::unique_ptr<Expr>>& expr_queue, std::stack<std::unique_ptr<Expr>>& sub_stack, const std::unique_ptr<Expr>& expr)
 {
 	CopyToStack(sub_stack, expr);
-	expr_queue.push(std::move(sub_stack.top()));
+
+	if (!sub_stack.empty())
+		expr_queue.push(std::move(sub_stack.top()));
 
 	while (!sub_stack.empty())
 		sub_stack.pop();

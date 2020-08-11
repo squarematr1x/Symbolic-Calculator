@@ -96,7 +96,7 @@ void MultiplyBinNode(std::unique_ptr<Expr>& root)
 	}
 }
 
-void MultiplyGenNode(std::unique_ptr<Expr>& root) // FIXME: Doesn't work in all cases
+void MultiplyGenNode(std::unique_ptr<Expr>& root)
 {
 	int remove_index = 0;
 	bool has_add_child = false;
@@ -640,10 +640,10 @@ bool CanMultiplyBinSumNode(const std::unique_ptr<Expr>& expr)
 	if (expr->IsGeneric())
 		return false;
 
-	if (!(IsTerminal(expr->Left()) || expr->Left()->IsPow()))
+	if (!(IsTerminal(expr->Left()) || expr->Left()->IsPow() || expr->Left()->IsMul()))
 		return false;
 
-	if (!(IsTerminal(expr->Right()) || expr->Right()->IsPow()))
+	if (!(IsTerminal(expr->Right()) || expr->Right()->IsPow() || expr->Left()->IsMul()))
 		return false;
 
 	return true;

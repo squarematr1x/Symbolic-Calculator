@@ -70,7 +70,6 @@ void MultiplyBinNode(std::unique_ptr<Expr>& root)
 	}
 	else if (CanMultiplyBinSumNode(root->Left()))
 	{
-
 		tree_util::DeepCopy(copy, root->Right());
 		root = std::make_unique<Add>(std::make_unique<Mul>(std::move(root->Right()), std::move(root->Left()->Left())),
 		                             std::make_unique<Mul>(std::move(copy), std::move(root->Left()->Right())));
@@ -736,11 +735,33 @@ void ToGeneric(std::unique_ptr<Expr>& root, std::unique_ptr<Expr>& parent, std::
 		}
 	}
 
-	if (!IsTerminal(root->Left()))
-		ToGeneric(root->Left(), root, children);
+	if (root->IsGeneric())
+	{
+		int queue_size = children.size();
 
-	if (!IsTerminal(root->Right()))
-		ToGeneric(root->Right(), root, children);
+		for (int i = 0; i < root->ChildrenSize(); i++)
+		{
+			if (root->ChildAt(i)->IsAssociative())
+				ToGeneric(root->ChildAt(i), root, children);
+		}
+		
+		if (queue_size != children.size()) // When children size has been updated
+		{
+			for (int i = 0; i < root->ChildrenSize(); i++)
+			{
+				if (!root->ChildAt(i)->IsAssociative())
+					children.push(std::move(root->ChildAt(i)));
+			}
+		}
+	}
+	else
+	{
+		if (!IsTerminal(root->Left()))
+			ToGeneric(root->Left(), root, children);
+
+		if (!IsTerminal(root->Right()))
+			ToGeneric(root->Right(), root, children);
+	}
 
 	if (root->IsAssociative())
 	{

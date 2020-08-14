@@ -77,11 +77,17 @@ void ApplyExponentRuleMulGenNode(std::unique_ptr<Expr>& root)
 			else if (!modified)
 				new_children.push(std::move(root->ChildAt(i)));
 
-			if (exponent != 0 && root->ChildAt(i)->Left() != root->ChildAt(i + 1)->Left())
+			if (modified && root->ChildAt(i)->Left() != root->ChildAt(i + 1)->Left())
 			{
-				new_children.push(std::make_unique<Pow>(move(root->ChildAt(i)->Left()), std::make_unique<Integer>(exponent)));
-				exponent = 0;
+				if (exponent != 0)
+				{
+					new_children.push(std::make_unique<Pow>(move(root->ChildAt(i)->Left()), std::make_unique<Integer>(exponent)));
+					exponent = 0;
+				}
+
+				modified = false;
 			}
+
 		}
 		else if (modified && exponent != 0)
 		{
@@ -89,7 +95,7 @@ void ApplyExponentRuleMulGenNode(std::unique_ptr<Expr>& root)
 			modified = false;
 			exponent = 0;
 		}
-		else
+		else if (!modified)
 			new_children.push(std::move(root->ChildAt(i)));
 	}
 

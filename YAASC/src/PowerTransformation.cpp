@@ -36,12 +36,15 @@ void ApplyExponentRuleMulBinNode(std::unique_ptr<Expr>& root)
 	if (SameVariables(root->Left()->Left(), root->Right()->Left()))
 	{
 		std::string var = root->Left()->Left()->Name();
-
 		if (CanApplyExponentRule(root, var))
 		{
-			int exponent = std::stoi(root->Left()->Right()->Name());
-			exponent += std::stoi(root->Right()->Right()->Name());
-			root = std::move(std::make_unique<Pow>(std::make_unique<Var>(var), std::make_unique<Integer>(exponent)));
+			float exponent = std::stof(root->Left()->Right()->Name());
+			exponent += std::stof(root->Right()->Right()->Name());
+
+			if (abs(exponent - floor(exponent)) < 0.000001f)
+				root = std::move(std::make_unique<Pow>(std::make_unique<Var>(var), std::make_unique<Float>(exponent)));
+			else
+				root = std::move(std::make_unique<Pow>(std::make_unique<Var>(var), std::make_unique<Integer>((int)exponent)));
 		}
 	}
 }
@@ -219,12 +222,12 @@ bool CanApplyExponentRule(const std::unique_ptr<Expr>& expr, std::string value)
 {
 	if (expr->Left()->HasChildren())
 	{
-		if (expr->Left()->Left()->Name() == value && expr->Left()->Right()->IsInteger())
+		if (expr->Left()->Left()->Name() == value && expr->Left()->Right()->IsNumber())
 			return true;
 	}
 	else if (expr->Right()->HasChildren())
 	{
-		if (expr->Right()->Left()->Name() == value && expr->Right()->Right()->IsInteger())
+		if (expr->Right()->Left()->Name() == value && expr->Right()->Right()->IsNumber())
 			return true;
 	}
 
@@ -233,6 +236,8 @@ bool CanApplyExponentRule(const std::unique_ptr<Expr>& expr, std::string value)
 
 bool SameVariables(const std::unique_ptr<Expr>& expr_a, const std::unique_ptr<Expr>& expr_b)
 {
+	std::cout << expr_a << '\n';
+
 	if (!expr_a->IsVar())
 		return false;
 

@@ -107,22 +107,25 @@ void ApplyExponentRuleMulGenNode(std::unique_ptr<Expr>& root)
 // (a^n)^m --> a^(nm)
 void ExponentRulePow(std::unique_ptr<Expr>& root)
 {
-	if (root->HasNoChildren() && root->IsGeneric())
+	if (root->HasNoChildren() && !root->IsGeneric())
+		return;
+	
+	if (root->IsGeneric())
 	{
 		if (root->IsMul())
 		{
 			for (int i = 0; i != root->ChildrenSize(); i++)
 				ExponentRulePow(root->ChildAt(i));
 		}
-
-		return;
 	}
+	else
+	{
+		if (!IsTerminal(root->Left()))
+			ExponentRulePow(root->Left());
 
-	if (!IsTerminal(root->Left()))
-		ExponentRulePow(root->Left());
-
-	if (!IsTerminal(root->Right()))
-		ExponentRulePow(root->Right());
+		if (!IsTerminal(root->Right()))
+			ExponentRulePow(root->Right());
+	}
 
 	std::string value = "";
 	if (root->IsPow() && root->Left()->IsPow() && root->Right()->IsInteger())
@@ -140,7 +143,7 @@ void ExponentRulePow(std::unique_ptr<Expr>& root)
 				int exponent = std::stoi(root->Right()->Name()) * std::stoi(root->Left()->Right()->Name());
 
 				root = std::move(std::make_unique<Pow>(std::make_unique<Var>(value),
-					std::make_unique<Integer>(exponent)));
+				       std::make_unique<Integer>(exponent)));
 			}
 		}
 	}

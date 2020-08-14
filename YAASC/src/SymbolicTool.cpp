@@ -477,9 +477,9 @@ void ToGeneric(std::unique_ptr<Expr>& root, std::unique_ptr<Expr>& parent, std::
 	if (root->HasNoChildren() && !root->IsGeneric())
 		return;
 
-	if (root->IsAssociative() && !IsNull(parent) && parent->IsAssociative())
+	if (root->IsAssociative() && !IsNull(parent) && !IsTerminal(parent))
 	{
-		if (root->Name() != parent->Name()) // Joint between two different associative nodes
+		if (root->Name() != parent->Name()) // Joint between two different operators
 		{
 			std::queue<std::unique_ptr<Expr>> sub_children;
 			std::unique_ptr<Expr> null_parent = nullptr;

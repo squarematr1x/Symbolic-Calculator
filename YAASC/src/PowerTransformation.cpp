@@ -164,27 +164,29 @@ void ExponentRuleParenthesis(std::unique_ptr<Expr>& root)
 	if (!IsTerminal(root->Right()))
 		ExponentRuleParenthesis(root->Right());
 
-	if (root->IsPow())
-	{
-		if (root->Left()->IsMul() && IsTerminal(root->Right()))
-		{
-			if (root->Left()->IsGeneric())
-			{
-				std::queue<std::unique_ptr<Expr>> new_children;
-				for (int i = 0; i != root->Left()->ChildrenSize(); i++)
-				{
-					std::unique_ptr<Expr> expr = std::move(root->Left()->ChildAt(i));
-					HandleExponentRuleParenthesis(expr, root->Right(), true);
-					new_children.push(std::move(expr));
-				}
 
-				root = std::make_unique<Mul>();
-				tree_util::MoveQueueToGenericNode(root, new_children);
-				root->SortChildren();
+	if (!root->IsPow())
+		return;
+
+	if (root->Left()->IsMul() && IsTerminal(root->Right()))
+	{
+		if (root->Left()->IsGeneric())
+		{
+			std::queue<std::unique_ptr<Expr>> new_children;
+
+			for (int i = 0; i != root->Left()->ChildrenSize(); i++)
+			{
+				std::unique_ptr<Expr> expr = std::move(root->Left()->ChildAt(i));
+				HandleExponentRuleParenthesis(expr, root->Right(), true);
+				new_children.push(std::move(expr));
 			}
-			else if (root->Left()->HasPowChildren())
-				HandleExponentRuleParenthesis(root, root->Right(), false);
+
+			root = std::make_unique<Mul>();
+			tree_util::MoveQueueToGenericNode(root, new_children);
+			root->SortChildren();
 		}
+		else if (root->Left()->HasPowChildren())
+			HandleExponentRuleParenthesis(root, root->Right(), false);
 	}
 }
 

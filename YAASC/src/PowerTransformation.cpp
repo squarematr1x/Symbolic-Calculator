@@ -53,27 +53,28 @@ void ApplyExponentRuleMulGenNode(std::unique_ptr<Expr>& root)
 {
 	std::queue<std::unique_ptr<Expr>> new_children;
 	int exponent = 0;
+	bool modified = false;
 
 	for (int i = 0; i != root->ChildrenSize(); i++)
 	{
 		if (i + 1 < root->ChildrenSize())
 		{
-			if (root->ChildAt(i)->IsPow() && root->ChildAt(i + 1)->IsPow())
+			if (PowWithNumberExponents(root->ChildAt(i), root->ChildAt(i + 1)))
 			{
-				if (root->ChildAt(i)->Right()->IsNumber() && root->ChildAt(i + 1)->Right()->IsNumber())
+				if (root->ChildAt(i)->Left() == root->ChildAt(i + 1)->Left())
 				{
-					if (root->ChildAt(i)->Left() == root->ChildAt(i + 1)->Left())
+					if (exponent == 0)
 					{
-						if (exponent == 0)
-							exponent += std::stoi(root->ChildAt(i)->Right()->Name());
-
-						exponent += std::stoi(root->ChildAt(i + 1)->Right()->Name());
+						modified = true;
+						exponent += std::stoi(root->ChildAt(i)->Right()->Name());
 					}
-					else if (exponent == 0)
-						new_children.push(std::move(root->ChildAt(i)));
+
+					exponent += std::stoi(root->ChildAt(i + 1)->Right()->Name());
 				}
+				else if (!modified)
+					new_children.push(std::move(root->ChildAt(i)));
 			}
-			else if (exponent == 0)
+			else if (!modified)
 				new_children.push(std::move(root->ChildAt(i)));
 
 			if (exponent != 0 && root->ChildAt(i)->Left() != root->ChildAt(i + 1)->Left())
@@ -82,9 +83,10 @@ void ApplyExponentRuleMulGenNode(std::unique_ptr<Expr>& root)
 				exponent = 0;
 			}
 		}
-		else if (exponent != 0)
+		else if (modified && exponent != 0)
 		{
 			new_children.push(std::make_unique<Pow>(move(root->ChildAt(i)->Left()), std::make_unique<Integer>(exponent)));
+			modified = false;
 			exponent = 0;
 		}
 		else
@@ -218,6 +220,18 @@ void HandleExponentRuleParenthesis(std::unique_ptr<Expr>& base, std::unique_ptr<
 	base = std::move(new_root);
 }
 
+
+bool PowWithNumberExponents(const std::unique_ptr<Expr>& expr_a, const std::unique_ptr<Expr>& expr_b)
+{
+	if (!expr_a->IsPow() || !expr_b->IsPow())
+		return false;
+
+	if (!expr_a->Right()->IsNumber() || !expr_b->Right()->IsNumber())
+		return false;
+
+	return true;
+}
+
 bool CanApplyExponentRule(const std::unique_ptr<Expr>& expr, std::string value)
 {
 	if (expr->Left()->HasChildren())
@@ -236,8 +250,6 @@ bool CanApplyExponentRule(const std::unique_ptr<Expr>& expr, std::string value)
 
 bool SameVariables(const std::unique_ptr<Expr>& expr_a, const std::unique_ptr<Expr>& expr_b)
 {
-	std::cout << expr_a << '\n';
-
 	if (!expr_a->IsVar())
 		return false;
 

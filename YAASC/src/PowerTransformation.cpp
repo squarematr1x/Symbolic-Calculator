@@ -157,13 +157,14 @@ void ExponentRuleParenthesis(std::unique_ptr<Expr>& root)
 		for (int i = 0; i < root->ChildrenSize(); i++)
 			ExponentRuleParenthesis(root->ChildAt(i));
 	}
+	else
+	{
+		if (!IsTerminal(root->Left()))
+			ExponentRuleParenthesis(root->Left());
 
-	if (!IsTerminal(root->Left()))
-		ExponentRuleParenthesis(root->Left());
-
-	if (!IsTerminal(root->Right()))
-		ExponentRuleParenthesis(root->Right());
-
+		if (!IsTerminal(root->Right()))
+			ExponentRuleParenthesis(root->Right());
+	}
 
 	if (!root->IsPow())
 		return;

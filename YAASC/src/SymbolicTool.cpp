@@ -11,7 +11,6 @@ void Simplify(std::unique_ptr<Expr>& root)
 	while (true)
 	{
 		tree_util::DeepCopy(copy, root);
-
 		Canonize(root);
 		MultiplySum(root);
 		AddVariables(root);

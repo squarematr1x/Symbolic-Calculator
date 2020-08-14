@@ -152,6 +152,12 @@ void ExponentRuleParenthesis(std::unique_ptr<Expr>& root)
 	if (root->HasNoChildren() && !root->IsGeneric())
 		return;
 
+	if (root->IsGeneric())
+	{
+		for (int i = 0; i < root->ChildrenSize(); i++)
+			ExponentRuleParenthesis(root->ChildAt(i));
+	}
+
 	if (!IsTerminal(root->Left()))
 		ExponentRuleParenthesis(root->Left());
 

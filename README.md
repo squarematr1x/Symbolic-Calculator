@@ -62,3 +62,5 @@ Multiplication sign ( * ) and spaces are optional. They can however be added int
 >>>(x*y)*(x + 2*y + z)
          simplified: 2xy^2+x^2y+xyz         
 ```
+
+Future plans include: fractions, logarithms, trigonometric functions and calculus.

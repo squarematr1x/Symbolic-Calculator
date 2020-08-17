@@ -42,11 +42,19 @@ void MultiplySum(std::unique_ptr<Expr>& root)
 	if (root->HasNoChildren() && !root->IsGeneric())
 		return;
 
-	if (!IsTerminal(root->Left()))
-		MultiplySum(root->Left());
+	if (root->IsGeneric())
+	{
+		for (int i = 0; i < root->ChildrenSize(); i++)
+			MultiplySum(root->ChildAt(i));
+	}
+	else
+	{
+		if (!IsTerminal(root->Left()))
+			MultiplySum(root->Left());
 
-	if (!IsTerminal(root->Right()))
-		MultiplySum(root->Right());
+		if (!IsTerminal(root->Right()))
+			MultiplySum(root->Right());
+	}
 
 	if (!root->IsMul())
 		return;

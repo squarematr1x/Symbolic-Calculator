@@ -2,6 +2,7 @@
 
 #include "TreeUtil.h"
 #include "PowerTransformation.h"
+#include "PowerOfSum.h"
 #include "Calculator.h"
 
 namespace yaasc {

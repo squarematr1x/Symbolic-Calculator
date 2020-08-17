@@ -1,5 +1,4 @@
 #include "SymbolicTool.h"
-#include "ExprTree.h"
 
 namespace yaasc {
 
@@ -12,6 +11,7 @@ void Simplify(std::unique_ptr<Expr>& root)
 	{
 		tree_util::DeepCopy(copy, root);
 		Canonize(root);
+		algebra::PowerOfSum(root);
 		MultiplySum(root);
 		AddVariables(root);
 		ApplyExponentRules(root);

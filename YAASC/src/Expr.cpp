@@ -294,3 +294,13 @@ const std::unique_ptr<Expr>& LeftmostChild(const std::unique_ptr<Expr>& expr)
 
 	return expr;
 }
+
+const std::unique_ptr<Expr>& LeftmostAssociativeOperator(const std::unique_ptr<Expr>& expr)
+{
+	if (expr->HasLeftChild() && expr->Left()->IsAssociative())
+		return LeftmostAssociativeOperator(expr->Left());
+	else if (expr->IsGeneric() && expr->ChildrenSize() != 0 && expr->ChildAt(0)->IsAssociative())
+		return LeftmostAssociativeOperator(expr->ChildAt(0));
+
+	return expr;
+}

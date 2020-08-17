@@ -219,6 +219,25 @@ void AddBinNode(std::unique_ptr<Expr>& root, std::unique_ptr<Expr>& left, std::u
 			root = std::make_unique<Mul>(std::make_unique<Integer>(multiplier), std::move(left));
 		}
 	}
+	else if (CanAddGen(left, right))
+	{
+		multiplier += std::stoi(left->ChildAt(0)->Name());
+		multiplier += std::stoi(right->ChildAt(0)->Name());
+		left->SetChildAt(0, std::make_unique<Integer>(multiplier));
+		root = std::move(left);
+	}
+	else if (SameGenericVariables(left, right))
+	{
+		multiplier += std::stoi(left->ChildAt(0)->Name()) + 1;
+		left->SetChildAt(0, std::make_unique<Integer>(multiplier));
+		root = std::move(left);
+	}
+	else if (SameGenericVariables(right, left))
+	{
+		multiplier += std::stoi(right->ChildAt(0)->Name()) + 1;
+		right->SetChildAt(0, std::make_unique<Integer>(multiplier));
+		root = std::move(right);
+	}
 }
 
 /* Addition in generic node

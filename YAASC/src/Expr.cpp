@@ -115,7 +115,7 @@ void Associative::SetChildAt(int i, std::unique_ptr<Expr> child)
 		m_children[i] = std::move(child);
 }
 
-void Associative::SortChildren() // FIXTHIS: Make this compare only terminal nodes
+void Associative::SortChildren()
 {
 	if (IsGeneric())
 	{
@@ -131,12 +131,12 @@ void Associative::SortChildren() // FIXTHIS: Make this compare only terminal nod
 
 void Associative::SortMulChildren()
 {
-
+	// Implement sorting of multiplication node
 }
 
 void Associative::SortAddChildren()
 {
-
+	// Implement sorting of add node
 }
 
 void Associative::RemoveChild(int i)

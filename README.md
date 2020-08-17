@@ -12,3 +12,40 @@ An expression tree is constructed from an input string given by the user. Expres
 
 ### Example 3: simplification from a(a+b+c) to a^2+ab+ac
 ![simplification](https://github.com/squarematr1x/YAASC/blob/master/Resources/img2.png?raw=true)
+
+### Some examples with different input strings:
+
+```
+>>>4.5+x^2+6+2x^2
+         simplified: 10.5+3(x^2)
+>>>15+x-15.7
+         simplified: -0.7+x
+>>>xx+yyy+zz
+         simplified: x^2+y^3+z^2
+>>>(xyz)(5/(xyz))
+         simplified: 5
+>>>(xy^2z)^2
+         simplified: x^2y^4z^2
+>>>x^3^5
+         simplified: x^15
+>>>x(xy+z+2y)
+         simplified: 2xy+x^2y+xz   
+>>>1xy
+         simplified: xy
+>>>x
+         couldn't simplify further: x
+>>>(xyz)^0+5
+         simplified: 6
+>>>2xyz+3yxz+4zxy
+         simplified: 9xyz   
+>>>x2yz+zyx+zyx5
+         simplified: 8xyz        
+>>>(x^2yz/(x^2y))
+         simplified: z
+>>>x^2yx^3zy^5
+         simplified: x^5y^6z
+>>>(x+y)(x+y)
+         simplified: 2xy+x^2+y^2
+>>>(xy)^1
+         simplified: xy   
+```

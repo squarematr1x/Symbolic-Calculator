@@ -50,5 +50,6 @@ bool RaisedToOne(const std::unique_ptr<Expr>& expr);
 bool IsTerminal(const std::unique_ptr<Expr>& expr);
 bool IsNull(const std::unique_ptr<Expr>& expr);
 bool IsMulByNumber(const std::unique_ptr<Expr>& expr);
+bool IsGenMulByNumber(const std::unique_ptr<Expr>& expr);
 
 } // namespace yaasc

@@ -294,9 +294,6 @@ void AddGenNode(std::unique_ptr<Expr>& root)
 					multiplier += std::stoi(child_a->ChildAt(0)->Name());
 				
 				multiplier += std::stoi(child_b->ChildAt(0)->Name());
-
-				if (i + 2 < root->ChildrenSize())
-					child_b->RemoveChild(0);
 			}
 			else if (SameGenericVariables(child_a, child_b))
 			{
@@ -327,7 +324,12 @@ void AddGenNode(std::unique_ptr<Expr>& root)
 		else
 		{
 			if (multiplier != 0)
+			{
+				if (IsGenMulByNumber(root->ChildAt(i)))
+					root->ChildAt(i)->RemoveChild(0); // Old multiplier is no longer needed
+					
 				new_children.push(std::make_unique<Mul>(std::make_unique<Integer>(multiplier), std::move(root->ChildAt(i))));
+			}
 			else
 				new_children.push(std::move(root->ChildAt(i)));
 		}
@@ -856,6 +858,23 @@ bool IsMulByNumber(const std::unique_ptr<Expr>& expr)
 		return false;
 
 	if (expr->Right()->IsNumber())
+		return false;
+
+	return true;
+}
+
+bool IsGenMulByNumber(const std::unique_ptr<Expr>& expr)
+{
+	if (!expr->IsMul())
+		return false;
+
+	if (!expr->IsGeneric())
+		return false;
+
+	if (expr->ChildrenSize() == 0)
+		return false;
+
+	if (!expr->ChildAt(0)->IsNumber())
 		return false;
 
 	return true;

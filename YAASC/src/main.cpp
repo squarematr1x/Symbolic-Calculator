@@ -26,7 +26,6 @@ int main()
 				std::cout << "\t couldn't simplify further: ";
 
 			expr_tree.Print();
-			expr_tree.PrintBinaryNodeOnly(expr_tree.Root());
 		}
 	}
 

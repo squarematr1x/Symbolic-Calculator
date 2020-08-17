@@ -191,6 +191,19 @@ void ExprTree::Print()
 	std::cout << '\n';
 }
 
+void ExprTree::PrintBinaryNodeOnly(const std::unique_ptr<Expr>& expr)
+{
+	if (expr == nullptr) return;
+
+	if (expr->HasLeftChild())
+		PrintBinaryNodeOnly(expr->Left());
+
+	std::cout << expr;
+
+	if (expr->HasRightChild())
+		PrintBinaryNodeOnly(expr->Right());
+}
+
 void ExprTree::RootToString(const std::unique_ptr<Expr>& expr, std::string& input)
 {
 	if (expr->HasLeftChild())

@@ -15,6 +15,8 @@ An expression tree is constructed from an input string given by the user. Expres
 
 ### Some examples with different input strings:
 
+At this point some algebraic expression can be simplified:
+
 ```
 >>>4.5+x^2+6+2x^2
          simplified: 10.5+3(x^2)
@@ -36,6 +38,8 @@ An expression tree is constructed from an input string given by the user. Expres
          couldn't simplify further: x
 >>>(xyz)^0+5
          simplified: 6
+>>>0-2xy+0
+         simplified: -2xy
 >>>2xyz+3yxz+4zxy
          simplified: 9xyz   
 >>>x2yz+zyx+zyx5
@@ -48,4 +52,13 @@ An expression tree is constructed from an input string given by the user. Expres
          simplified: 2xy+x^2+y^2
 >>>(xy)^1
          simplified: xy   
+```
+
+Multiplication sign ( * ) and spaces are optional. They can however be added into the input string:
+
+```
+>>>x*x^2 + y + y
+         simplified: 2y+x^3
+>>>(x*y)*(x + 2*y + z)
+         simplified: 2xy^2+x^2y+xyz         
 ```

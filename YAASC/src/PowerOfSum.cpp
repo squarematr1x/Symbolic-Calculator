@@ -34,13 +34,26 @@ void PowerOfSum(std::unique_ptr<Expr>& expr)
 			tree_util::DeepCopy(copy, add_node);
 			expr = std::make_unique<Mul>(std::move(add_node), std::move(copy));
 		}
+		// (a+b)^n, where n > 2
+		else if (multiplications > 2)
+		{
+			std::unique_ptr<Expr> new_add_node = std::make_unique<Mul>();
+
+			for (int i = 0; i < multiplications; i++)
+			{
+				std::unique_ptr<Expr> copy;
+				tree_util::DeepCopy(copy, add_node);
+				new_add_node->AddChild(std::move(copy));
+			}
+
+			expr = std::move(new_add_node);
+		}
 	}
 	// (a+b+...m)^n
 	else
 	{
 		// Implement generic case
 	}
-
 }
 
 bool CanApplyPowerOfSum(const std::unique_ptr<Expr>& expr)

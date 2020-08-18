@@ -21,6 +21,7 @@ void PowerOfSum(std::unique_ptr<Expr>& expr)
 
 	std::unique_ptr<Expr>& add_node = expr->Left();
 	std::unique_ptr<Expr>& exponent = expr->Right();
+	std::unique_ptr<Expr> new_add_node = std::make_unique<Mul>();
 
 	// (a+b)^n
 	if (!add_node->IsGeneric())
@@ -37,8 +38,6 @@ void PowerOfSum(std::unique_ptr<Expr>& expr)
 		// (a+b)^n, where n > 2
 		else if (multiplications > 2)
 		{
-			std::unique_ptr<Expr> new_add_node = std::make_unique<Mul>();
-
 			for (int i = 0; i < multiplications; i++)
 			{
 				std::unique_ptr<Expr> copy;
@@ -52,7 +51,20 @@ void PowerOfSum(std::unique_ptr<Expr>& expr)
 	// (a+b+...m)^n
 	else
 	{
-		// Implement generic case
+		int multiplications = stoi(exponent->Name());
+
+		// (a+b+...m)^2, in other cases the output string is inconveniently large
+		if (multiplications == 2)
+		{
+			for (int i = 0; i < add_node->ChildrenSize(); i++)
+			{
+				std::unique_ptr<Expr> copy;
+				tree_util::DeepCopy(copy, add_node);
+				new_add_node->AddChild(std::move(copy));
+			}
+
+			expr = std::move(new_add_node);
+		}
 	}
 }
 

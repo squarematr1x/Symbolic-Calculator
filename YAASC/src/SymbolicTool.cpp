@@ -13,7 +13,7 @@ void Simplify(std::unique_ptr<Expr>& root)
 		Canonize(root);
 		Flatten(root);
 		algebra::PowerOfSum(root);
-		MultiplySum(root); // FIXME: This has some problems (e.g. (a+b)(a+b)(a+b) in generic multiplication)
+		MultiplySum(root);
 		AddVariables(root);
 		ApplyExponentRules(root);
 		SimplifyExponents(root, false);
@@ -342,11 +342,6 @@ void AddGenNode(std::unique_ptr<Expr>& root)
 		tree_util::MoveQueueToGenericNode(root, new_children);
 		root->SortChildren();
 	}
-}
-
-void PowerOfSum(std::unique_ptr<Expr>& root)
-{
-	// Implement power of sums here
 }
 
 void ApplyExponentRules(std::unique_ptr<Expr>& root)

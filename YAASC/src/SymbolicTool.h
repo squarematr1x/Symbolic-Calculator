@@ -17,8 +17,6 @@ void AddVariables(std::unique_ptr<Expr>& root);
 void AddBinNode(std::unique_ptr<Expr>& root, std::unique_ptr<Expr>& left, std::unique_ptr<Expr>& right);
 void AddGenNode(std::unique_ptr<Expr>& root);
 
-void PowerOfSum(std::unique_ptr<Expr>& root);
-
 void SimplifyExponents(std::unique_ptr<Expr>& root, bool final_modification);
 void ApplyExponentRules(std::unique_ptr<Expr>& root);
 

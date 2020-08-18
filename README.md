@@ -19,7 +19,7 @@ At this point some algebraic expression can be simplified:
 
 ```
 >>>4.5+x^2+6+2x^2
-         simplified: 10.5+3(x^2)
+         simplified: 10.5+3x^2
 >>>15+x-15.7
          simplified: -0.7+x
 >>>xx+yyy+zz

@@ -131,8 +131,9 @@ void ExprTree::UpdateStack(std::stack<std::unique_ptr<Expr>>& expr_stack, ExprTy
 
 void ExprTree::PrintParenthesis(const std::unique_ptr<Expr>& expr, const std::unique_ptr<Expr>& child, bool left_paranthesis)
 {
-	if ((expr->Name() == "*" && child->Name() == "+") || 
-		(expr->Name() == "^" && child->Name() == "*"))
+	if ((expr->IsMul() && child->IsAdd()) || 
+		(expr->IsPow() && child->IsMul()) ||
+		(expr->IsPow() && child->IsAdd()))
 	{
 		if (left_paranthesis)
 			std::cout << "(";

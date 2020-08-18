@@ -11,8 +11,9 @@ void Simplify(std::unique_ptr<Expr>& root)
 	{
 		tree_util::DeepCopy(copy, root);
 		Canonize(root);
+		Flatten(root);
 		algebra::PowerOfSum(root);
-		MultiplySum(root);
+		MultiplySum(root); // FIXME: This has some problems (e.g. (a+b)(a+b)(a+b) in generic multiplication)
 		AddVariables(root);
 		ApplyExponentRules(root);
 		SimplifyExponents(root, false);
@@ -147,11 +148,11 @@ void MultiplyGenNode(std::unique_ptr<Expr>& root)
 		std::unique_ptr<Expr> new_left = std::make_unique<Mul>();
 		std::unique_ptr<Expr> new_right = std::make_unique<Mul>();
 
-		for (int j = 0; j < root->ChildrenSize(); j++)
+		for (int i = 0; i < root->ChildrenSize(); i++)
 		{
-			tree_util::DeepCopy(copy, root->ChildAt(j));
+			tree_util::DeepCopy(copy, root->ChildAt(i));
 			new_left->AddChild(std::move(copy));
-			new_right->AddChild(std::move(root->ChildAt(j)));
+			new_right->AddChild(std::move(root->ChildAt(i)));
 		}
 
 		new_left->AddChild(std::move(add_child->Left()));
@@ -520,21 +521,13 @@ void ToGeneric(std::unique_ptr<Expr>& root, std::unique_ptr<Expr>& parent, std::
 
 	if (root->IsGeneric())
 	{
-		int queue_size = children.size();
+		std::queue<std::unique_ptr<Expr>> sub_children;
+		std::unique_ptr<Expr> null_parent = nullptr;
 
 		for (int i = 0; i < root->ChildrenSize(); i++)
 		{
 			if (root->ChildAt(i)->IsAssociative())
-				ToGeneric(root->ChildAt(i), root, children);
-		}
-		
-		if (queue_size != children.size()) // When children size has been updated
-		{
-			for (int i = 0; i < root->ChildrenSize(); i++)
-			{
-				if (!root->ChildAt(i)->IsAssociative())
-					children.push(std::move(root->ChildAt(i)));
-			}
+				ToGeneric(root->ChildAt(i), null_parent, sub_children);
 		}
 	}
 	else

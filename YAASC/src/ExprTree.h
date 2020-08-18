@@ -26,7 +26,7 @@ public:
 	void UpdateStack(std::stack<std::unique_ptr<Expr>>& expr_stack, ExprType type);
 	void ReplaceRoot(std::unique_ptr<Expr> new_root) { m_root = std::move(new_root); }
 
-	void PrintAssociative(const std::unique_ptr<Expr>& expr, ExprType type);
+	void PrintAssociative(const std::unique_ptr<Expr>& expr);
 	void PrintParenthesis(const std::unique_ptr<Expr>& expr, const std::unique_ptr<Expr>& child, bool left_parenthesis);
 	void PrintInorder(const std::unique_ptr<Expr>& expr);
 	void PrintBinaryNodeOnly(const std::unique_ptr<Expr>& expr);

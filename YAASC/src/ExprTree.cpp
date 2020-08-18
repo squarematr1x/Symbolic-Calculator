@@ -141,7 +141,7 @@ void ExprTree::PrintParenthesis(const std::unique_ptr<Expr>& expr, const std::un
 	}
 }
 
-void ExprTree::PrintAssociative(const std::unique_ptr<Expr>& expr, ExprType type)
+void ExprTree::PrintAssociative(const std::unique_ptr<Expr>& expr)
 {
 	if (expr->ChildrenSize() != 0)
 	{
@@ -152,7 +152,7 @@ void ExprTree::PrintAssociative(const std::unique_ptr<Expr>& expr, ExprType type
 			else
 				PrintInorder(expr->ChildAt(i));
 
-			if (type == ExprType::ADD && i < expr->ChildrenSize() - 1)
+			if (expr->IsAdd() && i < expr->ChildrenSize() - 1)
 				std::cout << "+";
 		}
 	}
@@ -170,7 +170,7 @@ void ExprTree::PrintInorder(const std::unique_ptr<Expr>& expr)
 	}
 
 	if (expr->IsGeneric())
-		PrintAssociative(expr, expr->ExpressionType());
+		PrintAssociative(expr);
 	else
 	{
 		if (!expr->IsMul())

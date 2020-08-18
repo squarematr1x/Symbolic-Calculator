@@ -53,8 +53,8 @@ void PowerOfSum(std::unique_ptr<Expr>& expr)
 	{
 		int multiplications = stoi(exponent->Name());
 
-		// (a+b+...m)^2, in other cases the output string is inconveniently large
-		if (multiplications == 2)
+		// (a+b+c)^2, in other cases the output string is inconveniently large
+		if (multiplications == 2 && add_node->ChildrenSize() < 4)
 		{
 			for (int i = 0; i < add_node->ChildrenSize(); i++)
 			{

@@ -15,10 +15,10 @@ void ExponentRuleMul(std::unique_ptr<Expr>& root)
 	}
 	else
 	{
-		if (!IsTerminal(root->Left()))
+		if (!root->LeftIsTerminal())
 			ExponentRuleMul(root->Left());
 
-		if (!IsTerminal(root->Right()))
+		if (!root->RightIsTerminal())
 			ExponentRuleMul(root->Right());
 	}
 
@@ -120,10 +120,10 @@ void ExponentRulePow(std::unique_ptr<Expr>& root)
 	}
 	else
 	{
-		if (!IsTerminal(root->Left()))
+		if (!root->LeftIsTerminal())
 			ExponentRulePow(root->Left());
 
-		if (!IsTerminal(root->Right()))
+		if (!root->RightIsTerminal())
 			ExponentRulePow(root->Right());
 	}
 
@@ -162,17 +162,17 @@ void ExponentRuleParenthesis(std::unique_ptr<Expr>& root)
 	}
 	else
 	{
-		if (!IsTerminal(root->Left()))
+		if (!root->LeftIsTerminal())
 			ExponentRuleParenthesis(root->Left());
 
-		if (!IsTerminal(root->Right()))
+		if (!root->RightIsTerminal())
 			ExponentRuleParenthesis(root->Right());
 	}
 
 	if (!root->IsPow())
 		return;
 
-	if (root->Left()->IsMul() && IsTerminal(root->Right()))
+	if (root->Left()->IsMul() && root->RightIsTerminal())
 	{
 		if (root->Left()->IsGeneric())
 		{
@@ -275,20 +275,6 @@ bool SameVariables(const std::unique_ptr<Expr>& expr_a, const std::unique_ptr<Ex
 		return false;
 
 	if (expr_a->Name() == expr_b->Name())
-		return true;
-
-	return false;
-}
-
-bool IsTerminal(const std::unique_ptr<Expr>& expr)
-{
-	if (!expr)
-		return true;
-
-	if (expr->IsVar())
-		return true;
-
-	if (expr->IsNumber())
 		return true;
 
 	return false;

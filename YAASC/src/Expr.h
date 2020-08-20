@@ -69,8 +69,9 @@ public:
 	virtual bool HasNumberChildren();
 	virtual bool HasMulChildren();
 	virtual bool HasPowChildren();
-
 	virtual bool HasFloatChild();
+	virtual bool LeftIsTerminal();
+	virtual bool RightIsTerminal();
 
 	virtual std::unique_ptr<Expr>& Left() { return m_left; }
 	virtual std::unique_ptr<Expr>& Right(){ return m_right; }

@@ -136,10 +136,10 @@ bool CanMultiplyBinSumNode(const std::unique_ptr<Expr>& expr)
 	if (expr->IsGeneric())
 		return false;
 
-	if (!expr->LeftIsTerminal() || expr->Left()->IsPow() || expr->Left()->IsMul())
+	if (!(expr->LeftIsTerminal() || expr->Left()->IsPow() || expr->Left()->IsMul()))
 		return false;
 
-	if (!expr->RightIsTerminal() || expr->Right()->IsPow() || expr->Left()->IsMul())
+	if (!(expr->RightIsTerminal() || expr->Right()->IsPow() || expr->Left()->IsMul()))
 		return false;
 
 	return true;

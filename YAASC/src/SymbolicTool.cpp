@@ -16,7 +16,7 @@ void Simplify(std::unique_ptr<Expr>& root)
 		Canonize(root);
 		Flatten(root);
 		algebra::PowerOfSum(root);
-		MultiplySum(root);
+		algebra::Expand(root);
 		AddVariables(root);
 		SimplifyExponents(root, false);
 		ApplyExponentRules(root);
@@ -40,142 +40,16 @@ void Simplify(std::unique_ptr<Expr>& root)
 	SimplifyExponents(root, true);
 }
 
-// Multiplication of a sum: a(b+c+d) --> ab+ac+ad
-void MultiplySum(std::unique_ptr<Expr>& root)
-{
-	if (root->HasNoChildren() && !root->IsGeneric())
-		return;
-
-	if (root->IsGeneric())
-	{
-		for (int i = 0; i < root->ChildrenSize(); i++)
-			MultiplySum(root->ChildAt(i));
-	}
-	else
-	{
-		if (!IsTerminal(root->Left()))
-			MultiplySum(root->Left());
-
-		if (!IsTerminal(root->Right()))
-			MultiplySum(root->Right());
-	}
-
-	if (!root->IsMul())
-		return;
-
-	if (root->IsGeneric())
-		MultiplyGenNode(root);
-	else
-		MultiplyBinNode(root);
-}
-
-void MultiplyBinNode(std::unique_ptr<Expr>& root)
-{
-	std::unique_ptr<Expr> copy;
-
-	if (CanMultiplyBinSumNode(root->Right()))
-	{
-		tree_util::DeepCopy(copy, root->Left());
-		root = std::make_unique<Add>(std::make_unique<Mul>(std::move(root->Left()), std::move(root->Right()->Left())),
-		                             std::make_unique<Mul>(std::move(copy), std::move(root->Right()->Right())));
-	}
-	else if (CanMultiplyBinSumNode(root->Left()))
-	{
-		tree_util::DeepCopy(copy, root->Right());
-		root = std::make_unique<Add>(std::make_unique<Mul>(std::move(root->Right()), std::move(root->Left()->Left())),
-		                             std::make_unique<Mul>(std::move(copy), std::move(root->Left()->Right())));
-	}
-	else if (CanMultiplyGenSumNode(root->Right()))
-	{
-		for (int i = 0; i < root->Right()->ChildrenSize(); i++)
-		{
-			tree_util::DeepCopy(copy, root->Left());
-			std::unique_ptr<Expr> new_child = std::make_unique<Mul>(std::move(copy), std::move(root->Right()->ChildAt(i)));
-			root->Right()->SetChildAt(i, std::move(new_child));
-		}
-		root = std::move(root->Right());
-	}
-	else if (CanMultiplyGenSumNode(root->Left()))
-	{
-		for (int i = 0; i < root->Left()->ChildrenSize(); i++)
-		{
-			tree_util::DeepCopy(copy, root->Right());
-			std::unique_ptr<Expr> new_child = std::make_unique<Mul>(std::move(copy), std::move(root->Left()->ChildAt(i)));
-			root->Left()->SetChildAt(i, std::move(new_child));
-		}
-		root = std::move(root->Left());
-	}
-}
-
-void MultiplyGenNode(std::unique_ptr<Expr>& root)
-{
-	int remove_index = 0;
-	bool has_add_child = false;
-	std::unique_ptr<Expr> add_child;
-	std::unique_ptr<Expr> copy;
-
-	for (int i = 0; i < root->ChildrenSize(); i++)
-	{
-		if (root->ChildAt(i)->IsAdd())
-		{
-			add_child = std::move(root->ChildAt(i));
-			remove_index = i;
-			has_add_child = true;
-			break;
-		}
-	}
-
-	if (!has_add_child)
-		return;
-	
-	root->RemoveChild(remove_index);
-
-	if (add_child->IsGeneric())
-	{
-		for (int i = 0; i < add_child->ChildrenSize(); i++)
-		{
-			std::unique_ptr<Expr> new_child = std::make_unique<Mul>();
-			
-			for (int j = 0; j < root->ChildrenSize(); j++)
-			{
-				tree_util::DeepCopy(copy, root->ChildAt(j));
-				new_child->AddChild(std::move(copy));
-			}
-
-			new_child->AddChild(std::move(add_child->ChildAt(i)));
-			add_child->SetChildAt(i, std::move(new_child));
-		}
-	}
-	else if (add_child->HasChildren())
-	{
-		std::unique_ptr<Expr> new_left = std::make_unique<Mul>();
-		std::unique_ptr<Expr> new_right = std::make_unique<Mul>();
-
-		for (int i = 0; i < root->ChildrenSize(); i++)
-		{
-			tree_util::DeepCopy(copy, root->ChildAt(i));
-			new_left->AddChild(std::move(copy));
-			new_right->AddChild(std::move(root->ChildAt(i)));
-		}
-
-		new_left->AddChild(std::move(add_child->Left()));
-		new_right->AddChild(std::move(add_child->Right()));
-		add_child = std::make_unique<Add>(std::move(new_left), std::move(new_right));
-	}
-
-	root = std::move(add_child);
-}
-
 // Adding same variables: a+2a+3a --> 6a
 void AddVariables(std::unique_ptr<Expr>& root)
 {
 	if (root->HasNoChildren() && !root->IsGeneric())
 		return;
 
-	if (!IsTerminal(root->Left()))
+	if (!root->LeftIsTerminal())
 		AddVariables(root->Left());
 
-	if (!IsTerminal(root->Right()))
+	if (!root->RightIsTerminal())
 		AddVariables(root->Right());
 
 	if (root->IsAdd())
@@ -363,10 +237,10 @@ void SimplifyExponents(std::unique_ptr<Expr>& root, bool final_modification)
 	if (root->HasNoChildren() && !root->IsGeneric())
 		return;
 
-	if (!IsTerminal(root->Left()))
+	if (!root->LeftIsTerminal())
 		SimplifyExponents(root->Left(), final_modification);
 
-	if (!IsTerminal(root->Right()))
+	if (!root->RightIsTerminal())
 		SimplifyExponents(root->Right(), final_modification);
 
 	if (RaisedToZero(root))
@@ -430,34 +304,6 @@ bool CanAddGen(const std::unique_ptr<Expr>& expr_a, const std::unique_ptr<Expr>&
 	return same;
 }
 
-bool CanMultiplyBinSumNode(const std::unique_ptr<Expr>& expr)
-{
-	if (!expr->IsAdd())
-		return false;
-
-	if (expr->IsGeneric())
-		return false;
-
-	if (!(IsTerminal(expr->Left()) || expr->Left()->IsPow() || expr->Left()->IsMul()))
-		return false;
-
-	if (!(IsTerminal(expr->Right()) || expr->Right()->IsPow() || expr->Left()->IsMul()))
-		return false;
-
-	return true;
-}
-
-bool CanMultiplyGenSumNode(const std::unique_ptr<Expr>& expr)
-{
-	if (!expr->IsGeneric())
-		return false;
-
-	if (!expr->IsAdd())
-		return false;
-
-	return true;
-}
-
 // This doesn't consider numbers
 bool SameGenericVariables(const std::unique_ptr<Expr>& expr_a, const std::unique_ptr<Expr>& expr_b)
 {
@@ -505,7 +351,7 @@ void ToGeneric(std::unique_ptr<Expr>& root, std::unique_ptr<Expr>& parent, std::
 	if (root->HasNoChildren() && !root->IsGeneric())
 		return;
 
-	if (root->IsAssociative() && !IsNull(parent) && !IsTerminal(parent))
+	if (root->IsAssociative() && parent && !parent->IsTerminal())
 	{
 		if (root->Name() != parent->Name()) // Joint between two different operators
 		{
@@ -530,16 +376,16 @@ void ToGeneric(std::unique_ptr<Expr>& root, std::unique_ptr<Expr>& parent, std::
 	}
 	else
 	{
-		if (!IsTerminal(root->Left()))
+		if (!root->LeftIsTerminal())
 			ToGeneric(root->Left(), root, children);
 
-		if (!IsTerminal(root->Right()))
+		if (!root->RightIsTerminal())
 			ToGeneric(root->Right(), root, children);
 	}
 
 	if (root->IsAssociative())
 	{
-		if (!IsNull(parent) && root->Name() == parent->Name())
+		if (parent && root->Name() == parent->Name())
 		{
 			if (root->IsGeneric())
 			{
@@ -565,7 +411,7 @@ void ToGeneric(std::unique_ptr<Expr>& root, std::unique_ptr<Expr>& parent, std::
 				children.push(std::move(root->Right()));
 		}
 
-		if ((IsNull(parent) || parent->IsPow()) && !children.empty()) // When at root
+		if ((!parent || parent->IsPow()) && !children.empty()) // When at root
 		{
 			if (root->IsMul())
 				root = std::make_unique<Mul>();
@@ -587,10 +433,10 @@ void Canonize(std::unique_ptr<Expr>& root)
 	if (root->HasNoChildren() && !root->IsGeneric())
 		return;
 
-	if (!IsTerminal(root->Left()))
+	if (!root->LeftIsTerminal())
 		Canonize(root->Left());
 
-	if (!IsTerminal(root->Right()))
+	if (!root->RightIsTerminal())
 		Canonize(root->Right());
 
 	if (!root->IsGeneric())
@@ -703,10 +549,10 @@ void RemoveMulOne(std::unique_ptr<Expr>& root)
 	if (root->HasNoChildren())
 		return;
 
-	if (!IsTerminal(root->Left()))
+	if (!root->LeftIsTerminal())
 		RemoveMulOne(root->Left());
 
-	if (!IsTerminal(root->Right()))
+	if (!root->RightIsTerminal())
 		RemoveMulOne(root->Right());
 
 	if (!root->IsMul())
@@ -732,10 +578,10 @@ void RemoveAdditiveZeros(std::unique_ptr<Expr>& root)
 	if (root->HasNoChildren() && !root->IsGeneric())
 		return;
 
-	if (!IsTerminal(root->Left()))
+	if (!root->LeftIsTerminal())
 		RemoveAdditiveZeros(root->Left());
 
-	if (!IsTerminal(root->Right()))
+	if (!root->RightIsTerminal())
 		RemoveAdditiveZeros(root->Right());
 
 	if (root->IsAdd())
@@ -765,10 +611,10 @@ void ReduceToZero(std::unique_ptr<Expr>& root)
 	if (root->HasNoChildren())
 		return;
 
-	if (!IsTerminal(root->Left()))
+	if (!root->LeftIsTerminal())
 		ReduceToZero(root->Left());
 
-	if (!IsTerminal(root->Right()))
+	if (!root->RightIsTerminal())
 		ReduceToZero(root->Right());
 
 	if (root->IsMul())
@@ -788,10 +634,10 @@ void ReduceToOne(std::unique_ptr<Expr>& root)
 	if (root->HasNoChildren())
 		return;
 
-	if (!IsTerminal(root->Left()))
+	if (!root->LeftIsTerminal())
 		ReduceToOne(root->Left());
 
-	if (!IsTerminal(root->Right()))
+	if (!root->RightIsTerminal())
 		ReduceToOne(root->Right());
 
 	if (root->IsPow())
@@ -801,37 +647,15 @@ void ReduceToOne(std::unique_ptr<Expr>& root)
 	}
 }
 
-bool IsTerminal(const std::unique_ptr<Expr>& expr)
-{
-	if (IsNull(expr))
-		return true;
-
-	if (expr->IsVar())
-		return true;
-
-	if (expr->IsNumber())
-		return true;
-
-	return false;
-}
-
 bool SameExpressionTypes(const std::unique_ptr<Expr>& expr_a, const std::unique_ptr<Expr>& expr_b)
 {
-	if (IsNull(expr_a))
+	if (!expr_a)
 		return false;
 
-	if (IsNull(expr_b))
+	if (!expr_b)
 		return false;
 
 	if (expr_a->ExpressionType() == expr_b->ExpressionType())
-		return true;
-
-	return false;
-}
-
-bool IsNull(const std::unique_ptr<Expr>& expr)
-{
-	if (!expr)
 		return true;
 
 	return false;

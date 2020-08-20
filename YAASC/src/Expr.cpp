@@ -102,6 +102,28 @@ bool Expr::HasFloatChild()
 	return false;
 }
 
+bool Expr::LeftIsTerminal()
+{
+	if (!HasLeftChild())
+		return true;
+
+	if (Left()->IsTerminal())
+		return true;
+
+	return false;
+}
+
+bool Expr::RightIsTerminal()
+{
+	if (!HasRightChild())
+		return true;
+
+	if (Right()->IsTerminal())
+		return true;
+
+	return false;
+}
+
 void Expr::SwapChildren()
 {
 	std::unique_ptr<Expr> new_right = std::move(m_left);

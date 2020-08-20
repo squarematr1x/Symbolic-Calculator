@@ -1,12 +1,14 @@
 #pragma once
 
 #include "Expr.h"
+#include "TreeUtil.h"
 
-class Calculus
-{
-public:
-	void differentiate(std::unique_ptr<Expr> expr, std::string respect_to);
-	void integrate(std::unique_ptr<Expr> expr, std::string respect_to);
+namespace calculus {
 
-	// Apply all the rules
-};
+void Differentiate(std::unique_ptr<Expr>& expr, std::string respect_to);
+void Integrate(std::unique_ptr<Expr>& expr, std::string respect_to);
+
+
+void PowerRule(std::unique_ptr<Expr>& expr, std::string respect_to);
+
+}

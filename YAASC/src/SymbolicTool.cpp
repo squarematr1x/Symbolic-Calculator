@@ -18,8 +18,8 @@ void Simplify(std::unique_ptr<Expr>& root)
 		algebra::PowerOfSum(root);
 		MultiplySum(root);
 		AddVariables(root);
-		ApplyExponentRules(root);
 		SimplifyExponents(root, false);
+		ApplyExponentRules(root);
 		calc::Calculate(root);
 		ReduceToZero(root);
 		ReduceToOne(root);

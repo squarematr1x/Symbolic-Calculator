@@ -20,7 +20,9 @@ int main()
 			yaasc::Simplify(expr_tree.Root());
 			output = expr_tree.TreeString();
 
-			if (input != output)
+			if (output == "")
+				std::cout << "\t couldn't simplify input";
+			else if (input != output)
 				std::cout << "\t simplified: ";
 			else
 				std::cout << "\t couldn't simplify further: ";

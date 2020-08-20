@@ -7,6 +7,9 @@ void Simplify(std::unique_ptr<Expr>& root)
 	std::unique_ptr<Expr> copy;
 	int i = 0;
 
+	if (!root) // Expression might be empty
+		return;
+
 	while (true)
 	{
 		tree_util::DeepCopy(copy, root);

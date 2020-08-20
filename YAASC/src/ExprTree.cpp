@@ -100,10 +100,15 @@ std::unique_ptr<Expr> ExprTree::Construct(std::string input)
 		}
 	}
 
-	std::unique_ptr<Expr> final_tree = std::move(expression_stack.top());
-	expression_stack.pop();
+	if (!expression_stack.empty())
+	{
+		std::unique_ptr<Expr> final_tree = std::move(expression_stack.top());
+		expression_stack.pop();
 
-	return std::move(final_tree);
+		return std::move(final_tree);
+	}
+
+	return nullptr;
 }
 
 void ExprTree::UpdateStack(std::stack<std::unique_ptr<Expr>>& expr_stack, ExprType type)
@@ -232,6 +237,10 @@ void ExprTree::RootToString(const std::unique_ptr<Expr>& expr, std::string& inpu
 std::string ExprTree::TreeString()
 {
 	std::string output = "";
+
+	if (!m_root)
+		return output;
+
 	RootToString(std::move(m_root), output);
 
 	return output;

@@ -5,7 +5,7 @@ namespace algebra {
 // (a^n)(a^m) --> a^(n+m)
 void ExponentRuleMul(std::unique_ptr<Expr>& root)
 {
-	if (root->HasNoChildren() && !root->IsGeneric())
+	if (root->IsTerminal())
 		return;
 
 	if (root->IsGeneric())
@@ -107,7 +107,7 @@ void ApplyExponentRuleMulGenNode(std::unique_ptr<Expr>& root)
 // (a^n)^m --> a^(nm)
 void ExponentRulePow(std::unique_ptr<Expr>& root)
 {
-	if (root->HasNoChildren() && !root->IsGeneric())
+	if (root->IsTerminal())
 		return;
 	
 	if (root->IsGeneric())
@@ -152,7 +152,7 @@ void ExponentRulePow(std::unique_ptr<Expr>& root)
 // (ab)^n --> (a^n)(b^n)
 void ExponentRuleParenthesis(std::unique_ptr<Expr>& root)
 {
-	if (root->HasNoChildren() && !root->IsGeneric())
+	if (root->IsTerminal())
 		return;
 
 	if (root->IsGeneric())

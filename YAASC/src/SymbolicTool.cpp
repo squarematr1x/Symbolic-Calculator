@@ -43,7 +43,7 @@ void Simplify(std::unique_ptr<Expr>& root)
 // Adding same variables: a+2a+3a --> 6a
 void AddVariables(std::unique_ptr<Expr>& root)
 {
-	if (root->HasNoChildren() && !root->IsGeneric())
+	if (root->IsTerminal())
 		return;
 
 	if (!root->LeftIsTerminal())
@@ -234,7 +234,7 @@ void ApplyExponentRules(std::unique_ptr<Expr>& root)
 // Simplifies variables that are raised to zero or one: a^0+a^1 --> 1+a
 void SimplifyExponents(std::unique_ptr<Expr>& root, bool final_modification)
 {
-	if (root->HasNoChildren() && !root->IsGeneric())
+	if (root->IsTerminal())
 		return;
 
 	if (!root->LeftIsTerminal())
@@ -346,9 +346,9 @@ void Flatten(std::unique_ptr<Expr>& root)
 *  a   b
 *
 */
-void ToGeneric(std::unique_ptr<Expr>& root, std::unique_ptr<Expr>& parent, std::queue<std::unique_ptr<Expr>>& children)
+void ToGeneric(std::unique_ptr<Expr>& root, std::unique_ptr<Expr>& parent, std::queue<std::unique_ptr<Expr>>& children) // FIXME: Still has issues
 {
-	if (root->HasNoChildren() && !root->IsGeneric())
+	if (root->IsTerminal())
 		return;
 
 	if (root->IsAssociative() && parent && !parent->IsTerminal())
@@ -363,6 +363,27 @@ void ToGeneric(std::unique_ptr<Expr>& root, std::unique_ptr<Expr>& parent, std::
 		}
 	}
 
+	/*
+	if (root->IsGeneric())
+	{
+		int queue_size = children.size();
+
+		for (int i = 0; i < root->ChildrenSize(); i++)
+		{
+			if (root->ChildAt(i)->IsAssociative())
+				ToGeneric(root->ChildAt(i), root, children);
+		}
+
+		if (queue_size != children.size()) // When children size has been updated
+		{
+			for (int i = 0; i < root->ChildrenSize(); i++)
+			{
+				if (!root->ChildAt(i)->IsAssociative())
+					children.push(std::move(root->ChildAt(i)));
+			}
+		}
+	}
+	*/
 	if (root->IsGeneric())
 	{
 		std::queue<std::unique_ptr<Expr>> sub_children;
@@ -430,7 +451,7 @@ void ToGeneric(std::unique_ptr<Expr>& root, std::unique_ptr<Expr>& parent, std::
 */
 void Canonize(std::unique_ptr<Expr>& root)
 {
-	if (root->HasNoChildren() && !root->IsGeneric())
+	if (root->IsTerminal())
 		return;
 
 	if (!root->LeftIsTerminal())
@@ -575,7 +596,7 @@ void RemoveMulOne(std::unique_ptr<Expr>& root)
 
 void RemoveAdditiveZeros(std::unique_ptr<Expr>& root)
 {
-	if (root->HasNoChildren() && !root->IsGeneric())
+	if (root->IsTerminal())
 		return;
 
 	if (!root->LeftIsTerminal())

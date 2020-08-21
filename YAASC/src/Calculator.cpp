@@ -4,13 +4,13 @@ namespace calc {
 
 void Calculate(std::unique_ptr<Expr>& root)
 {
-	if (root->HasNoChildren() && !root->IsGeneric())
+	if (root->IsTerminal())
 		return;
 
-	if (root->Left() != nullptr && !root->Left()->IsTerminal())
+	if (!root->LeftIsTerminal())
 		Calculate(root->Left());
 
-	if (root->Right() != nullptr && !root->Right()->IsTerminal())
+	if (!root->RightIsTerminal())
 		Calculate(root->Right());
 
 	if (!root->IsGeneric())

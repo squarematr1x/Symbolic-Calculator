@@ -5,7 +5,7 @@ namespace algebra {
 // Multiplication of a sum: a(b+c+d) --> ab+ac+ad
 void Expand(std::unique_ptr<Expr>& root)
 {
-	if (root->HasNoChildren() && !root->IsGeneric())
+	if (root->IsTerminal())
 		return;
 
 	if (root->IsGeneric())

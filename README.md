@@ -40,6 +40,10 @@ At this point some algebraic expression can be simplified:
          simplified: 6
 >>>0-2xy+0
          simplified: -2xy
+>>>4!+a
+         simplified: 24+a
+>>>3!+a^2a+4!
+         simplified: 30+a^3       
 >>>2xyz+3yxz+4zxy
          simplified: 9xyz   
 >>>x2yz+zyx+zyx5

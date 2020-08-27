@@ -49,6 +49,8 @@ public:
 	virtual ExprType ExpressionType() const { return ExprType::NIL; }
 
 	virtual bool IsTerminal() const { return false; }
+	virtual bool IsFunc() const { return false; }
+	virtual bool IsFac() const { return false; }
 	virtual bool IsAssociative() const { return false; }
 	virtual bool IsVar() const { return false; }
 	virtual bool IsInteger() const { return false; }
@@ -77,6 +79,7 @@ public:
 	virtual std::unique_ptr<Expr>& Right(){ return m_right; }
 	virtual std::unique_ptr<Expr>& ChildAt(int i) { (void)i; return m_left; }
 
+	virtual void ComputeFactorial() {}
 	virtual void SwapChildren();
 	virtual void SortChildren() {}
 	virtual void SortAddChildren() {}
@@ -99,6 +102,39 @@ public:
 
 	friend const std::unique_ptr<Expr>& LeftmostChild(const std::unique_ptr<Expr>& expr);
 	friend const std::unique_ptr<Expr>& LeftmostAssociativeOperator(const std::unique_ptr<Expr>& expr);
+};
+
+class Func : public Expr
+{
+protected: 
+	std::unique_ptr<Expr> m_child;
+
+public: 
+	Func(std::unique_ptr<Expr> child)
+		: Expr(nullptr, nullptr), m_child(std::move(child))
+	{
+	}
+
+	virtual ~Func()
+	{
+	}
+
+	// Now expressions inside the factorial can be simplified e.g. (aa)! --> (a^2)!
+	bool IsGeneric() { return true; }
+	bool IsFunc() const { return true; }
+};
+
+class Fac : public Func
+{
+public:
+	Fac(std::unique_ptr<Expr> child)
+		: Func(std::move(child))
+	{
+	}
+
+	bool IsFac() const { return false; }
+
+	std::string Name() const { return "!"; }
 };
 
 class Associative : public Expr

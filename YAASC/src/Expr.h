@@ -78,8 +78,8 @@ public:
 	virtual std::unique_ptr<Expr>& Left() { return m_left; }
 	virtual std::unique_ptr<Expr>& Right(){ return m_right; }
 	virtual std::unique_ptr<Expr>& ChildAt(int i) { (void)i; return m_left; }
+	virtual std::unique_ptr<Expr>& Param() { return m_left; }
 
-	virtual void ComputeFactorial() {}
 	virtual void SwapChildren();
 	virtual void SortChildren() {}
 	virtual void SortAddChildren() {}
@@ -107,17 +107,19 @@ public:
 class Func : public Expr
 {
 protected: 
-	std::unique_ptr<Expr> m_child;
+	std::unique_ptr<Expr> m_param;
 
 public: 
 	Func(std::unique_ptr<Expr> child)
-		: Expr(nullptr, nullptr), m_child(std::move(child))
+		: Expr(nullptr, nullptr), m_param(std::move(child))
 	{
 	}
 
 	virtual ~Func()
 	{
 	}
+
+	std::unique_ptr<Expr>& Param() { return m_param; }
 
 	// Now expressions inside the factorial can be simplified e.g. (aa)! --> (a^2)!
 	bool IsGeneric() { return true; }
@@ -132,7 +134,9 @@ public:
 	{
 	}
 
-	bool IsFac() const { return false; }
+	int Eval(std::map<std::string, int> env) { return 0; }
+
+	bool IsFac() const { return true; }
 
 	std::string Name() const { return "!"; }
 };

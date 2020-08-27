@@ -127,4 +127,23 @@ void UpdateGenNode(std::unique_ptr<Expr>& expr, float value, int first_index, in
 	expr->SortChildren();
 }
 
+void ComputeFactorial(std::unique_ptr<Expr>& expr)
+{
+	if (!expr->IsFac())
+		return;
+
+	std::cout << "hola\n";
+
+	if (expr->Param()->IsInteger())
+	{
+		int result = 1;
+		int lim = stoi(expr->Param()->Name());
+
+		for (int i = 1; i <= lim; i++)
+			result *= i;
+
+		expr = std::make_unique<Integer>(result);
+	}
+}
+
 } //namespace calc

@@ -10,4 +10,6 @@ namespace calc {
 	void UpdateChildren(std::unique_ptr<Expr>& root, bool isMul);
 	void UpdateGenNode(std::unique_ptr<Expr>& expr, float value, int first_index, int last_index);
 
+	void ComputeFactorial(std::unique_ptr<Expr>& expr);
+
 } // namespace calc

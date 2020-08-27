@@ -237,8 +237,10 @@ int Precedence(char c)
 		return 2;
 	else if (c == '^')
 		return 3;
-	else if (c == '_')
+	else if (c == '!')
 		return 4;
+	else if (c == '_')
+		return 5;
 
 	return -1;
 }

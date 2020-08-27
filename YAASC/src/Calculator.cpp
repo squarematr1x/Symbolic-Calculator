@@ -4,6 +4,8 @@ namespace calc {
 
 void Calculate(std::unique_ptr<Expr>& root)
 {
+	ComputeFactorial(root);
+
 	if (root->IsTerminal())
 		return;
 

@@ -15,6 +15,7 @@ enum class ExprType
 	DIV,
 	ADD,
 	POW,
+	FAC,
 	INTEGER,
 	VARIABLE,
 	SUB,

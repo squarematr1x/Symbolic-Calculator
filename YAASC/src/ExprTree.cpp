@@ -6,7 +6,9 @@ namespace yaasc
 std::unique_ptr<Expr> ExprTree::Construct(std::string input)
 {
 	scanner::HandleInput(input);
-	std::stack<std::unique_ptr<Expr>> expression_stack;
+	std::stack<std::unique_ptr<Expr>> expr_stack;
+
+	std::cout << input << '\n';
 
 	for (int i = 0; i < (int)input.length(); i++)
 	{
@@ -19,9 +21,9 @@ std::unique_ptr<Expr> ExprTree::Construct(std::string input)
 				std::make_unique<Integer>(1));
 
 			if (i - 1 >= 0 && input[i - 1] == '-')
-				expression_stack.push(std::make_unique<Mul>(std::make_unique<Integer>(-1), std::move(expr)));
+				expr_stack.push(std::make_unique<Mul>(std::make_unique<Integer>(-1), std::move(expr)));
 			else
-				expression_stack.push(std::move(expr));
+				expr_stack.push(std::move(expr));
 		}
 		else if (isdigit(input[i]))
 		{
@@ -50,60 +52,72 @@ std::unique_ptr<Expr> ExprTree::Construct(std::string input)
 			{
 				int value = std::stoi(number);
 				if (first_index - 1 >= 0 && input[first_index - 1] == '-')
-					expression_stack.push(std::make_unique<Integer>(value * -1));
+					expr_stack.push(std::make_unique<Integer>(value * -1));
 				else
-					expression_stack.push(std::make_unique<Integer>(value));
+					expr_stack.push(std::make_unique<Integer>(value));
 			}
 			else
 			{
 				float value = std::stof(number);
 				if (first_index - 1 >= 0 && input[first_index - 1] == '-')
-					expression_stack.push(std::make_unique<Float>(value * -1.0f));
+					expr_stack.push(std::make_unique<Float>(value * -1.0f));
 				else
-					expression_stack.push(std::make_unique<Float>(value));
+					expr_stack.push(std::make_unique<Float>(value));
 			}
 
 		}
 
-		if (expression_stack.size() > 1)
+		if (expr_stack.size() == 1)
+		{
+			if (input[i] == '!')
+			{
+				std::unique_ptr<Expr> stack_top = std::move(expr_stack.top());
+				expr_stack.pop();
+				expr_stack.push(std::make_unique<Fac>(std::move(stack_top)));
+			}
+		}
+
+		if (expr_stack.size() > 1)
 		{
 			if (input[i] == '+')
-				UpdateStack(expression_stack, ExprType::ADD);
+				UpdateStack(expr_stack, ExprType::ADD);
 			else if (input[i] == '*')
-				UpdateStack(expression_stack, ExprType::MUL);
+				UpdateStack(expr_stack, ExprType::MUL);
 			else if (input[i] == '/')
-				UpdateStack(expression_stack, ExprType::DIV);
+				UpdateStack(expr_stack, ExprType::DIV);
 			else if (input[i] == '^')
-				UpdateStack(expression_stack, ExprType::POW);
+				UpdateStack(expr_stack, ExprType::POW);
+			else if (input[i] == '!')
+				UpdateStack(expr_stack, ExprType::FAC);
 			else if (input[i] == '-')
 			{
 				if (i + 1 < (int)input.length())
 				{
 					if (input[i + 1] == ' ')
-						UpdateStack(expression_stack, ExprType::SUB);
+						UpdateStack(expr_stack, ExprType::SUB);
 				}
 				else
-					UpdateStack(expression_stack, ExprType::SUB);
+					UpdateStack(expr_stack, ExprType::SUB);
 			}
 		}
-		else if (expression_stack.size() == 1)
+		else if (expr_stack.size() == 1)
 		{
 			if (input[i] == '-')
 			{
 				if (i + 1 < (int)input.length() && input[i + 1] == ' ')
 				{
-					std::unique_ptr<Expr> expr = std::move(expression_stack.top());
-					expression_stack.pop();
-					expression_stack.push(std::move(std::make_unique<Mul>(std::make_unique<Integer>(-1), std::move(expr))));
+					std::unique_ptr<Expr> expr = std::move(expr_stack.top());
+					expr_stack.pop();
+					expr_stack.push(std::move(std::make_unique<Mul>(std::make_unique<Integer>(-1), std::move(expr))));
 				}
 			}
 		}
 	}
 
-	if (!expression_stack.empty())
+	if (!expr_stack.empty())
 	{
-		std::unique_ptr<Expr> final_tree = std::move(expression_stack.top());
-		expression_stack.pop();
+		std::unique_ptr<Expr> final_tree = std::move(expr_stack.top());
+		expr_stack.pop();
 
 		return std::move(final_tree);
 	}
@@ -127,6 +141,12 @@ void ExprTree::UpdateStack(std::stack<std::unique_ptr<Expr>>& expr_stack, ExprTy
 		expr_stack.push(std::make_unique<Mul>(std::move(left), std::make_unique<Pow>(std::move(right), std::make_unique<Integer>(-1))));
 	else if (type == ExprType::POW)
 		expr_stack.push(std::make_unique<Pow>(std::move(left), std::move(right)));
+	else if (type == ExprType::FAC)
+	{
+		std::cout << "Holy\n";
+		expr_stack.push(std::move(left));
+		expr_stack.push(std::make_unique<Fac>(std::move(right)));
+	}
 	else if (type == ExprType::SUB)
 	{
 		std::unique_ptr<Mul> new_expression{ std::make_unique<Mul>(std::make_unique<Integer>(-1), std::move(right)) };

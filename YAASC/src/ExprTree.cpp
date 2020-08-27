@@ -143,7 +143,6 @@ void ExprTree::UpdateStack(std::stack<std::unique_ptr<Expr>>& expr_stack, ExprTy
 		expr_stack.push(std::make_unique<Pow>(std::move(left), std::move(right)));
 	else if (type == ExprType::FAC)
 	{
-		std::cout << "Holy\n";
 		expr_stack.push(std::move(left));
 		expr_stack.push(std::make_unique<Fac>(std::move(right)));
 	}
@@ -190,7 +189,8 @@ void ExprTree::PrintAssociative(const std::unique_ptr<Expr>& expr)
 
 void ExprTree::PrintInorder(const std::unique_ptr<Expr>& expr)
 {
-	if (expr == nullptr) return;
+	if (!expr) 
+		return;
 
 	if (expr->HasLeftChild())
 	{
@@ -199,11 +199,16 @@ void ExprTree::PrintInorder(const std::unique_ptr<Expr>& expr)
 		PrintParenthesis(expr, expr->Left(), false);
 	}
 
-	if (expr->IsGeneric())
+	if (expr->IsGeneric() && !expr->IsFac())
 		PrintAssociative(expr);
 	else
 	{
-		if (!expr->IsMul())
+		if (expr->IsFac())
+		{
+			PrintInorder(expr->Param());
+			std::cout << expr;
+		}
+		else if (!expr->IsMul())
 			std::cout << expr;
 	}
 

@@ -132,12 +132,16 @@ void ComputeFactorial(std::unique_ptr<Expr>& expr)
 	if (!expr->IsFac())
 		return;
 
-	std::cout << "hola\n";
-
 	if (expr->Param()->IsInteger())
 	{
 		int result = 1;
 		int lim = stoi(expr->Param()->Name());
+
+		if (lim < 0)
+		{
+			result = -1;
+			lim = abs(lim);
+		}
 
 		for (int i = 1; i <= lim; i++)
 			result *= i;

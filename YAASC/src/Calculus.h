@@ -11,4 +11,5 @@ void Integrate(std::unique_ptr<Expr>& expr, std::string respect_to);
 
 void PowerRule(std::unique_ptr<Expr>& expr, std::string respect_to);
 
+bool HasPowChildren(std::unique_ptr<Expr>& expr);
 }

@@ -4,7 +4,7 @@ namespace yaasc {
 
 void Simplify(std::unique_ptr<Expr>& root) 
 {
-	std::unique_ptr<Expr> copy;
+	std::unique_ptr<Expr> copy; // FIXME: Factorials can't be copied properly
 	int i = 0;
 
 	if (!root) // Expression might be empty
@@ -14,7 +14,6 @@ void Simplify(std::unique_ptr<Expr>& root)
 	{
 		tree_util::DeepCopy(copy, root);
 		Canonize(root);
-		Flatten(root);
 		algebra::PowerOfSum(root);
 		algebra::Expand(root);
 		AddVariables(root);
@@ -26,6 +25,7 @@ void Simplify(std::unique_ptr<Expr>& root)
 		RemoveAdditiveZeros(root);
 		RemoveMulOne(root);
 		Flatten(root);
+
 		i++;
 
 		// When simplification is done
@@ -358,22 +358,21 @@ void ToGeneric(std::unique_ptr<Expr>& root, std::unique_ptr<Expr>& parent, std::
 			std::queue<std::unique_ptr<Expr>> sub_children;
 			std::unique_ptr<Expr> null_parent = nullptr;
 			ToGeneric(root, null_parent, sub_children);
-
+	
 			return;	// Exit sub tree
 		}
 	}
 
-	/*
 	if (root->IsGeneric())
 	{
 		int queue_size = children.size();
-
+	
 		for (int i = 0; i < root->ChildrenSize(); i++)
 		{
 			if (root->ChildAt(i)->IsAssociative())
 				ToGeneric(root->ChildAt(i), root, children);
 		}
-
+	
 		if (queue_size != children.size()) // When children size has been updated
 		{
 			for (int i = 0; i < root->ChildrenSize(); i++)
@@ -383,18 +382,23 @@ void ToGeneric(std::unique_ptr<Expr>& root, std::unique_ptr<Expr>& parent, std::
 			}
 		}
 	}
-	*/
-	if (root->IsGeneric())
-	{
-		std::queue<std::unique_ptr<Expr>> sub_children;
-		std::unique_ptr<Expr> null_parent = nullptr;
 
-		for (int i = 0; i < root->ChildrenSize(); i++)
-		{
-			if (root->ChildAt(i)->IsAssociative())
-				ToGeneric(root->ChildAt(i), null_parent, sub_children);
-		}
-	}
+	//if (root->IsGeneric())
+	//{
+	//	std::queue<std::unique_ptr<Expr>> sub_children;
+	//	std::unique_ptr<Expr> null_parent = nullptr;
+
+	//	for (int i = 0; i < root->ChildrenSize(); i++)
+	//	{
+	//		if (root->ChildAt(i)->IsAssociative())
+	//		{
+	//			if (root->IsAssociative() && root->Name() != root->ChildAt(i)->Name())
+	//				ToGeneric(root->ChildAt(i), null_parent, sub_children);
+	//			else
+	//				ToGeneric(root->ChildAt(i), parent, children);
+	//		}
+	//	}
+	//}
 	else
 	{
 		if (!root->LeftIsTerminal())
@@ -432,7 +436,7 @@ void ToGeneric(std::unique_ptr<Expr>& root, std::unique_ptr<Expr>& parent, std::
 				children.push(std::move(root->Right()));
 		}
 
-		if ((!parent || parent->IsPow()) && !children.empty()) // When at root
+		if ((!parent || parent->IsPow()) && !children.empty()) // When update is possible
 		{
 			if (root->IsMul())
 				root = std::make_unique<Mul>();

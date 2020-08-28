@@ -8,8 +8,6 @@ std::unique_ptr<Expr> ExprTree::Construct(std::string input)
 	scanner::HandleInput(input);
 	std::stack<std::unique_ptr<Expr>> expr_stack;
 
-	std::cout << input << '\n';
-
 	for (int i = 0; i < (int)input.length(); i++)
 	{
 		while (input[i] == ' ')

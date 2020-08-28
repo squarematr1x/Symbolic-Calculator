@@ -5,6 +5,7 @@
 #include "PowerOfSum.h"
 #include "Expand.h"
 #include "Calculator.h"
+#include "Calculus.h"
 
 namespace yaasc {
 

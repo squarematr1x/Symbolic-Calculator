@@ -153,15 +153,34 @@ void ExprTree::UpdateStack(std::stack<std::unique_ptr<Expr>>& expr_stack, ExprTy
 
 void ExprTree::PrintParenthesis(const std::unique_ptr<Expr>& expr, const std::unique_ptr<Expr>& child, bool left_paranthesis)
 {
-	if ((expr->IsMul() && child->IsAdd()) || 
-		(expr->IsPow() && child->IsMul()) ||
-		(expr->IsPow() && child->IsAdd()))
+	if ((expr->IsMul() && child->IsAdd())  || 
+		(expr->IsPow() && child->IsMul())  ||
+		(expr->IsPow() && child->IsAdd())  ||
+		(expr->IsPow() && child->IsFunc()))
 	{
 		if (left_paranthesis)
 			std::cout << "(";
 		else
 			std::cout << ")";
 	}
+}
+
+void ExprTree::PrintFunction(const std::unique_ptr<Expr>& expr)
+{
+	bool parenthesis = false;
+
+	if (expr->IsAdd() ||
+		expr->IsMul() ||
+		expr->IsPow())
+	{
+		parenthesis = true;
+		std::cout << "(";
+	}
+
+	PrintInorder(expr);
+
+	if (parenthesis)
+		std::cout << ")";
 }
 
 void ExprTree::PrintAssociative(const std::unique_ptr<Expr>& expr)
@@ -197,13 +216,13 @@ void ExprTree::PrintInorder(const std::unique_ptr<Expr>& expr)
 		PrintParenthesis(expr, expr->Left(), false);
 	}
 
-	if (expr->IsGeneric() && !expr->IsFac())
+	if (expr->IsGeneric())
 		PrintAssociative(expr);
 	else
 	{
 		if (expr->IsFac())
 		{
-			PrintInorder(expr->Param());
+			PrintFunction(expr->Param());
 			std::cout << expr;
 		}
 		else if (!expr->IsMul())

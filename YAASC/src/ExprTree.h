@@ -28,6 +28,7 @@ public:
 
 	void PrintAssociative(const std::unique_ptr<Expr>& expr);
 	void PrintParenthesis(const std::unique_ptr<Expr>& expr, const std::unique_ptr<Expr>& child, bool left_parenthesis);
+	void PrintFunction(const std::unique_ptr<Expr>& expr);
 	void PrintInorder(const std::unique_ptr<Expr>& expr);
 	void PrintBinaryNodeOnly(const std::unique_ptr<Expr>& expr);
 	void Print();

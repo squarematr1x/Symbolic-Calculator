@@ -53,6 +53,16 @@ void CopyToStack(std::stack<std::unique_ptr<Expr>>& expr_stack, const std::uniqu
 		else if (expr->IsFloat())
 			expr_stack.push(std::make_unique<Float>(std::stof(expr->Name())));
 	}
+	else if (expr->IsFunc())
+	{
+		std::stack<std::unique_ptr<Expr>> sub_stack;
+		CopyToStack(sub_stack, expr->Param());
+		std::unique_ptr<Expr> parameter = std::move(sub_stack.top());
+		sub_stack.pop();
+
+		if (expr->IsFac())
+			expr_stack.push(std::make_unique<Fac>(std::move(parameter)));
+	}
 	else if (!expr->IsGeneric())
 	{
 		std::unique_ptr<Expr> right = nullptr;

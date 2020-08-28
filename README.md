@@ -58,7 +58,7 @@ At this point some algebraic expression can be simplified:
          simplified: xy   
 ```
 
-Multiplication sign ( * ) and spaces are optional. They can however be added into the input string:
+Multiplication sign ( * ) and spaces are optional, but however those can be added into the input string:
 
 ```
 >>>x*x^2 + y + y

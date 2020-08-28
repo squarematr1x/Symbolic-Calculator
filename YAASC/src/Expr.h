@@ -16,6 +16,12 @@ enum class ExprType
 	ADD,
 	POW,
 	FAC,
+	LOG,
+	SIN,
+	COS,
+	TAN,
+	DERIVATIVE,
+	INTEGRAl,
 	INTEGER,
 	VARIABLE,
 	SUB,
@@ -23,7 +29,6 @@ enum class ExprType
 	FRACTION,
 	PI,
 	e,
-	LOG,
 	NIL
 };
 
@@ -122,8 +127,6 @@ public:
 
 	std::unique_ptr<Expr>& Param() { return m_param; }
 
-	// Now expressions inside the factorial can be simplified e.g. (aa)! --> (a^2)!
-	bool IsGeneric() { return true; }
 	bool IsFunc() const { return true; }
 };
 

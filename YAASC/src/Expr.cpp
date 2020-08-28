@@ -288,6 +288,9 @@ void CheckExpressions(const std::unique_ptr<Expr>& expr_a, const std::unique_ptr
 	if (expr_a->HasRightChild() && expr_b->HasRightChild())
 		CheckExpressions(expr_a->Right(), expr_b->Right(), same);
 
+	if (expr_a->IsFunc() && expr_b->IsFunc())
+		CheckExpressions(expr_a->Param(), expr_b->Param(), same);
+
 	if (expr_a->IsGeneric() && expr_b->IsGeneric())
 	{
 		if (expr_a->ChildrenSize() != expr_b->ChildrenSize())

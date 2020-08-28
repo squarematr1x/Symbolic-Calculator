@@ -4,8 +4,6 @@ namespace calc {
 
 void Calculate(std::unique_ptr<Expr>& root)
 {
-	ComputeFactorial(root);
-
 	if (root->IsTerminal())
 		return;
 
@@ -15,7 +13,9 @@ void Calculate(std::unique_ptr<Expr>& root)
 	if (!root->RightIsTerminal())
 		Calculate(root->Right());
 
-	if (!root->IsGeneric())
+	if (root->IsFunc())
+		ComputeFactorial(root);
+	else if (!root->IsGeneric())
 		CalculateBinNode(root);
 	else
 	{

@@ -36,7 +36,7 @@ void Simplify(std::unique_ptr<Expr>& root)
 	}
 
 	// Finally simplifies variables that are raised to one: a^1 --> a
-	// SimplifyExponents(root, true); // FIXME: Has some problems with PowerOfSum
+	SimplifyExponents(root, true); // FIXME: Has some problems with PowerOfSum
 }
 
 // Adding same variables: a+2a+3a --> 6a
@@ -573,11 +573,19 @@ void RemoveMulOne(std::unique_ptr<Expr>& root)
 	if (root->IsTerminal())
 		return;
 
-	if (!root->LeftIsTerminal())
-		RemoveMulOne(root->Left());
+	if (root->IsGeneric())
+	{
+		for (int i = 0; i < root->ChildrenSize(); i++)
+			RemoveMulOne(root->ChildAt(i));
+	}
+	else
+	{
+		if (!root->LeftIsTerminal())
+			RemoveMulOne(root->Left());
 
-	if (!root->RightIsTerminal())
-		RemoveMulOne(root->Right());
+		if (!root->RightIsTerminal())
+			RemoveMulOne(root->Right());
+	}
 
 	if (!root->IsMul())
 		return;
@@ -586,19 +594,27 @@ void RemoveMulOne(std::unique_ptr<Expr>& root)
 	{
 		if (root->Left()->IsNumber() && root->HasRightChild())
 		{
-			if (root->Left()->Name() == "1")
+			if (root->Left()->IsOne())
 				root = std::move(root->Right());
 		}
 		else if (root->Right()->IsNumber() && root->HasLeftChild())
 		{
-			if (root->Right()->Name() == "1")
+			if (root->Right()->IsOne())
 				root = std::move(root->Left());
 		}
 	}
 	else
 	{
+		std::unique_ptr<Expr> new_mul_node = std::make_unique<Mul>();
+
 		for (int i = 0; i < root->ChildrenSize(); i++)
-			RemoveMulOne(root->ChildAt(i));
+		{
+			if (!root->ChildAt(i)->IsOne())
+				new_mul_node->AddChild(std::move(root->ChildAt(i)));
+		}
+
+		if (new_mul_node->ChildrenSize() != 0)
+			root = std::move(new_mul_node);
 	}
 }
 

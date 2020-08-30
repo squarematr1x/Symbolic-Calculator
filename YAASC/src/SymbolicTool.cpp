@@ -25,7 +25,6 @@ void Simplify(std::unique_ptr<Expr>& root)
 		RemoveAdditiveZeros(root);
 		RemoveMulOne(root);
 		Flatten(root);
-
 		i++;
 
 		// When simplification is done
@@ -37,7 +36,7 @@ void Simplify(std::unique_ptr<Expr>& root)
 	}
 
 	// Finally simplifies variables that are raised to one: a^1 --> a
-	SimplifyExponents(root, true);
+	// SimplifyExponents(root, true); // FIXME: Has some problems with PowerOfSum
 }
 
 // Adding same variables: a+2a+3a --> 6a
@@ -387,7 +386,7 @@ void ToGeneric(std::unique_ptr<Expr>& root, std::unique_ptr<Expr>& parent, std::
 	//{
 	//	std::queue<std::unique_ptr<Expr>> sub_children;
 	//	std::unique_ptr<Expr> null_parent = nullptr;
-
+	//
 	//	for (int i = 0; i < root->ChildrenSize(); i++)
 	//	{
 	//		if (root->ChildAt(i)->IsAssociative())
@@ -571,7 +570,7 @@ bool RaisedToOne(const std::unique_ptr<Expr>& expr)
 
 void RemoveMulOne(std::unique_ptr<Expr>& root)
 {
-	if (root->HasNoChildren())
+	if (root->IsTerminal())
 		return;
 
 	if (!root->LeftIsTerminal())
@@ -595,6 +594,11 @@ void RemoveMulOne(std::unique_ptr<Expr>& root)
 			if (root->Right()->Name() == "1")
 				root = std::move(root->Left());
 		}
+	}
+	else
+	{
+		for (int i = 0; i < root->ChildrenSize(); i++)
+			RemoveMulOne(root->ChildAt(i));
 	}
 }
 
@@ -633,19 +637,46 @@ void RemoveAdditiveZeros(std::unique_ptr<Expr>& root)
 
 void ReduceToZero(std::unique_ptr<Expr>& root)
 {
-	if (root->HasNoChildren())
+	if (root->IsTerminal())
 		return;
 
-	if (!root->LeftIsTerminal())
-		ReduceToZero(root->Left());
+	if (root->IsGeneric())
+	{
+		for (int i = 0; i < root->ChildrenSize(); i++)
+			ReduceToZero(root->ChildAt(i));
+	}
+	else
+	{
+		if (!root->LeftIsTerminal())
+			ReduceToZero(root->Left());
 
-	if (!root->RightIsTerminal())
-		ReduceToZero(root->Right());
+		if (!root->RightIsTerminal())
+			ReduceToZero(root->Right());
+	}
 
 	if (root->IsMul())
 	{
-		if (root->Left()->IsZero() || root->Right()->IsZero())
-			root = std::make_unique<Integer>(0);
+		if (!root->IsGeneric())
+		{
+			if (root->Left()->IsZero() || root->Right()->IsZero())
+				root = std::make_unique<Integer>(0);
+		}
+		else
+		{
+			bool is_zero = false;
+
+			for (int i = 0; i < root->ChildrenSize(); i++)
+			{
+				if (root->ChildAt(i)->IsZero())
+				{
+					is_zero = true;
+					break;
+				}
+			}
+
+			if (is_zero)
+				root = std::make_unique<Integer>(0);
+		}
 	}
 	else if (root->IsPow())
 	{
@@ -656,14 +687,22 @@ void ReduceToZero(std::unique_ptr<Expr>& root)
 
 void ReduceToOne(std::unique_ptr<Expr>& root)
 {
-	if (root->HasNoChildren())
+	if (root->IsTerminal())
 		return;
 
-	if (!root->LeftIsTerminal())
-		ReduceToOne(root->Left());
+	if (root->IsGeneric())
+	{
+		for (int i = 0; i < root->ChildrenSize(); i++)
+			ReduceToOne(root->ChildAt(i));
+	}
+	else
+	{
+		if (!root->LeftIsTerminal())
+			ReduceToOne(root->Left());
 
-	if (!root->RightIsTerminal())
-		ReduceToOne(root->Right());
+		if (!root->RightIsTerminal())
+			ReduceToOne(root->Right());
+	}
 
 	if (root->IsPow())
 	{

@@ -112,11 +112,8 @@ void ExponentRulePow(std::unique_ptr<Expr>& root)
 	
 	if (root->IsGeneric())
 	{
-		if (root->IsMul())
-		{
-			for (int i = 0; i != root->ChildrenSize(); i++)
-				ExponentRulePow(root->ChildAt(i));
-		}
+		for (int i = 0; i != root->ChildrenSize(); i++)
+			ExponentRulePow(root->ChildAt(i));
 	}
 	else
 	{

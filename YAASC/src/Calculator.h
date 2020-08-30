@@ -12,4 +12,6 @@ namespace calc {
 
 	void ComputeFactorial(std::unique_ptr<Expr>& expr);
 
+	int Factorial(int number);
+
 } // namespace calc

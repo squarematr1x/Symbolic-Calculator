@@ -53,7 +53,7 @@ void CalculateBinNode(std::unique_ptr<Expr>& root)
 			else if (root->IsAdd())
 				root = std::make_unique<Integer>(left + right);
 			else if (root->IsPow())
-				root = std::make_unique<Float>((float)pow(left, right));
+				root = std::make_unique<Float>(static_cast<float>(pow(left, right)));
 		}
 	}
 }
@@ -122,7 +122,7 @@ void UpdateGenNode(std::unique_ptr<Expr>& expr, float value, int first_index, in
 	expr->RemoveChildren(first_index, last_index);
 
 	if (isInt)
-		expr->AddChild(std::make_unique<Integer>((int)value));
+		expr->AddChild(std::make_unique<Integer>(static_cast<int>(value)));
 	else
 		expr->AddChild(std::make_unique<Float>(value));
 

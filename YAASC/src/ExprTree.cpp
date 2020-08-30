@@ -7,8 +7,9 @@ std::unique_ptr<Expr> ExprTree::Construct(std::string input)
 {
 	scanner::HandleInput(input);
 	std::stack<std::unique_ptr<Expr>> expr_stack;
+	int lenght = input.length();
 
-	for (int i = 0; i < (int)input.length(); i++)
+	for (int i = 0; i < lenght; i++)
 	{
 		while (input[i] == ' ')
 			i++;
@@ -30,7 +31,7 @@ std::unique_ptr<Expr> ExprTree::Construct(std::string input)
 			std::string number = "";
 			number += input[i];
 
-			for (int j = i + 1; j < (int)input.length(); j++)
+			for (int j = i + 1; j < lenght; j++)
 			{
 				if (isdigit(input[j]))
 					number += input[j];
@@ -89,7 +90,7 @@ std::unique_ptr<Expr> ExprTree::Construct(std::string input)
 				UpdateStack(expr_stack, ExprType::FAC);
 			else if (input[i] == '-')
 			{
-				if (i + 1 < (int)input.length())
+				if (i + 1 < lenght)
 				{
 					if (input[i + 1] == ' ')
 						UpdateStack(expr_stack, ExprType::SUB);
@@ -102,7 +103,7 @@ std::unique_ptr<Expr> ExprTree::Construct(std::string input)
 		{
 			if (input[i] == '-')
 			{
-				if (i + 1 < (int)input.length() && input[i + 1] == ' ')
+				if (i + 1 < lenght && input[i + 1] == ' ')
 				{
 					std::unique_ptr<Expr> expr = std::move(expr_stack.top());
 					expr_stack.pop();

@@ -373,7 +373,7 @@ void ToGeneric(std::unique_ptr<Expr>& root, std::unique_ptr<Expr>& parent, std::
 				ToGeneric(root->ChildAt(i), root, children);
 		}
 	
-		if (queue_size != children.size()) // When children size has been updated
+		if (queue_size != static_cast<int>(children.size())) // When children size has been updated
 		{
 			for (int i = 0; i < root->ChildrenSize(); i++)
 			{

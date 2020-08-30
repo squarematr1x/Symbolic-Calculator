@@ -44,7 +44,7 @@ void ApplyExponentRuleMulBinNode(std::unique_ptr<Expr>& root)
 			if (abs(exponent - floor(exponent)) < 0.000001f)
 				root = std::move(std::make_unique<Pow>(std::make_unique<Var>(var), std::make_unique<Float>(exponent)));
 			else
-				root = std::move(std::make_unique<Pow>(std::make_unique<Var>(var), std::make_unique<Integer>((int)exponent)));
+				root = std::move(std::make_unique<Pow>(std::make_unique<Var>(var), std::make_unique<Integer>(static_cast<int>(exponent))));
 		}
 	}
 }

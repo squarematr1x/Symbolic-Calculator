@@ -301,9 +301,9 @@ void CheckExpressions(const std::unique_ptr<Expr>& expr_a, const std::unique_ptr
 				CheckExpressions(expr_a->ChildAt(i), expr_b->ChildAt(i), same);
 		}
 	}
-	else if (!expr_a->IsGeneric() && expr_b->IsGeneric()) // FIXME: Generic and binary could be the same in some cases
+	else if (!expr_a->IsGeneric() && expr_b->IsGeneric()) // FIXME: Generic and binary nodes could be the same in some cases
 		same = false;
-	else if (expr_a->IsGeneric() && !expr_b->IsGeneric()) // FIXME: Generic and binary could be the same in some cases
+	else if (expr_a->IsGeneric() && !expr_b->IsGeneric()) // FIXME: Generic and binary nodes could be the same in some cases
 		same = false;
 
 	if (expr_a->Name() != expr_b->Name())

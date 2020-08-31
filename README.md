@@ -55,7 +55,9 @@ At this point some algebraic expression can be simplified:
 >>>(x+y)(x+y)
          simplified: 2xy+x^2+y^2
 >>>(xy)^1
-         simplified: xy   
+         simplified: xy
+>>>-4!+(a+b)^3+(ab)^0
+         simplified: -23+3a^2b+3ab^2+a^3+b^3   
 ```
 
 Multiplication sign ( * ) and spaces are optional, but however those can be added into the input string:

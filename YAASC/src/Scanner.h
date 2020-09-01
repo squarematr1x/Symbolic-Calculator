@@ -24,6 +24,7 @@ void FunctionToStack(std::string input, unsigned int& start_index, std::stack<st
 bool IsOperand(char c);
 bool IsVariable(char c);
 bool IsFunctionToken(char c);
+bool IsParenthesis(char c);
 bool IsLeftParenthesis(char c);
 bool IsRightParenthesis(char c);
 bool CanAddMultiplySign(char c, char next_c);

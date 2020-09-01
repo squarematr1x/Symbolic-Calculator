@@ -99,7 +99,7 @@ void AddUnaryToken(std::string& input)
 	input = new_string;
 }
 
-void AddFunctionToken(std::string& input) // FIXME: Function composition is problematic (one parenthessis missing)
+void AddFunctionToken(std::string& input)
 {
 	std::string new_string = "";
 
@@ -173,7 +173,7 @@ void CleanDuplicateOperators(std::string& input)
 	{
 		new_input += input[i];
 
-		if (!IsOperand(input[i]))
+		if (!IsOperand(input[i]) && !IsParenthesis(input[i]))
 		{
 			while (i + 1 < input.length() && input[i] == input[i + 1])
 				++i;
@@ -275,6 +275,11 @@ bool IsFunctionToken(char c)
 		return true;
 
 	return false;
+}
+
+bool IsParenthesis(char c)
+{
+	return IsLeftParenthesis(c) || IsRightParenthesis(c);
 }
 
 bool IsLeftParenthesis(char c)

@@ -18,12 +18,19 @@ void InfixToPostfix(std::string& input)
 
 	for (unsigned int i = 0; i < input.length(); i++)
 	{
+		std::cout << "i:" << i << '\n';
+
 		while (input[i] == ' ')
 			++i;
 
 		if (Variable(input[i]))
 		{
-			postfix_string += input[i];
+			// Check if it's function
+			if (IsFunction(input, i))
+				AddFunction(input, i, postfix_string);
+			else
+				postfix_string += input[i];
+
 			postfix_string += ' ';
 		}
 
@@ -227,6 +234,55 @@ bool MissingParenthesis(std::string input)
 		return false;
 
 	return true;
+}
+
+bool IsFunction(std::string input, unsigned int start_index)
+{
+	std::string function_string = "";
+
+	for (unsigned int i = start_index; i < input.length(); i++)
+	{
+		if (input[i] != '(' && input[i] != '*')
+			function_string += input[i];
+		else if (input[i] == '(')
+			break;
+	}
+
+	std::vector<std::string> functions{ "log", "ln", "sin", "cos", "tan", "D", "I" };
+	bool is_function = false;
+
+	for (auto function : functions)
+	{
+		if (function_string == function)
+		{
+			is_function = true;
+			break;
+		}
+	}
+	
+	return is_function;
+}
+
+void AddFunction(std::string input, unsigned int& start_index, std::string& postfix_string)
+{
+	std::string function_string = "";
+	int end_index = 0;
+
+	for (unsigned int i = start_index; i < input.length(); i++)
+	{
+		if (input[i] != '*')
+			function_string += input[i];
+
+		if (input[i] == ')')
+		{
+			end_index = i;
+			break;
+		}
+		
+	}
+	
+	postfix_string += function_string;
+	start_index = end_index;
 }
 
 int Precedence(char c)

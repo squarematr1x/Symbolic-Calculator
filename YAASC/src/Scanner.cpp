@@ -6,6 +6,7 @@ void HandleInput(std::string& input)
 {
 	CleanDuplicateOperators(input);
 	AddMultiplySign(input);
+	AddFunctionToken(input);
 	AddUnaryToken(input);
 	InfixToPostfix(input);
 	UnaryTokenOff(input);
@@ -15,25 +16,18 @@ void InfixToPostfix(std::string& input)
 {
 	std::string postfix_string = "";
 	std::stack<char> operator_stack;
+	std::stack<std::string> func_stack;
 
 	for (unsigned int i = 0; i < input.length(); i++)
 	{
-		std::cout << "i:" << i << '\n';
-
 		while (input[i] == ' ')
 			++i;
 
-		if (Variable(input[i]))
+		if (IsVariable(input[i]))
 		{
-			// Check if it's function
-			if (IsFunction(input, i))
-				AddFunction(input, i, postfix_string);
-			else
-				postfix_string += input[i];
-
+			postfix_string += input[i];
 			postfix_string += ' ';
 		}
-
 		else if (isdigit(input[i]))
 		{
 			if (i + 1 < input.length() && isdigit(input[i + 1]))
@@ -50,14 +44,12 @@ void InfixToPostfix(std::string& input)
 				postfix_string += ' ';
 			}
 		}
-
 		else if (input[i] == '(')
 			operator_stack.push('(');
-
 		else if (input[i] == ')')
 		{
 			while (!operator_stack.empty() && operator_stack.top() != '(')
-				AddStackTopToString(postfix_string, operator_stack);
+				AddStackTopToString(postfix_string, operator_stack, func_stack);
 
 			if (operator_stack.size() > 0 && operator_stack.top() == '(')
 				operator_stack.pop();
@@ -65,19 +57,23 @@ void InfixToPostfix(std::string& input)
 
 		else if (input[i] == '_')
 			postfix_string += input[i];
-
-		// Operator is scanned
-		else
+		else // Operator is scanned
 		{
 			while (!operator_stack.empty() && Precedence(input[i]) <= Precedence(operator_stack.top()))
-				AddStackTopToString(postfix_string, operator_stack);
+				AddStackTopToString(postfix_string, operator_stack, func_stack);
 
 			operator_stack.push(input[i]);
+
+			if (IsFunctionToken(input[i]))
+			{
+				++i;
+				FunctionToStack(input, i, func_stack);
+			}
 		}
 	}
 	// Popping remaining elements from the stack
 	while (!operator_stack.empty())
-		AddStackTopToString(postfix_string, operator_stack);
+		AddStackTopToString(postfix_string, operator_stack, func_stack);
 
 	input = postfix_string;
 }
@@ -85,15 +81,34 @@ void InfixToPostfix(std::string& input)
 void AddUnaryToken(std::string& input)
 {
 	std::string new_string = "";
+	int length = input.length();
 
-	for (int i = 0; i < (int)input.length(); i++)
+	for (int i = 0; i < length; i++)
 	{
 		if (i - 1 > 0 && input[i] == '-')
 		{
-			if (!Operand(input[i - 1]) && !RightParenthesis(input[i - 1]))
+			if (!IsOperand(input[i - 1]) && !IsRightParenthesis(input[i - 1]))
 				new_string += '_';
 			else
 				new_string += input[i];
+		}
+		else
+			new_string += input[i];
+	}
+
+	input = new_string;
+}
+
+void AddFunctionToken(std::string& input) // FIXME: Function composition is problematic (one parenthessis missing)
+{
+	std::string new_string = "";
+
+	for (unsigned int i = 0; i < input.length(); i++)
+	{
+		if (IsFunction(input, i))
+		{
+			new_string += '#';
+			FunctionTokenHelper(input, i, new_string);
 		}
 		else
 			new_string += input[i];
@@ -124,6 +139,15 @@ void AddMultiplySign(std::string& input)
 	{
 		new_input += input[i];
 
+		if (input[i] == '#')
+		{
+			while (input[i] != ')')
+			{
+				++i;
+				new_input += input[i];
+			}
+		}
+
 		if (CanAddMultiplySign(input[i], input[i + 1]) && i + 1 < input.length())
 			new_input += '*';
 	}
@@ -149,7 +173,7 @@ void CleanDuplicateOperators(std::string& input)
 	{
 		new_input += input[i];
 
-		if (!Operand(input[i]))
+		if (!IsOperand(input[i]))
 		{
 			while (i + 1 < input.length() && input[i] == input[i + 1])
 				++i;
@@ -159,15 +183,77 @@ void CleanDuplicateOperators(std::string& input)
 	input = new_input;
 }
 
-void AddStackTopToString(std::string& input, std::stack<char>& char_stack)
+void AddStackTopToString(std::string& input, std::stack<char>& char_stack, std::stack<std::string>& func_stack)
 {
 	char stack_top = char_stack.top();
-	char_stack.pop();
-	input += stack_top;
-	input += ' ';
+
+	if (IsFunctionToken(stack_top))
+		AddFunctionToString(input, char_stack, func_stack);
+	else
+	{
+		char_stack.pop();
+		input += stack_top;
+		input += ' ';
+	}
 }
 
-bool Variable(char c)
+void AddFunctionToString(std::string& input, std::stack<char>& char_stack, std::stack<std::string>& func_stack)
+{
+	if (!func_stack.empty())
+	{
+		char stack_top = char_stack.top();
+		char_stack.pop();
+		input += stack_top;
+		std::string func_top = func_stack.top();
+		func_stack.pop();
+		input.append(func_top);
+		input += ' ';
+	}
+}
+
+void FunctionTokenHelper(std::string input, unsigned int& start_index, std::string& postfix_string)
+{
+	std::string function_string = "";
+	int end_index = 0;
+
+	for (unsigned int i = start_index; i < input.length(); i++)
+	{
+		if (input[i] != '*')
+			function_string += input[i];
+
+		if (input[i] == '(')
+		{
+			end_index = i;
+			break;
+		}
+
+	}
+
+	postfix_string += function_string;
+	start_index = end_index;
+}
+
+void FunctionToStack(std::string input, unsigned int& start_index, std::stack<std::string>& func_stack)
+{
+	std::string function_string = "";
+	int end_index = 0;
+
+	for (unsigned int i = start_index; i < input.length(); i++)
+	{
+		if (input[i] != '(')
+			function_string += input[i];
+		else
+		{
+			end_index = --i;
+			break;
+		}
+	}
+
+	start_index = end_index;
+	func_stack.push(function_string);
+}
+
+bool IsVariable(char c)
 {
 	if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z')
 		return true;
@@ -175,15 +261,23 @@ bool Variable(char c)
 	return false;
 }
 
-bool Operand(char c)
+bool IsOperand(char c)
 {
-	if (Variable(c) || isdigit(c))
+	if (IsVariable(c) || isdigit(c))
 		return true;
 
 	return false;
 }
 
-bool LeftParenthesis(char c)
+bool IsFunctionToken(char c)
+{
+	if (c == '#')
+		return true;
+
+	return false;
+}
+
+bool IsLeftParenthesis(char c)
 {
 	if (c == '(')
 		return true;
@@ -191,7 +285,7 @@ bool LeftParenthesis(char c)
 	return false;
 }
 
-bool RightParenthesis(char c)
+bool IsRightParenthesis(char c)
 {
 	if (c == ')')
 		return true;
@@ -201,17 +295,17 @@ bool RightParenthesis(char c)
 
 bool CanAddMultiplySign(char c, char next_c)
 {
-	if (Variable(c) && Operand(next_c))
+	if (IsVariable(c) && IsOperand(next_c))
 		return true;
-	else if (Variable(c) && LeftParenthesis(next_c))
+	else if (IsVariable(c) && IsLeftParenthesis(next_c))
 		return true;
-	else if (isdigit(c) && Variable(next_c))
+	else if (isdigit(c) && IsVariable(next_c))
 		return true;
-	else if (isdigit(c) && LeftParenthesis(next_c))
+	else if (isdigit(c) && IsLeftParenthesis(next_c))
 		return true;
-	else if (RightParenthesis(c) && Operand(next_c))
+	else if (IsRightParenthesis(c) && IsOperand(next_c))
 		return true;
-	else if (RightParenthesis(c) && LeftParenthesis(next_c))
+	else if (IsRightParenthesis(c) && IsLeftParenthesis(next_c))
 		return true;
 
 	return false;
@@ -263,28 +357,6 @@ bool IsFunction(std::string input, unsigned int start_index)
 	return is_function;
 }
 
-void AddFunction(std::string input, unsigned int& start_index, std::string& postfix_string)
-{
-	std::string function_string = "";
-	int end_index = 0;
-
-	for (unsigned int i = start_index; i < input.length(); i++)
-	{
-		if (input[i] != '*')
-			function_string += input[i];
-
-		if (input[i] == ')')
-		{
-			end_index = i;
-			break;
-		}
-		
-	}
-	
-	postfix_string += function_string;
-	start_index = end_index;
-}
-
 int Precedence(char c)
 {
 	if (c == '+' || c == '-')
@@ -293,7 +365,7 @@ int Precedence(char c)
 		return 2;
 	else if (c == '^')
 		return 3;
-	else if (c == '!')
+	else if (c == '#' || c == '!')
 		return 4;
 	else if (c == '_')
 		return 5;

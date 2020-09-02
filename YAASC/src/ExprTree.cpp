@@ -6,6 +6,9 @@ namespace yaasc
 std::unique_ptr<Expr> ExprTree::Construct(std::string input)
 {
 	scanner::HandleInput(input);
+
+	std::cout << input << '\n';
+
 	std::stack<std::unique_ptr<Expr>> expr_stack;
 	int lenght = input.length();
 
@@ -88,6 +91,8 @@ std::unique_ptr<Expr> ExprTree::Construct(std::string input)
 				UpdateStack(expr_stack, ExprType::DIV);
 			else if (input[i] == '^')
 				UpdateStack(expr_stack, ExprType::POW);
+			else if (input[i] == '#')
+				UpdateFunctionStack(input, i, expr_stack);
 			else if (input[i] == '!')
 				UpdateStack(expr_stack, ExprType::FAC);
 			else if (input[i] == '-')
@@ -126,27 +131,47 @@ std::unique_ptr<Expr> ExprTree::Construct(std::string input)
 	return nullptr;
 }
 
-void ExprTree::HandleFunctionInput(std::string input, int& index, std::stack<std::unique_ptr<Expr>>& expr_stack) // FIXME: This needs adjusting
+void ExprTree::HandleFunctionInput(std::string input, int& index, std::stack<std::unique_ptr<Expr>>& expr_stack)
 {
 	++index;
 	std::string func_name = FuncName(input, index);
 	std::unique_ptr<Expr> stack_top = std::move(expr_stack.top());
 	expr_stack.pop();
 
+	AddFunctionToStack(func_name, stack_top, expr_stack);
+}
+
+void ExprTree::UpdateFunctionStack(std::string input, int& index, std::stack<std::unique_ptr<Expr>>& expr_stack)
+{
+	++index;
+	std::string func_name = FuncName(input, index);
+
+	std::unique_ptr<Expr> right = std::move(expr_stack.top());
+	expr_stack.pop();
+
+	std::unique_ptr<Expr> left = std::move(expr_stack.top());
+	expr_stack.pop();
+
+	expr_stack.push(std::move(left));
+	AddFunctionToStack(func_name, right, expr_stack);
+}
+
+void ExprTree::AddFunctionToStack(std::string func_name, std::unique_ptr<Expr>& expr, std::stack<std::unique_ptr<Expr>>& expr_stack)
+{
 	if (func_name == "log")
-		expr_stack.push(std::make_unique<Log>(std::move(stack_top), std::make_unique<Integer>(10)));
+		expr_stack.push(std::make_unique<Log>(std::move(expr), std::make_unique<Integer>(10))); // FIXME: Allow other bases for log
 	else if (func_name == "ln")
-		expr_stack.push(std::make_unique<Ln>(std::move(stack_top)));
+		expr_stack.push(std::make_unique<Ln>(std::move(expr)));
 	else if (func_name == "sin")
-		expr_stack.push(std::make_unique<Sin>(std::move(stack_top)));
+		expr_stack.push(std::make_unique<Sin>(std::move(expr)));
 	else if (func_name == "cos")
-		expr_stack.push(std::make_unique<Cos>(std::move(stack_top)));
+		expr_stack.push(std::make_unique<Cos>(std::move(expr)));
 	else if (func_name == "tan")
-		expr_stack.push(std::make_unique<Tan>(std::move(stack_top)));
+		expr_stack.push(std::make_unique<Tan>(std::move(expr)));
 	else if (func_name == "D")
-		expr_stack.push(std::make_unique<Derivative>(std::move(stack_top), "x"));
+		expr_stack.push(std::make_unique<Derivative>(std::move(expr), "x")); // FIXME: Can be respec to to any variable
 	else if (func_name == "I")
-		expr_stack.push(std::make_unique<Integral>(std::move(stack_top), "x"));
+		expr_stack.push(std::make_unique<Integral>(std::move(expr), "x")); //  FIXME: Can be respec to to any variable
 }
 
 std::string ExprTree::FuncName(std::string input, int& index)
@@ -187,15 +212,15 @@ void ExprTree::UpdateStack(std::stack<std::unique_ptr<Expr>>& expr_stack, ExprTy
 		expr_stack.push(std::make_unique<Mul>(std::move(left), std::make_unique<Pow>(std::move(right), std::make_unique<Integer>(-1))));
 	else if (type == ExprType::POW)
 		expr_stack.push(std::make_unique<Pow>(std::move(left), std::move(right)));
-	else if (type == ExprType::FAC)
-	{
-		expr_stack.push(std::move(left));
-		expr_stack.push(std::make_unique<Fac>(std::move(right)));
-	}
 	else if (type == ExprType::SUB)
 	{
 		std::unique_ptr<Mul> new_expression{ std::make_unique<Mul>(std::make_unique<Integer>(-1), std::move(right)) };
 		expr_stack.push(std::make_unique<Add>(std::move(left), std::move(new_expression)));
+	}
+	else if (type == ExprType::FAC)
+	{
+		expr_stack.push(std::move(left));
+		expr_stack.push(std::make_unique<Fac>(std::move(right)));
 	}
 }
 
@@ -268,10 +293,18 @@ void ExprTree::PrintInorder(const std::unique_ptr<Expr>& expr)
 		PrintAssociative(expr);
 	else
 	{
-		if (expr->IsFac())
+		if (expr->IsFunc())
 		{
-			PrintFunction(expr->Param());
-			std::cout << expr;
+			if (expr->IsFac())
+			{
+				PrintFunction(expr->Param());
+				std::cout << expr;
+			}
+			else
+			{
+				std::cout << expr;
+				PrintFunction(expr->Param());
+			}
 		}
 		else if (!expr->IsMul())
 			std::cout << expr;

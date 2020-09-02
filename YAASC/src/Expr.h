@@ -57,6 +57,7 @@ public:
 	virtual bool IsTerminal() const { return false; }
 	virtual bool IsFunc() const { return false; }
 	virtual bool IsFac() const { return false; }
+	virtual bool IsLog() const { return false; }
 	virtual bool IsAssociative() const { return false; }
 	virtual bool IsVar() const { return false; }
 	virtual bool IsInteger() const { return false; }
@@ -116,8 +117,8 @@ protected:
 	std::unique_ptr<Expr> m_param;
 
 public: 
-	Func(std::unique_ptr<Expr> child)
-		: Expr(nullptr, nullptr), m_param(std::move(child))
+	Func(std::unique_ptr<Expr> param)
+		: Expr(nullptr, nullptr), m_param(std::move(param))
 	{
 	}
 
@@ -133,8 +134,8 @@ public:
 class Fac : public Func
 {
 public:
-	Fac(std::unique_ptr<Expr> child)
-		: Func(std::move(child))
+	Fac(std::unique_ptr<Expr> param)
+		: Func(std::move(param))
 	{
 	}
 
@@ -143,6 +144,49 @@ public:
 	bool IsFac() const { return true; }
 
 	std::string Name() const { return "!"; }
+};
+
+class Log : public Func
+{
+private:
+	std::unique_ptr<Expr> m_base;
+
+public:
+	Log(std::unique_ptr<Expr> param, std::unique_ptr<Expr> base)
+		: m_base(std::move(base)), Func(std::move(param))
+	{
+	}
+
+	int Eval(std::map<std::string, int> env) { return 0; }
+
+	bool IsLog() const { return true; }
+
+	std::string Name() const { return "log"; }
+};
+
+class Sin : public Func
+{
+	// Implement sin
+};
+
+class Cos : public Func
+{
+	// Implement cos
+};
+
+class Tan : public Func
+{
+	// Implement tan
+};
+
+class Derivative : public Func
+{
+	// Implement derivative
+};
+
+class Integral : public Func
+{
+	// Implement integral
 };
 
 class Associative : public Expr
@@ -292,6 +336,10 @@ public:
 	{
 	}
 
+	virtual ~Var()
+	{
+	}
+
 	int Eval(std::map<std::string, int> env) { return env.at(m_atom); }
 
 	std::string Name() const { return m_atom; }
@@ -299,5 +347,40 @@ public:
 	bool IsVar() const { return true; }
 };
 
-// class Fraction : public Atomic<std::string>
-// class Special : public Atomic<std::string> (PI, e, ...)
+class Special : public Var
+{
+public:
+	Special(std::string name)
+		: Var(name)
+	{
+	}
+
+	virtual ~Special()
+	{
+	}
+
+	bool IsSpecial() const { return true; }
+};
+
+class Pi : public Special
+{
+	Pi() : Special("PI")
+	{
+	}
+
+	int Eval(std::map<std::string, int> env) { return 0; }
+	ExprType ExpressionType() const { return ExprType::PI; }
+	bool IsPi() const { return true; }
+};
+
+class e : public Special
+{
+	e() : Special("e")
+	{
+	}
+
+	int Eval(std::map<std::string, int> env) { return 0; }
+	ExprType ExpressionType() const { return ExprType::e; }
+	bool IsE() const{ return true; }
+};
+

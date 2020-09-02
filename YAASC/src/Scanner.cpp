@@ -4,7 +4,7 @@ namespace scanner {
 
 void HandleInput(std::string& input)
 {
-	CleanDuplicateOperators(input);
+	CleanInput(input);
 	AddMultiplySign(input);
 	AddFunctionToken(input);
 	AddUnaryToken(input);
@@ -135,6 +135,7 @@ void UnaryTokenOff(std::string& input)
 void AddMultiplySign(std::string& input)
 {
 	std::string new_input = "";
+
 	for (unsigned int i = 0; i < input.length(); i++)
 	{
 		new_input += input[i];
@@ -151,18 +152,36 @@ void AddMultiplySign(std::string& input)
 		if (CanAddMultiplySign(input[i], input[i + 1]) && i + 1 < input.length())
 			new_input += '*';
 	}
+
 	input = new_input;
 }
 
 void RemoveMultiplySign(std::string& input)
 {
 	std::string new_input = "";
+
 	for (unsigned int i = 0; i < input.length(); i++)
 	{
 		if (input[i] != '*')
 			new_input += input[i];
 	}
+
 	input = new_input;
+}
+
+void CleanInput(std::string& input)
+{
+	std::string new_input = "";
+
+	for (unsigned int i = 0; i < input.length(); i++)
+	{
+		if (IsOperand(input[i]) || IsOperator(input[i]) || IsParenthesis(input[i]) || input[i] == '.')
+			new_input += input[i];
+	}
+
+	input = new_input;
+
+	CleanDuplicateOperators(input);
 }
 
 void CleanDuplicateOperators(std::string& input)
@@ -264,6 +283,16 @@ bool IsVariable(char c)
 bool IsOperand(char c)
 {
 	if (IsVariable(c) || isdigit(c))
+		return true;
+
+	return false;
+}
+
+bool IsOperator(char c)
+{
+	if (c == '+' || c == '-' ||
+		c == '*' || c == '/' ||
+		c == '^' || c == '!')
 		return true;
 
 	return false;

@@ -14,7 +14,7 @@ std::unique_ptr<Expr> ExprTree::Construct(std::string input)
 		while (input[i] == ' ')
 			i++;
 
-		if (scanner::Variable(input[i]))
+		if (scanner::IsVariable(input[i]))
 		{
 			std::unique_ptr<Pow> expr = std::make_unique<Pow>(std::make_unique<Var>(std::string(1, input[i])),
 				std::make_unique<Integer>(1));
@@ -68,7 +68,9 @@ std::unique_ptr<Expr> ExprTree::Construct(std::string input)
 
 		if (expr_stack.size() == 1)
 		{
-			if (input[i] == '!')
+			if (input[i] == '#')
+				HandleFunctionInput(input, i, expr_stack);
+			else if (input[i] == '!')
 			{
 				std::unique_ptr<Expr> stack_top = std::move(expr_stack.top());
 				expr_stack.pop();
@@ -122,6 +124,51 @@ std::unique_ptr<Expr> ExprTree::Construct(std::string input)
 	}
 
 	return nullptr;
+}
+
+void ExprTree::HandleFunctionInput(std::string input, int& index, std::stack<std::unique_ptr<Expr>>& expr_stack) // FIXME: This needs adjusting
+{
+	++index;
+	std::string func_name = FuncName(input, index);
+	std::unique_ptr<Expr> stack_top = std::move(expr_stack.top());
+	expr_stack.pop();
+
+	if (func_name == "log")
+		expr_stack.push(std::make_unique<Log>(std::move(stack_top), std::make_unique<Integer>(10)));
+	else if (func_name == "ln")
+		expr_stack.push(std::make_unique<Ln>(std::move(stack_top)));
+	else if (func_name == "sin")
+		expr_stack.push(std::make_unique<Sin>(std::move(stack_top)));
+	else if (func_name == "cos")
+		expr_stack.push(std::make_unique<Cos>(std::move(stack_top)));
+	else if (func_name == "tan")
+		expr_stack.push(std::make_unique<Tan>(std::move(stack_top)));
+	else if (func_name == "D")
+		expr_stack.push(std::make_unique<Derivative>(std::move(stack_top), "x"));
+	else if (func_name == "I")
+		expr_stack.push(std::make_unique<Integral>(std::move(stack_top), "x"));
+}
+
+std::string ExprTree::FuncName(std::string input, int& index)
+{
+	int end_index = 0;
+	int length = input.length();
+	std::string func_name = "";
+
+	for (int i = index; i < length; i++)
+	{
+		if (input[i] != ' ')
+			func_name += input[i];
+		else
+		{
+			end_index = i;
+			break;
+		}
+	}
+
+	index = end_index;
+
+	return func_name;
 }
 
 void ExprTree::UpdateStack(std::stack<std::unique_ptr<Expr>>& expr_stack, ExprType type)

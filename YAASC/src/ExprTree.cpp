@@ -6,68 +6,18 @@ namespace yaasc
 std::unique_ptr<Expr> ExprTree::Construct(std::string input)
 {
 	scanner::HandleInput(input);
-
-	std::cout << input << '\n';
-
 	std::stack<std::unique_ptr<Expr>> expr_stack;
-	int lenght = input.length();
+	int length = input.length();
 
-	for (int i = 0; i < lenght; i++)
+	for (int i = 0; i < length; i++)
 	{
 		while (input[i] == ' ')
 			i++;
 
 		if (scanner::IsVariable(input[i]))
-		{
-			std::unique_ptr<Pow> expr = std::make_unique<Pow>(std::make_unique<Var>(std::string(1, input[i])),
-				std::make_unique<Integer>(1));
-
-			if (i - 1 >= 0 && input[i - 1] == '-')
-				expr_stack.push(std::make_unique<Mul>(std::make_unique<Integer>(-1), std::move(expr)));
-			else
-				expr_stack.push(std::move(expr));
-		}
+			HandleVariableInput(input, i, expr_stack);
 		else if (isdigit(input[i]))
-		{
-			int first_index = i;
-			bool is_float = false;
-			std::string number = "";
-			number += input[i];
-
-			for (int j = i + 1; j < lenght; j++)
-			{
-				if (isdigit(input[j]))
-					number += input[j];
-				else if (input[j] == '.' && is_float == false)
-				{
-					number += input[j];
-					is_float = true;
-				}
-				else
-				{
-					i = j - 1;
-					break;
-				}
-			}
-
-			if (!is_float)
-			{
-				int value = std::stoi(number);
-				if (first_index - 1 >= 0 && input[first_index - 1] == '-')
-					expr_stack.push(std::make_unique<Integer>(value * -1));
-				else
-					expr_stack.push(std::make_unique<Integer>(value));
-			}
-			else
-			{
-				float value = std::stof(number);
-				if (first_index - 1 >= 0 && input[first_index - 1] == '-')
-					expr_stack.push(std::make_unique<Float>(value * -1.0f));
-				else
-					expr_stack.push(std::make_unique<Float>(value));
-			}
-
-		}
+			HandleDigitInput(input, i, expr_stack);
 
 		if (expr_stack.size() == 1)
 		{
@@ -97,7 +47,7 @@ std::unique_ptr<Expr> ExprTree::Construct(std::string input)
 				UpdateStack(expr_stack, ExprType::FAC);
 			else if (input[i] == '-')
 			{
-				if (i + 1 < lenght)
+				if (i + 1 < length)
 				{
 					if (input[i + 1] == ' ')
 						UpdateStack(expr_stack, ExprType::SUB);
@@ -110,7 +60,7 @@ std::unique_ptr<Expr> ExprTree::Construct(std::string input)
 		{
 			if (input[i] == '-')
 			{
-				if (i + 1 < lenght && input[i + 1] == ' ')
+				if (i + 1 < length && input[i + 1] == ' ')
 				{
 					std::unique_ptr<Expr> expr = std::move(expr_stack.top());
 					expr_stack.pop();
@@ -129,6 +79,59 @@ std::unique_ptr<Expr> ExprTree::Construct(std::string input)
 	}
 
 	return nullptr;
+}
+
+void ExprTree::HandleVariableInput(std::string input, int& index, std::stack<std::unique_ptr<Expr>>& expr_stack)
+{
+	std::unique_ptr<Pow> expr = std::make_unique<Pow>(std::make_unique<Var>(std::string(1, input[index])),
+	                            std::make_unique<Integer>(1));
+
+	if (index - 1 >= 0 && input[index - 1] == '-')
+		expr_stack.push(std::make_unique<Mul>(std::make_unique<Integer>(-1), std::move(expr)));
+	else
+		expr_stack.push(std::move(expr));
+}
+
+void ExprTree::HandleDigitInput(std::string input, int& index, std::stack<std::unique_ptr<Expr>>& expr_stack)
+{
+	int first_index = index;
+	int length = input.length();
+	bool is_float = false;
+	std::string number = "";
+	number += input[index];
+
+	for (int i = index + 1; i < length; i++)
+	{
+		if (isdigit(input[i]))
+			number += input[i];
+		else if (input[i] == '.' && is_float == false)
+		{
+			number += input[i];
+			is_float = true;
+		}
+		else
+		{
+			index = i - 1;
+			break;
+		}
+	}
+
+	if (!is_float)
+	{
+		int value = std::stoi(number);
+		if (first_index - 1 >= 0 && input[first_index - 1] == '-')
+			expr_stack.push(std::make_unique<Integer>(value * -1));
+		else
+			expr_stack.push(std::make_unique<Integer>(value));
+	}
+	else
+	{
+		float value = std::stof(number);
+		if (first_index - 1 >= 0 && input[first_index - 1] == '-')
+			expr_stack.push(std::make_unique<Float>(value * -1.0f));
+		else
+			expr_stack.push(std::make_unique<Float>(value));
+	}
 }
 
 void ExprTree::HandleFunctionInput(std::string input, int& index, std::stack<std::unique_ptr<Expr>>& expr_stack)
@@ -159,7 +162,7 @@ void ExprTree::UpdateFunctionStack(std::string input, int& index, std::stack<std
 void ExprTree::AddFunctionToStack(std::string func_name, std::unique_ptr<Expr>& expr, std::stack<std::unique_ptr<Expr>>& expr_stack)
 {
 	if (func_name == "log")
-		expr_stack.push(std::make_unique<Log>(std::move(expr), std::make_unique<Integer>(10))); // FIXME: Allow other bases for log
+		expr_stack.push(std::make_unique<Log>(std::move(expr), std::make_unique<Integer>(10))); // FIXME: Allow other bases than 10 for log
 	else if (func_name == "ln")
 		expr_stack.push(std::make_unique<Ln>(std::move(expr)));
 	else if (func_name == "sin")
@@ -169,9 +172,9 @@ void ExprTree::AddFunctionToStack(std::string func_name, std::unique_ptr<Expr>& 
 	else if (func_name == "tan")
 		expr_stack.push(std::make_unique<Tan>(std::move(expr)));
 	else if (func_name == "D")
-		expr_stack.push(std::make_unique<Derivative>(std::move(expr), "x")); // FIXME: Can be respec to to any variable
+		expr_stack.push(std::make_unique<Derivative>(std::move(expr), "x")); // FIXME: Can be respect to any variable
 	else if (func_name == "I")
-		expr_stack.push(std::make_unique<Integral>(std::move(expr), "x")); //  FIXME: Can be respec to to any variable
+		expr_stack.push(std::make_unique<Integral>(std::move(expr), "x")); // FIXME: Can be respect to any variable
 }
 
 std::string ExprTree::FuncName(std::string input, int& index)
@@ -227,9 +230,9 @@ void ExprTree::UpdateStack(std::stack<std::unique_ptr<Expr>>& expr_stack, ExprTy
 void ExprTree::PrintParenthesis(const std::unique_ptr<Expr>& expr, const std::unique_ptr<Expr>& child, bool left_paranthesis)
 {
 	if ((expr->IsMul() && child->IsAdd())  || 
-		(expr->IsPow() && child->IsMul())  ||
-		(expr->IsPow() && child->IsAdd())  ||
-		(expr->IsPow() && child->IsFunc()))
+        (expr->IsPow() && child->IsMul())  ||
+        (expr->IsPow() && child->IsAdd())  ||
+        (expr->IsPow() && child->IsFunc()))
 	{
 		if (left_paranthesis)
 			std::cout << "(";
@@ -243,8 +246,8 @@ void ExprTree::PrintFunction(const std::unique_ptr<Expr>& expr)
 	bool parenthesis = false;
 
 	if (expr->IsAdd() ||
-		expr->IsMul() ||
-		expr->IsPow())
+        expr->IsMul() ||
+        expr->IsPow())
 	{
 		parenthesis = true;
 		std::cout << "(";

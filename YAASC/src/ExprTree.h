@@ -23,6 +23,8 @@ public:
 	std::string FuncName(std::string input, int& index);
 	std::string TreeString();
 
+	void HandleVariableInput(std::string input, int& index, std::stack<std::unique_ptr<Expr>>& expr_stack);
+	void HandleDigitInput(std::string input, int& index, std::stack<std::unique_ptr<Expr>>& expr_stack);
 	void HandleFunctionInput(std::string input, int& index, std::stack<std::unique_ptr<Expr>>& expr_stack);
 	void UpdateFunctionStack(std::string input, int& index, std::stack<std::unique_ptr<Expr>>& expr_stack);
 	void AddFunctionToStack(std::string func_name, std::unique_ptr<Expr>& expr, std::stack<std::unique_ptr<Expr>>& expr_stack);

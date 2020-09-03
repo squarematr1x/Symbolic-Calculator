@@ -8,6 +8,8 @@ An expression tree is constructed from an input string given by the user. Expres
 ![nodes](https://github.com/squarematr1x/YAASC/blob/master/Resources/img3.png?raw=true)
 
 ### Example 2: an expression tree constructed from input a^2+b
+Infix input string is first converted to postfix (a ^ 2 + b --> a 2 ^ b +). Next, the expression tree is constructed from the postfix input. The scanner knows how to seperate between function input and variables. For example: sin(x) will be converted to x #sin, where as san(x) will be converted to s a * n * x * . At the moment hashtag symbol (#) acts as a function token.
+
 ![simple tree](https://github.com/squarematr1x/YAASC/blob/master/Resources/img1.png?raw=true)
 
 ### Example 3: simplification from a(a+b+c) to a^2+ab+ac

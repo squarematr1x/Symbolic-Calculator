@@ -247,7 +247,8 @@ void ExprTree::PrintFunction(const std::unique_ptr<Expr>& expr)
 
 	if (expr->IsAdd() ||
         expr->IsMul() ||
-        expr->IsPow())
+        expr->IsPow() ||
+        expr->IsFunc())
 	{
 		parenthesis = true;
 		std::cout << "(";

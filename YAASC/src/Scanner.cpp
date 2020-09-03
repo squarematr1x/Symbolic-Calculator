@@ -10,7 +10,6 @@ void HandleInput(std::string& input)
 	AddUnaryToken(input);
 	InfixToPostfix(input);
 	UnaryTokenOff(input);
-	std::cout << input << '\n';
 }
 
 void InfixToPostfix(std::string& input)
@@ -383,7 +382,7 @@ bool IsFunction(std::string input, unsigned int start_index)
 	if (!has_input)
 		return false;
 
-	std::vector<std::string> functions{ "log", "ln", "sin", "cos", "tan", "D", "I" };
+	std::vector<std::string> functions{ "log", "log2", "log10", "ln", "sin", "cos", "tan", "D", "I" };
 	bool is_function = false;
 
 	for (auto function : functions)

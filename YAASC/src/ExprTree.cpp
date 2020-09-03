@@ -161,8 +161,10 @@ void ExprTree::UpdateFunctionStack(std::string input, int& index, std::stack<std
 
 void ExprTree::AddFunctionToStack(std::string func_name, std::unique_ptr<Expr>& expr, std::stack<std::unique_ptr<Expr>>& expr_stack)
 {
-	if (func_name == "log")
-		expr_stack.push(std::make_unique<Log>(std::move(expr), std::make_unique<Integer>(10))); // FIXME: Allow other bases than 10 for log
+	if (func_name == "log" || func_name == "log10")
+		expr_stack.push(std::make_unique<Log>(std::move(expr), std::make_unique<Integer>(10)));
+	else if (func_name == "log2")
+		expr_stack.push(std::make_unique<Log>(std::move(expr), std::make_unique<Integer>(2)));
 	else if (func_name == "ln")
 		expr_stack.push(std::make_unique<Ln>(std::move(expr)));
 	else if (func_name == "sin")
@@ -307,6 +309,10 @@ void ExprTree::PrintInorder(const std::unique_ptr<Expr>& expr)
 			else
 			{
 				std::cout << expr;
+
+				if (expr->IsLog() && expr->Base()->Name() == "2")
+					std::cout << "2";
+
 				PrintFunction(expr->Param());
 			}
 		}

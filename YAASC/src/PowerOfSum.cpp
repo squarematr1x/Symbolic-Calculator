@@ -22,28 +22,9 @@ void PowerOfSum(std::unique_ptr<Expr>& expr)
 	// (a+b)^n
 	if (!expr->Left()->IsGeneric())
 		ApplyBinomialTheorem(expr);
-	// (a+b+...m)^n
+	// (a1+a2+...am)^n
 	else
-	{
-		std::unique_ptr<Expr>& add_node = expr->Left();
-		std::unique_ptr<Expr>& exponent = expr->Right();
-		std::unique_ptr<Expr> new_add_node = std::make_unique<Mul>();
-
-		int multiplications = stoi(exponent->Name());
-
-		// (a+b+c)^2, in other cases the output string is inconveniently large
-		if (multiplications == 2 && add_node->ChildrenSize() < 4)
-		{
-			for (int i = 0; i < add_node->ChildrenSize(); i++)
-			{
-				std::unique_ptr<Expr> copy;
-				tree_util::DeepCopy(copy, add_node);
-				new_add_node->AddChild(std::move(copy));
-			}
-
-			expr = std::move(new_add_node);
-		}
-	}
+		ApplyMultinomialTheorem(expr);
 }
 
 // (a+b)^n
@@ -53,9 +34,9 @@ void ApplyBinomialTheorem(std::unique_ptr<Expr>& expr)
 	std::unique_ptr<Expr> add_node = std::move(expr->Left());
 	std::unique_ptr<Expr> new_add_node = std::make_unique<Add>();
 
+	int coefficient = 1;
 	int n = stoi(exponent->Name());
 	int numerator = calc::Factorial(n);
-	int coefficient = 1;
 
 	for (int i = 0; i <= n; i++)
 	{
@@ -63,30 +44,35 @@ void ApplyBinomialTheorem(std::unique_ptr<Expr>& expr)
 		coefficient = numerator / denominator;
 
 		std::unique_ptr<Expr> mul_node = std::make_unique<Mul>();
+		std::unique_ptr<Expr> expr_a;
+		std::unique_ptr<Expr> expr_b;
 
-		std::unique_ptr<Expr> a;
-		std::unique_ptr<Expr> b;
-		tree_util::DeepCopy(a, add_node->Left());
-		tree_util::DeepCopy(b, add_node->Right());
+		tree_util::DeepCopy(expr_a, add_node->Left());
+		tree_util::DeepCopy(expr_b, add_node->Right());
 
 		mul_node->AddChild(std::move(std::make_unique<Integer>(coefficient)));
 
 		if (n - i > 0)
-			mul_node->AddChild(std::move(std::make_unique<Pow>(std::move(a), std::make_unique<Integer>(n - i))));
+			mul_node->AddChild(std::move(std::make_unique<Pow>(std::move(expr_a), std::make_unique<Integer>(n - i))));
 
 		if (i > 0)
-			mul_node->AddChild(std::move(std::make_unique<Pow>(std::move(b), std::make_unique<Integer>(i))));
+			mul_node->AddChild(std::move(std::make_unique<Pow>(std::move(expr_b), std::make_unique<Integer>(i))));
 
 		new_add_node->AddChild(std::move(mul_node));
 	}
 
-	coefficient = 0;
 	expr = std::move(new_add_node);
+}
+
+// (a1+a2+...+am)^n
+void ApplyMultinomialTheorem(std::unique_ptr<Expr>& expr)
+{	
+	(void)expr;
 }
 
 bool CanApplyPowerOfSum(const std::unique_ptr<Expr>& expr)
 {
-	// Expression is (a+b+...m)^n and m is integer
+	// Expression is (a1+a2+...am)^n and n is integer
 	if (expr->Left()->IsAdd() && expr->Right()->IsInteger())
 		return true;
 

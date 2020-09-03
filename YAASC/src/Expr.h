@@ -15,6 +15,7 @@ enum class ExprType
 	DIV,
 	ADD,
 	POW,
+	FUNC,
 	FAC,
 	LOG,
 	SIN,

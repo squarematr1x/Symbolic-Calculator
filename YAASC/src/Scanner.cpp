@@ -8,10 +8,8 @@ void HandleInput(std::string& input)
 	AddMultiplySign(input);
 	AddFunctionToken(input);
 	AddUnaryToken(input);
-	std::cout << input << '\n';
 	InfixToPostfix(input);
 	UnaryTokenOff(input);
-	std::cout << input << '\n';
 }
 
 void InfixToPostfix(std::string& input)

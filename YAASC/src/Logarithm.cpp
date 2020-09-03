@@ -2,14 +2,16 @@
 
 namespace algebra {
 
+// FIXME: log(2^y) --> 0.30103y
+
 void ApplyLogarithmRules(std::unique_ptr<Expr>& expr)
 {
-	// log(1) --> 0, loga(a) --> 1, loga(a^b) --> b, a^(loga(b)) --> b
-	SimplifySpecialLogarithm(expr);
 	// log(ab) --> log(a) + log(b)
 	LogarithmProduct(expr);
 	// log(a^n) --> nlog(a)
 	LogarithmPower(expr);
+	// log(1) --> 0, loga(a) --> 1, loga(a^b) --> b, a^(loga(b)) --> b
+	SimplifySpecialLogarithm(expr);
 }
 
 // log(ab) --> log(a) + log(b)

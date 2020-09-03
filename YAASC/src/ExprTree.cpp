@@ -6,6 +6,7 @@ namespace yaasc
 std::unique_ptr<Expr> ExprTree::Construct(std::string input)
 {
 	scanner::HandleInput(input);
+
 	std::stack<std::unique_ptr<Expr>> expr_stack;
 	int length = input.length();
 

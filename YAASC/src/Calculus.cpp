@@ -43,6 +43,8 @@ bool HasPowChildren(std::unique_ptr<Expr>& expr)
 
 void Integrate(std::unique_ptr<Expr>& expr, std::string respect_to)
 {
+	(void)expr;
+	(void)respect_to;
 	// Apply integration rules
 }
 

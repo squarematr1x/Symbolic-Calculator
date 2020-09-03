@@ -10,6 +10,7 @@ void HandleInput(std::string& input)
 	AddUnaryToken(input);
 	InfixToPostfix(input);
 	UnaryTokenOff(input);
+	std::cout << input << '\n';
 }
 
 void InfixToPostfix(std::string& input)
@@ -245,7 +246,6 @@ void FunctionTokenHelper(std::string input, unsigned int& start_index, std::stri
 			end_index = i;
 			break;
 		}
-
 	}
 
 	postfix_string += function_string;
@@ -367,14 +367,21 @@ bool MissingParenthesis(std::string input)
 bool IsFunction(std::string input, unsigned int start_index)
 {
 	std::string function_string = "";
+	bool has_input = false;
 
 	for (unsigned int i = start_index; i < input.length(); i++)
 	{
 		if (input[i] != '(' && input[i] != '*')
 			function_string += input[i];
 		else if (input[i] == '(')
+		{
+			has_input = HasInput(input, i);
 			break;
+		}
 	}
+
+	if (!has_input)
+		return false;
 
 	std::vector<std::string> functions{ "log", "ln", "sin", "cos", "tan", "D", "I" };
 	bool is_function = false;
@@ -389,6 +396,55 @@ bool IsFunction(std::string input, unsigned int start_index)
 	}
 	
 	return is_function;
+}
+
+bool HasInput(std::string input, unsigned int start_index)
+{
+	bool has_input = false;
+	bool has_left_parenthesis = false;
+	bool has_right_parenthesis = false;
+
+	for (unsigned int i = start_index; i < input.length(); i++)
+	{
+		if (IsOperand(input[i]) && !has_input)
+		{
+			if (IsFunction(input, i))
+				MoveIndexToParameter(input, i);
+			else
+				has_input = true;
+		}
+		else if (IsLeftParenthesis(input[i]))
+			has_left_parenthesis = true;
+		else if (IsRightParenthesis(input[i]))
+		{
+			has_right_parenthesis = true;
+			break;
+		}
+	}
+
+	if (has_left_parenthesis && has_right_parenthesis && has_input)
+		return true;
+
+	return false;
+}
+
+void MoveIndexToParameter(std::string input, unsigned int& index)
+{
+	unsigned int new_index = 0;
+
+	for (unsigned int i = index; i < input.length(); i++)
+	{
+		if (input[i] == '(')
+		{
+			if (i + 1 < input.length())
+			{
+				new_index = i;
+				break;
+			}
+		}
+	}
+
+	index = new_index;
 }
 
 int Precedence(char c)

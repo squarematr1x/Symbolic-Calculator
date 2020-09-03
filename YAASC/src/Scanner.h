@@ -21,6 +21,7 @@ void AddStackTopToString(std::string& input, std::stack<char>& char_stack, std::
 void AddFunctionToString(std::string& input, std::stack<char>& char_stack, std::stack<std::string>& func_stack);
 void FunctionTokenHelper(std::string input, unsigned int& start_index, std::string& postfix_string);
 void FunctionToStack(std::string input, unsigned int& start_index, std::stack<std::string>& func_stack);
+void MoveIndexToParameter(std::string input, unsigned int& index);
 
 bool IsOperand(char c);
 bool IsOperator(char c);
@@ -32,6 +33,7 @@ bool IsRightParenthesis(char c);
 bool CanAddMultiplySign(char c, char next_c);
 bool MissingParenthesis(std::string input);
 bool IsFunction(std::string input, unsigned int start_index);
+bool HasInput(std::string input, unsigned int start_index);
 
 int Precedence(char c);
 

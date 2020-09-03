@@ -4,6 +4,8 @@ namespace algebra {
 
 void ApplyLogarithmRules(std::unique_ptr<Expr>& expr)
 {
+	// log(1) --> 0, loga(a) --> 1, loga(a^b) --> b, a^(loga(b)) --> b
+	SimplifySpecialLogarithm(expr);
 	// log(ab) --> log(a) + log(b)
 	LogarithmProduct(expr);
 	// log(a^n) --> nlog(a)
@@ -99,10 +101,36 @@ void LogarithmPower(std::unique_ptr<Expr>& expr)
 	expr = std::move(new_expr);
 }
 
-// log 1 = 0, loga(a) = 1, loga(a^b) = b, a^(loga(b)) = b
+// log(1) --> 0, loga(a) --> 1, loga(a^b) --> b, a^(loga(b)) --> b
 void SimplifySpecialLogarithm(std::unique_ptr<Expr>& expr)
 {
-	(void)expr;
+	if (expr->IsTerminal())
+		return;
+
+	if (expr->IsGeneric())
+	{
+		for (int i = 0; i < expr->ChildrenSize(); i++)
+			SimplifySpecialLogarithm(expr->ChildAt(i));
+	}
+	else
+	{
+		if (!expr->LeftIsTerminal())
+			SimplifySpecialLogarithm(expr->Left());
+		if (!expr->RightIsTerminal())
+			SimplifySpecialLogarithm(expr->Right());
+	}
+
+	if (!expr->IsLog())
+		return;
+
+	// log 1 = 0
+	if (expr->Param()->IsOne())
+		expr = std::move(std::make_unique<Integer>(0));
+	// loga(a) = 1
+	else if (expr->Param() == expr->Base())
+		expr = std::move(std::make_unique<Integer>(1));
+
+	// FIXME: Implement loga(a^b) --> b and a^(loga(b)) --> b
 }
 
 }

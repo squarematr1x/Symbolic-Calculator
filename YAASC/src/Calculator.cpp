@@ -14,7 +14,10 @@ void Calculate(std::unique_ptr<Expr>& root)
 		Calculate(root->Right());
 
 	if (root->IsFunc())
+	{
 		ComputeFactorial(root);
+		ComputeLogarithm(root);
+	}
 	else if (!root->IsGeneric())
 		CalculateBinNode(root);
 	else
@@ -149,6 +152,33 @@ void ComputeFactorial(std::unique_ptr<Expr>& expr)
 			result *= i;
 
 		expr = std::make_unique<Integer>(result);
+	}
+}
+
+void ComputeLogarithm(std::unique_ptr<Expr>& expr)
+{
+	if (!expr->IsLog())
+		return;
+
+	if (!expr->Param()->IsNumber())
+		return;
+
+	double number = std::stod(expr->Param()->Name());
+
+	if (expr->Base()->Name() == "e")
+	{
+		number = log(number);
+		expr = std::make_unique<Float>(std::move(static_cast<float>(number)));
+	}
+	else if (expr->Base()->Name() == "10")
+	{
+		number = log10(number);
+		expr = std::make_unique<Float>(std::move(static_cast<float>(number)));
+	}
+	else if (expr->Base()->Name() == "2")
+	{
+		number = log2(number);
+		expr = std::make_unique<Float>(std::move(static_cast<float>(number)));
 	}
 }
 

@@ -237,11 +237,23 @@ void SimplifyExponents(std::unique_ptr<Expr>& root, bool final_modification)
 	if (root->IsTerminal())
 		return;
 
-	if (!root->LeftIsTerminal())
-		SimplifyExponents(root->Left(), final_modification);
+	if (root->IsGeneric())
+	{
+		for (int i = 0; i < root->ChildrenSize(); i++)
+			SimplifyExponents(root->ChildAt(i), final_modification);
+	}
+	else if (root->IsFunc())
+	{
+		SimplifyExponents(root->Param(), final_modification);
+	}
+	else
+	{
+		if (!root->LeftIsTerminal())
+			SimplifyExponents(root->Left(), final_modification);
 
-	if (!root->RightIsTerminal())
-		SimplifyExponents(root->Right(), final_modification);
+		if (!root->RightIsTerminal())
+			SimplifyExponents(root->Right(), final_modification);
+	}
 
 	if (RaisedToZero(root))
 		root = std::move(std::make_unique<Integer>(1));

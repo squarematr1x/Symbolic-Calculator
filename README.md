@@ -75,4 +75,4 @@ Multiplication sign ( * ) and spaces are optional, but however those can be adde
          simplified: 2xy^2+x^2y+xyz         
 ```
 
-Future plans include: fractions, logarithms, trigonometric functions and calculus.
+Future plans include: fractions (and roots), trigonometric functions and calculus.

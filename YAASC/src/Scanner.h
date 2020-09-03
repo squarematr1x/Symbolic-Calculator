@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <iostream>
 
 namespace scanner {
 
@@ -25,6 +26,7 @@ void MoveIndexToParameter(std::string input, unsigned int& index);
 bool IsOperand(char c);
 bool IsOperator(char c);
 bool IsVariable(char c);
+bool IsFactorial(char c);
 bool IsFunctionToken(char c);
 bool IsParenthesis(char c);
 bool IsLeftParenthesis(char c);

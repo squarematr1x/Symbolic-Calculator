@@ -8,8 +8,10 @@ void HandleInput(std::string& input)
 	AddMultiplySign(input);
 	AddFunctionToken(input);
 	AddUnaryToken(input);
+	std::cout << input << '\n';
 	InfixToPostfix(input);
 	UnaryTokenOff(input);
+	std::cout << input << '\n';
 }
 
 void InfixToPostfix(std::string& input)
@@ -279,6 +281,14 @@ bool IsVariable(char c)
 	return false;
 }
 
+bool IsFactorial(char c)
+{
+	if (c == '!')
+		return true;
+
+	return false;
+}
+
 bool IsOperand(char c)
 {
 	if (IsVariable(c) || isdigit(c))
@@ -335,6 +345,10 @@ bool CanAddMultiplySign(char c, char next_c)
 	else if (isdigit(c) && IsVariable(next_c))
 		return true;
 	else if (isdigit(c) && IsLeftParenthesis(next_c))
+		return true;
+	else if (IsFactorial(c) && IsLeftParenthesis(next_c))
+		return true;
+	else if (IsFactorial(c) && IsOperand(next_c))
 		return true;
 	else if (IsRightParenthesis(c) && IsOperand(next_c))
 		return true;

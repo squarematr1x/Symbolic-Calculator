@@ -1,7 +1,7 @@
 # YAASC
 YAASC (Yet Another Aspiring Symbolic Calculator) is an aspiring [CAS](https://en.wikipedia.org/wiki/Computer_algebra_system) made from scratch. It is designed for performing simplification operations on different algebraic expressions. All the expressions are stored in a tree (datastructure).
 
-An expression tree is constructed from an input string given by the user. Expression nodes in the tree can be binary, generic or atomic. A binary node has only two children, where as a generic node can have arbitrary number of children. An atomic node doesn't have any children. By modifying the expression tree with different algorithms, the mathematical expression given by the user can be simplified.
+An expression tree is constructed from an input string given by the user. Expression nodes in the tree can be binary, generic, function or atomic. A binary node has two children, where as a generic node can have arbitrary number of children. A function node has only one child (parameter) and an atomic node doesn't have any children. By modifying the expression tree with different algorithms, the mathematical expression given by the user can be simplified.
 
 
 ### Example 1: Different nodes
@@ -40,10 +40,10 @@ At this point some algebraic expression can be simplified:
          simplified: 6
 >>>0-2xy+0
          simplified: -2xy
->>>4!+a
-         simplified: 24+a
->>>3!+a^2a+4!
-         simplified: 30+a^3       
+>>>4!+x
+         simplified: 24+x
+>>>3!+x^2x+4!
+         simplified: 30+x^3       
 >>>2xyz+3yxz+4zxy
          simplified: 9xyz   
 >>>x2yz+zyx+zyx5
@@ -56,8 +56,8 @@ At this point some algebraic expression can be simplified:
          simplified: 2xy+x^2+y^2
 >>>(xy)^1
          simplified: xy
->>>-4!+(a+b)^3+(ab)^0
-         simplified: -23+3a^2b+3ab^2+a^3+b^3   
+>>>-4!+(x+y)^3+(xy)^0
+         simplified: -23+3x^2y+3xy^2+x^3+y^3   
 ```
 
 Multiplication sign ( * ) and spaces are optional, but however those can be added into the input string:

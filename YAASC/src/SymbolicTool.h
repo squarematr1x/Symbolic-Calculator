@@ -1,9 +1,9 @@
 #pragma once
 
-#include "TreeUtil.h"
 #include "PowerTransformation.h"
 #include "PowerOfSum.h"
 #include "Expand.h"
+#include "Logarithm.h"
 #include "Calculus.h"
 
 namespace yaasc {

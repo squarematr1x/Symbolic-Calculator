@@ -4,7 +4,7 @@ namespace yaasc {
 
 void Simplify(std::unique_ptr<Expr>& root) 
 {
-	std::unique_ptr<Expr> copy; // FIXME: Factorials can't be copied properly
+	std::unique_ptr<Expr> copy;
 	int i = 0;
 
 	if (!root) // Expression might be empty
@@ -16,6 +16,7 @@ void Simplify(std::unique_ptr<Expr>& root)
 		Canonize(root);
 		algebra::PowerOfSum(root);
 		algebra::Expand(root);
+		algebra::ApplyLogarithmRules(root);
 		AddVariables(root);
 		SimplifyExponents(root, false);
 		ApplyExponentRules(root);
@@ -36,7 +37,7 @@ void Simplify(std::unique_ptr<Expr>& root)
 	}
 
 	// Finally simplifies variables that are raised to one: a^1 --> a
-	SimplifyExponents(root, true); // FIXME: Has some problems with PowerOfSum
+	SimplifyExponents(root, true);
 }
 
 // Adding same variables: a+2a+3a --> 6a

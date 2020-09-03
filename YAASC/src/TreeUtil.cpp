@@ -62,6 +62,20 @@ void CopyToStack(std::stack<std::unique_ptr<Expr>>& expr_stack, const std::uniqu
 
 		if (expr->IsFac())
 			expr_stack.push(std::make_unique<Fac>(std::move(parameter)));
+		else if (expr->IsLog())
+			expr_stack.push(std::make_unique<Log>(std::move(parameter), std::make_unique<Integer>(10)));
+		else if (expr->IsLn())
+			expr_stack.push(std::make_unique<Ln>(std::move(parameter)));
+		else if (expr->IsSin())
+			expr_stack.push(std::make_unique<Sin>(std::move(parameter)));
+		else if (expr->IsCos())
+			expr_stack.push(std::make_unique<Cos>(std::move(parameter)));
+		else if (expr->IsTan())
+			expr_stack.push(std::make_unique<Tan>(std::move(parameter)));
+		else if (expr->IsDerivative())
+			expr_stack.push(std::make_unique<Derivative>(std::move(parameter), "x"));
+		else if (expr->IsIntegral())
+			expr_stack.push(std::make_unique<Integral>(std::move(parameter), "x"));
 	}
 	else if (!expr->IsGeneric())
 	{

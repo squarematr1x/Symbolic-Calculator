@@ -6,6 +6,8 @@ void ApplyLogarithmRules(std::unique_ptr<Expr>& expr)
 {
 	// log(ab) --> log(a) + log(b)
 	LogarithmProduct(expr);
+	// log(a^n) --> nlog(a)
+	LogarithmPower(expr);
 }
 
 // log(ab) --> log(a) + log(b)
@@ -61,6 +63,44 @@ void LogarithmQuotient(std::unique_ptr<Expr>& expr)
 
 // log(a^n) --> nlog(a)
 void LogarithmPower(std::unique_ptr<Expr>& expr)
+{
+	if (expr->IsTerminal())
+		return;
+
+	if (expr->IsGeneric())
+	{
+		for (int i = 0; i < expr->ChildrenSize(); i++)
+			LogarithmProduct(expr->ChildAt(i));
+	}
+	else
+	{
+		if (!expr->LeftIsTerminal())
+			LogarithmProduct(expr->Left());
+		if (!expr->RightIsTerminal())
+			LogarithmProduct(expr->Right());
+	}
+
+	if (!expr->IsLog())
+		return;
+
+	if (!expr->Param()->IsPow())
+		return;
+
+	if (expr->Param()->Right()->IsOne())
+		return;
+
+	if (expr->Param()->Right()->IsZero())
+		return;
+
+	std::unique_ptr<Expr> coefficient = std::move(expr->Param()->Right());
+	std::unique_ptr<Expr> new_log = std::make_unique<Log>(std::move(expr->Param()->Left()), std::make_unique<Integer>(10));
+	std::unique_ptr<Expr> new_expr = std::make_unique<Mul>(std::move(coefficient), std::move(new_log));
+
+	expr = std::move(new_expr);
+}
+
+// log 1 = 0, loga(a) = 1, loga(a^b) = b, a^(loga(b)) = b
+void SimplifySpecialLogarithm(std::unique_ptr<Expr>& expr)
 {
 	(void)expr;
 }

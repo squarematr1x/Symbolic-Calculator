@@ -32,6 +32,8 @@ At this point some algebraic expression can be simplified:
          simplified: log(x)+log(y)
 >>>log2(8)+log10(100)
          simplified: 5
+>>>log(x^y)
+         simplified: ylog(x)
 >>>x^3^5
          simplified: x^15
 >>>x(xy+z+2y)

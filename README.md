@@ -28,6 +28,10 @@ At this point some algebraic expression can be simplified:
          simplified: 5
 >>>(xy^2z)^2
          simplified: x^2y^4z^2
+>>>log(xy)
+         simplified: log(x)+log(y)
+>>>log2(8)+log10(100)
+         simplified: 5
 >>>x^3^5
          simplified: x^15
 >>>x(xy+z+2y)

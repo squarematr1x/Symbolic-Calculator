@@ -245,21 +245,9 @@ void ExprTree::PrintParenthesis(const std::unique_ptr<Expr>& expr, const std::un
 
 void ExprTree::PrintFunction(const std::unique_ptr<Expr>& expr)
 {
-	bool parenthesis = false;
-
-	if (expr->IsAdd() ||
-        expr->IsMul() ||
-        expr->IsPow() ||
-        expr->IsFunc())
-	{
-		parenthesis = true;
-		std::cout << "(";
-	}
-
+	std::cout << "(";
 	PrintInorder(expr);
-
-	if (parenthesis)
-		std::cout << ")";
+	std::cout << ")";
 }
 
 void ExprTree::PrintAssociative(const std::unique_ptr<Expr>& expr)

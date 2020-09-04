@@ -38,6 +38,8 @@ At this point some algebraic expression can be simplified:
          simplified: ylog(x)
 >>>ln(x^2x^-4)
          simplified: -2ln(x)
+>>>ln(x^2x^3)+ln(x)
+         simplified: 6ln(x)
 >>>x^3^5
          simplified: x^15
 >>>x(xy+z+2y)

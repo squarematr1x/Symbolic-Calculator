@@ -36,6 +36,8 @@ At this point some algebraic expression can be simplified:
          simplified: 5
 >>>log(x^y)
          simplified: ylog(x)
+>>>ln(x^2x^-4)
+         simplified: -2ln(x)
 >>>x^3^5
          simplified: x^15
 >>>x(xy+z+2y)

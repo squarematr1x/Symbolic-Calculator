@@ -40,21 +40,59 @@ void LogarithmProduct(std::unique_ptr<Expr>& expr)
 		return;
 
 	if (expr->Param()->IsGeneric())
+		LogarithmProductHelper(expr, true);
+	else
+		LogarithmProductHelper(expr, false);
+}
+
+void LogarithmProductHelper(std::unique_ptr<Expr>& expr, bool generic)
+{
+	if (generic)
 	{
 		std::unique_ptr<Expr> add_node = std::make_unique<Add>();
 		int children_size = expr->Param()->ChildrenSize();
 
 		for (int i = 0; i < children_size; i++)
 		{
-			std::unique_ptr<Expr> new_child = std::make_unique<Log>(std::move(expr->Param()->ChildAt(i)), 
-					                          std::make_unique<Integer>(10));
+			std::unique_ptr<Expr> new_child;
+
+			if (expr->IsLn())
+				new_child = std::make_unique<Ln>(std::move(expr->Param()->ChildAt(i)));
+			else
+			{
+				std::unique_ptr<Expr> base_copy;
+				tree_util::DeepCopy(base_copy, expr->Param()->ChildAt(i));
+
+				new_child = std::make_unique<Log>(std::move(expr->Param()->ChildAt(i)), std::move(base_copy));
+			}
+
 			add_node->AddChild(std::move(new_child));
 		}
 	}
 	else
 	{
-		std::unique_ptr<Expr> left = std::make_unique<Log>(std::move(expr->Param()->Left()), std::make_unique<Integer>(10));
-		std::unique_ptr<Expr> right = std::make_unique<Log>(std::move(expr->Param()->Right()), std::make_unique<Integer>(10));
+		std::unique_ptr<Expr> left;
+		std::unique_ptr<Expr> right;
+
+		if (expr->IsLn())
+		{
+			left = std::make_unique<Ln>(std::move(expr->Param()->Left()));
+			right = std::make_unique<Ln>(std::move(expr->Param()->Right()));
+		}
+		else
+		{
+			if (expr->Base()->Name() == "10")
+			{
+				left = std::make_unique<Log>(std::move(expr->Param()->Left()), std::make_unique<Integer>(10));
+				right = std::make_unique<Log>(std::move(expr->Param()->Right()), std::make_unique<Integer>(10));
+			}
+			else
+			{
+				left = std::make_unique<Log>(std::move(expr->Param()->Left()), std::make_unique<Integer>(2));
+				right = std::make_unique<Log>(std::move(expr->Param()->Right()), std::make_unique<Integer>(2));
+			}
+		}
+
 		expr = std::move(std::make_unique<Add>(std::move(left), std::move(right)));
 	}
 }
@@ -97,9 +135,19 @@ void LogarithmPower(std::unique_ptr<Expr>& expr)
 		return;
 
 	std::unique_ptr<Expr> coefficient = std::move(expr->Param()->Right());
-	std::unique_ptr<Expr> new_log = std::make_unique<Log>(std::move(expr->Param()->Left()), std::make_unique<Integer>(10));
-	std::unique_ptr<Expr> new_expr = std::make_unique<Mul>(std::move(coefficient), std::move(new_log));
+	std::unique_ptr<Expr> new_log;
 
+	if (expr->IsLn())
+		new_log = std::make_unique<Ln>(std::move(expr->Param()->Left()));
+	else
+	{
+		if (expr->Base()->Name() == "10")
+			new_log = std::make_unique<Log>(std::move(expr->Param()->Left()), std::make_unique<Integer>(10));
+		else
+			new_log = std::make_unique<Log>(std::move(expr->Param()->Left()), std::make_unique<Integer>(2));
+	}
+
+	std::unique_ptr<Expr> new_expr = std::make_unique<Mul>(std::move(coefficient), std::move(new_log));
 	expr = std::move(new_expr);
 }
 

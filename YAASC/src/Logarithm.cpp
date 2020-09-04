@@ -2,8 +2,6 @@
 
 namespace algebra {
 
-// FIXME: log(2^y) --> 0.30103y
-
 void ApplyLogarithmRules(std::unique_ptr<Expr>& expr)
 {
 	// log(ab) --> log(a) + log(b)
@@ -95,12 +93,6 @@ void LogarithmProductHelper(std::unique_ptr<Expr>& expr, bool generic)
 
 		expr = std::move(std::make_unique<Add>(std::move(left), std::move(right)));
 	}
-}
-
-// log(a/b) --> log(a) - log(b)
-void LogarithmQuotient(std::unique_ptr<Expr>& expr)
-{
-	(void)expr;
 }
 
 // log(a^n) --> nlog(a)

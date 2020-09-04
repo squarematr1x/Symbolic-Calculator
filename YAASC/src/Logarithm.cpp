@@ -59,13 +59,15 @@ void LogarithmProductHelper(std::unique_ptr<Expr>& expr, bool generic)
 			else
 			{
 				std::unique_ptr<Expr> base_copy;
-				tree_util::DeepCopy(base_copy, expr->Param()->ChildAt(i));
+				tree_util::DeepCopy(base_copy, expr->Base());
 
 				new_child = std::make_unique<Log>(std::move(expr->Param()->ChildAt(i)), std::move(base_copy));
 			}
 
 			add_node->AddChild(std::move(new_child));
 		}
+
+		expr = std::move(add_node);
 	}
 	else
 	{

@@ -19,10 +19,12 @@ void Differentiate(std::unique_ptr<Expr>& expr)
 	SetToZero(expr);
 
 	if (!expr->IsZero())
-		PowerRule(expr);
+		return;
+
+	PowerRule(expr);
 }
 
-// D(x^n) --> nx^(n-1)
+// d/dx(x^n) --> nx^(n-1)
 void PowerRule(std::unique_ptr<Expr>& expr) // FIXME: x^1 problematic
 {
 	if (!expr->Param()->IsPow())
@@ -40,14 +42,13 @@ void PowerRule(std::unique_ptr<Expr>& expr) // FIXME: x^1 problematic
 	std::unique_ptr<Expr> multiplier;
 	tree_util::DeepCopy(multiplier, expr->Param()->Right());
 	std::unique_ptr<Expr> var = std::move(expr->Param()->Left()->Left());
-
-	std::unique_ptr<Expr> new_expr = std::make_unique<Pow>(std::make_unique<Mul>(std::move(multiplier), std::move(var)),
-	                                 std::make_unique<Add>(std::move(expr->Param()->Right()), std::make_unique<Integer>(-1)));
+	std::unique_ptr<Expr> new_expr = std::make_unique<Mul>(std::move(multiplier), std::make_unique<Pow>(std::move(var),
+	                                 std::make_unique<Add>(std::move(expr->Param()->Right()), std::make_unique<Integer>(-1))));
 
 	expr = std::move(new_expr);
 }
 
-// Dk --> 0
+// d/dx(k) --> 0
 void SetToZero(std::unique_ptr<Expr>& expr)
 {
 	bool is_zero = true;
@@ -57,6 +58,11 @@ void SetToZero(std::unique_ptr<Expr>& expr)
 	if (is_zero)
 		expr = std::make_unique<Integer>(0);
 
+}
+
+void SetToOne(std::unique_ptr<Expr>& expr)
+{
+	(void)expr;
 }
 
 void CanDifferentiate(const std::unique_ptr<Expr>& root, const std::unique_ptr<Expr>& expr, bool& is_constant)

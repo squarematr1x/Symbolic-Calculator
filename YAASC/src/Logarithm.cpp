@@ -104,14 +104,14 @@ void LogarithmPower(std::unique_ptr<Expr>& expr)
 	if (expr->IsGeneric())
 	{
 		for (int i = 0; i < expr->ChildrenSize(); i++)
-			LogarithmProduct(expr->ChildAt(i));
+			LogarithmPower(expr->ChildAt(i));
 	}
 	else
 	{
 		if (!expr->LeftIsTerminal())
-			LogarithmProduct(expr->Left());
+			LogarithmPower(expr->Left());
 		if (!expr->RightIsTerminal())
-			LogarithmProduct(expr->Right());
+			LogarithmPower(expr->Right());
 	}
 
 	if (!expr->IsLog())

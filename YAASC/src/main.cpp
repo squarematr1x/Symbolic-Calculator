@@ -3,12 +3,16 @@
 
 int main()
 {
+	std::cout << "Welcome to use YAASC.\n";
+	std::cout << "For source code see: https://github.com/squarematr1x/YAASC";
+	std::cout << "\n\n";
+
 	std::string input = "";
 	std::string output = "";
 
 	while (true)
 	{
-		std::cout << ">>>";
+		std::cout << ">>> ";
 		std::getline(std::cin, input);
 
 		if (input == "exit")

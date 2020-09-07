@@ -25,13 +25,20 @@ namespace calculus {
 	}
 
 // d/dx(x^n) --> nx^(n-1)
-void PowerRule(std::unique_ptr<Expr>& expr) // FIXME: x^1 problematic
+void PowerRule(std::unique_ptr<Expr>& expr)
 {
 	if (!expr->IsDerivative())
 		return;
 	
 	if (!expr->Param()->IsPow())
 		return;
+
+	// D(x^1), FIXME: probably not final
+	if (expr->Param()->Right()->IsOne())
+	{
+		expr = std::make_unique<Integer>(1);
+		return;
+	}
 
 	if (!expr->Param()->Left()->IsPow())
 		return;
@@ -133,7 +140,7 @@ void DifferentiateMul(std::unique_ptr<Expr>& expr)
 
 	if (expr->Param()->IsGeneric())
 	{
-
+		// Generic case
 	}
 	else
 	{

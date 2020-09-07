@@ -13,7 +13,9 @@ void SetToZero(std::unique_ptr<Expr>& expr);
 void SetToOne(std::unique_ptr<Expr>& expr);
 void CanDifferentiate(const std::unique_ptr<Expr>& root, const std::unique_ptr<Expr>& expr, bool& is_constant);
 
-void DerivateSum(std::unique_ptr<Expr>& expr);
+void DifferentiateSum(std::unique_ptr<Expr>& expr);
+void DifferentiateMul(std::unique_ptr<Expr>& expr);
 
-bool HasPowChildren(std::unique_ptr<Expr>& expr);
+void DerivativeRules(std::unique_ptr<Expr>& expr);
+
 }

@@ -2,36 +2,30 @@
 
 namespace calculus {
 
-void Differentiate(std::unique_ptr<Expr>& expr)
-{
-	if (expr->IsTerminal())
-		return;
-	
-	if (expr->IsGeneric())
+	void Differentiate(std::unique_ptr<Expr>& expr)
 	{
-		for (int i = 0; i < expr->ChildrenSize(); i++)
-			Differentiate(expr->ChildAt(i));
+		if (expr->IsTerminal())
+			return;
+
+		if (expr->IsGeneric())
+		{
+			for (int i = 0; i < expr->ChildrenSize(); i++)
+				Differentiate(expr->ChildAt(i));
+		}
+		else
+		{
+			if (!expr->LeftIsTerminal())
+				Differentiate(expr->Left());
+
+			if (!expr->RightIsTerminal())
+				Differentiate(expr->Right());
+		}
+
+		DerivativeRules(expr);
 	}
-	else
-	{
-		if (!expr->LeftIsTerminal())
-			Differentiate(expr->Left());
-
-		if (!expr->RightIsTerminal())
-			Differentiate(expr->Right());
-	}
-
-	DerivateSum(expr);
-	SetToZero(expr);
-
-	if (expr->IsZero())
-		return;
-
-	PowerRule(expr);
-}
 
 // d/dx(x^n) --> nx^(n-1)
-void PowerRule(std::unique_ptr<Expr>& expr) // FIXME: x^1, 2x^4 problematic
+void PowerRule(std::unique_ptr<Expr>& expr) // FIXME: x^1 problematic
 {
 	if (!expr->IsDerivative())
 		return;
@@ -82,7 +76,9 @@ void CanDifferentiate(const std::unique_ptr<Expr>& root, const std::unique_ptr<E
 	if (!is_constant)
 		return;
 
-	if (expr->IsGeneric())
+	if (expr->IsFunc())
+		CanDifferentiate(root, expr->Param(), is_constant);
+	else if (expr->IsGeneric())
 	{
 		for (int i = 0; i < expr->ChildrenSize(); i++)
 			CanDifferentiate(root, expr->ChildAt(i), is_constant);
@@ -99,7 +95,7 @@ void CanDifferentiate(const std::unique_ptr<Expr>& root, const std::unique_ptr<E
 		is_constant = false;
 }
 
-void DerivateSum(std::unique_ptr<Expr>& expr)
+void DifferentiateSum(std::unique_ptr<Expr>& expr)
 {
 	if (!expr->IsDerivative())
 		return;
@@ -127,14 +123,60 @@ void DerivateSum(std::unique_ptr<Expr>& expr)
 	}
 }
 
-bool HasPowChildren(std::unique_ptr<Expr>& expr)
+void DifferentiateMul(std::unique_ptr<Expr>& expr)
 {
-	if (expr->Left()->IsPow() && expr->Right()->IsPow())
-		return true;
+	if (!expr->IsDerivative())
+		return;
 
-	return false;
+	if (!expr->Param()->IsMul())
+		return;
+
+	if (expr->Param()->IsGeneric())
+	{
+
+	}
+	else
+	{
+		std::unique_ptr<Expr> copy_left, copy_right;
+		tree_util::DeepCopy(copy_left, expr->Param()->Left());
+		tree_util::DeepCopy(copy_right, expr->Param()->Right());
+
+		std::unique_ptr<Expr> left = std::make_unique<Mul>(std::move(copy_left), std::make_unique<Derivative>(std::move(expr->Param()->Right()), "x"));
+		std::unique_ptr<Expr> right = std::make_unique<Mul>(std::move(copy_right), std::make_unique<Derivative>(std::move(expr->Param()->Left()), "x"));
+		expr = std::make_unique<Add>(std::move(left), std::move(right));
+	}
 }
 
+void DerivativeRules(std::unique_ptr<Expr>& expr)
+{
+	if (!expr->IsDerivative())
+		return;
+
+	SetToZero(expr); 
+
+	if (expr->IsZero())
+		return;
+
+	if (expr->Param()->IsAdd())
+		DifferentiateSum(expr);
+	else if (expr->Param()->IsMul())
+		DifferentiateMul(expr);
+	else if (expr->Param()->IsPow())
+		PowerRule(expr);
+	else if (expr->Param()->IsFunc())
+	{
+		if (expr->Param()->IsSin())
+			expr = std::make_unique<Cos>(std::move(expr->Param()->Param()));
+		else if (expr->Param()->IsCos())
+			expr = std::make_unique<Mul>(std::make_unique<Integer>(-1), std::make_unique<Sin>(std::move(expr->Param()->Param())));
+		else if (expr->Param()->IsTan())
+			expr = std::make_unique<Pow>(std::make_unique<Cos>(std::move(expr->Param()->Param())), std::make_unique<Integer>(-2));
+		else if (expr->Param()->IsLn())
+			expr = std::make_unique<Pow>(std::move(expr->Param()->Param()), std::make_unique<Integer>(-1));
+		else if (expr->Param()->IsLog())
+			expr = std::make_unique<Pow>(std::make_unique<Mul>(std::move(expr->Param()->Base()), std::make_unique<Ln>(std::move(expr->Param()->Param()))), std::make_unique<Integer>(-1));
+	}
+}
 
 void Integrate(std::unique_ptr<Expr>& expr)
 {

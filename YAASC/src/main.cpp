@@ -4,15 +4,17 @@
 int main()
 {
 	std::cout << "Welcome to use YAASC.\n";
-	std::cout << "For source code see: https://github.com/squarematr1x/YAASC";
+	std::cout << "Source code at: https://github.com/squarematr1x/YAASC";
 	std::cout << "\n\n";
 
 	std::string input = "";
 	std::string output = "";
 
+	int i = 1;
+
 	while (true)
 	{
-		std::cout << ">>> ";
+		std::cout << "yaasc:" << i << "> ";
 		std::getline(std::cin, input);
 
 		if (input == "exit")
@@ -33,6 +35,8 @@ int main()
 
 			expr_tree.Print();
 		}
+
+		i++;
 	}
 
 	return 0;

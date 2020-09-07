@@ -60,6 +60,7 @@ public:
 	virtual bool IsFac() const { return false; }
 	virtual bool IsLog() const { return false; }
 	virtual bool IsLn() const { return false; }
+	virtual bool IsTrig() const { return false; }
 	virtual bool IsSin() const { return false;}
 	virtual bool IsCos() const { return false; }
 	virtual bool IsTan() const { return false; }
@@ -97,6 +98,8 @@ public:
 	virtual std::unique_ptr<Expr>& ChildAt(int i) { (void)i; return m_left; }
 	virtual std::unique_ptr<Expr>& Param() { return m_left; }
 	virtual std::unique_ptr<Expr>& Base() { return m_left; }
+
+	virtual std::string RespectTo() const { return ""; }
 
 	virtual void SwapChildren();
 	virtual void SortChildren() {}
@@ -309,11 +312,26 @@ public:
 	std::string Name() const { return "ln"; }
 };
 
-class Sin : public Func
+class Trig : public Func
+{
+public:
+	Trig(std::unique_ptr<Expr> param)
+		: Func(std::move(param))
+	{
+	}
+
+	virtual ~Trig()
+	{
+	}
+
+	bool IsTrig() const { return true; }
+};
+
+class Sin : public Trig
 {
 public:
 	Sin(std::unique_ptr<Expr> param)
-		: Func(std::move(param))
+		: Trig(std::move(param))
 	{
 	}
 
@@ -322,11 +340,11 @@ public:
 	std::string Name() const { return "sin"; }
 };
 
-class Cos : public Func
+class Cos : public Trig
 {
 public:
 	Cos(std::unique_ptr<Expr> param)
-		: Func(std::move(param))
+		: Trig(std::move(param))
 	{
 	}
 
@@ -335,11 +353,11 @@ public:
 	std::string Name() const { return "cos"; }
 };
 
-class Tan : public Func
+class Tan : public Trig
 {
 public:
 	Tan(std::unique_ptr<Expr> param)
-		: Func(std::move(param))
+		: Trig(std::move(param))
 	{
 	}
 
@@ -359,6 +377,7 @@ public:
 	{
 	}
 
+	std::string RespectTo() const{ return m_respect_to; }
 	int Eval(std::map<std::string, int> env) { return 0; }
 	bool IsDerivative() const { return true; }
 	std::string Name() const { return "D"; }

@@ -15,6 +15,7 @@ namespace calc {
 
 	void ComputeFactorial(std::unique_ptr<Expr>& expr);
 	void ComputeLogarithm(std::unique_ptr<Expr>& expr);
+	void ComputeTrigonometric(std::unique_ptr<Expr>& expr);
 
 	int Factorial(int number);
 

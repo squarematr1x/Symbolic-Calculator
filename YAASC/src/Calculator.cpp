@@ -17,6 +17,7 @@ void Calculate(std::unique_ptr<Expr>& root)
 	{
 		ComputeFactorial(root);
 		ComputeLogarithm(root);
+		ComputeTrigonometric(root);
 	}
 	else if (!root->IsGeneric())
 		CalculateBinNode(root);
@@ -178,6 +179,33 @@ void ComputeLogarithm(std::unique_ptr<Expr>& expr)
 	else if (expr->Base()->Name() == "2")
 	{
 		number = log2(number);
+		expr = std::make_unique<Float>(std::move(static_cast<float>(number)));
+	}
+}
+
+void ComputeTrigonometric(std::unique_ptr<Expr>& expr)
+{
+	if (!expr->IsTrig())
+		return;
+
+	if (!expr->Param()->IsNumber())
+		return;
+
+	double number = std::stod(expr->Param()->Name());
+
+	if (expr->IsSin())
+	{
+		number = sin(number);
+		expr = std::make_unique<Float>(std::move(static_cast<float>(number)));
+	}
+	else if (expr->IsCos())
+	{
+		number = cos(number);
+		expr = std::make_unique<Float>(std::move(static_cast<float>(number)));
+	}
+	else if (expr->IsTan())
+	{
+		number = tan(number);
 		expr = std::make_unique<Float>(std::move(static_cast<float>(number)));
 	}
 }

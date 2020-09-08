@@ -13,7 +13,10 @@ void Simplify(std::unique_ptr<Expr>& root)
 	while (true)
 	{
 		tree_util::DeepCopy(copy, root);
+
+		Flatten(root);
 		Canonize(root);
+		calculus::Differentiate(root);
 		algebra::PowerOfSum(root);
 		algebra::Expand(root);
 		algebra::ApplyLogarithmRules(root);
@@ -25,13 +28,12 @@ void Simplify(std::unique_ptr<Expr>& root)
 		ReduceToOne(root);
 		RemoveAdditiveZeros(root);
 		RemoveMulOne(root);
-		Flatten(root);
 		i++;
 
 		// When simplification is done
 		if (copy == root)
 		{
-			std::cout << "\t total iterations: " << i << '\n';
+			std::cout << "\t total iterations: " << i + 1 << '\n';
 			break;
 		}
 	}
@@ -41,7 +43,7 @@ void Simplify(std::unique_ptr<Expr>& root)
 }
 
 // Adding same variables: a+2a+3a --> 6a
-void AddVariables(std::unique_ptr<Expr>& root)
+void AddVariables(std::unique_ptr<Expr>& root) // FIXME: This is far too complex and doesn't work properly
 {
 	if (root->IsTerminal())
 		return;
@@ -189,10 +191,10 @@ void AddGenNode(std::unique_ptr<Expr>& root)
 			}
 			else if (multiplier != 0)
 			{
-				if (IsMulByNumber(child_a))
-					new_children.push(std::make_unique<Mul>(std::make_unique<Integer>(multiplier), std::move(child_a->Right())));
-				else
-					new_children.push(std::make_unique<Mul>(std::make_unique<Integer>(multiplier), std::move(child_a)));
+				if (IsGenMulByNumber(child_a))
+					child_a->RemoveChild(0);
+
+				new_children.push(std::make_unique<Mul>(std::make_unique<Integer>(multiplier), std::move(child_a)));
 
 				multiplier = 0;
 			}
@@ -243,9 +245,7 @@ void SimplifyExponents(std::unique_ptr<Expr>& root, bool final_modification)
 			SimplifyExponents(root->ChildAt(i), final_modification);
 	}
 	else if (root->IsFunc())
-	{
 		SimplifyExponents(root->Param(), final_modification);
-	}
 	else
 	{
 		if (!root->LeftIsTerminal())
@@ -375,7 +375,9 @@ void ToGeneric(std::unique_ptr<Expr>& root, std::unique_ptr<Expr>& parent, std::
 		}
 	}
 
-	if (root->IsGeneric())
+	if (root->IsFunc())
+		ToGeneric(root->Param(), root, children);
+	else if (root->IsGeneric())
 	{
 		int queue_size = children.size();
 	

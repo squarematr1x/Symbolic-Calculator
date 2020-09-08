@@ -40,6 +40,8 @@ At this point some algebraic expression can be simplified with the CLI:
          simplified: -2ln(x)
 >>> ln(x^2x^3)+ln(x)
          simplified: 6ln(x)
+>>> ln(xe)
+         simplified: ln(x)+1
 >>> x^3^5
          simplified: x^15
 >>> x(xy+z+2y)
@@ -74,7 +76,13 @@ At this point some algebraic expression can be simplified with the CLI:
          simplified: 3x^2
 >>> D(x^3+x^4)
          simplified: 3x^2+4x^3
->>> D(54)
+>>> D(x^3sin(x)x^4)
+         simplified: 7sin(x)x^6+cos(x)x^7
+>>> D(ln(x+y+z))
+         simplified: (x+y+z)^-1
+>>> D(log2(x))
+         simplified: (xln(2))^-1
+>>> D(2.4)
          simplified: 0   
 ```
 

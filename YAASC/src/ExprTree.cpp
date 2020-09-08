@@ -91,10 +91,9 @@ void ExprTree::HandleVariableInput(std::string input, int& index, std::stack<std
 	else if (input[index] == '~')
 		expr = std::make_unique<Pi>();
 	else
-	{
-		expr = std::make_unique<Pow>(std::make_unique<Var>(std::string(1, input[index])),
-		       std::make_unique<Integer>(1));
-	}
+		expr = std::make_unique<Var>(std::string(1, input[index]));
+
+	expr = std::make_unique<Pow>(std::move(expr), std::make_unique<Integer>(1));
 
 	if (index - 1 >= 0 && input[index - 1] == '-')
 		expr_stack.push(std::make_unique<Mul>(std::make_unique<Integer>(-1), std::move(expr)));

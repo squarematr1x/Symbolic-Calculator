@@ -84,8 +84,17 @@ std::unique_ptr<Expr> ExprTree::Construct(std::string input)
 
 void ExprTree::HandleVariableInput(std::string input, int& index, std::stack<std::unique_ptr<Expr>>& expr_stack)
 {
-	std::unique_ptr<Pow> expr = std::make_unique<Pow>(std::make_unique<Var>(std::string(1, input[index])),
-	                            std::make_unique<Integer>(1));
+	std::unique_ptr<Expr> expr;
+
+	if (input[index] == 'e')
+		expr = std::make_unique<E>();
+	else if (input[index] == '~')
+		expr = std::make_unique<Pi>();
+	else
+	{
+		expr = std::make_unique<Pow>(std::make_unique<Var>(std::string(1, input[index])),
+		       std::make_unique<Integer>(1));
+	}
 
 	if (index - 1 >= 0 && input[index - 1] == '-')
 		expr_stack.push(std::make_unique<Mul>(std::make_unique<Integer>(-1), std::move(expr)));

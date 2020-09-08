@@ -187,7 +187,14 @@ void QuotientRule(std::unique_ptr<Expr>& expr)
 	if (!expr->Param()->IsMul())
 		return;
 
-
+	if (expr->Param()->IsGeneric())
+	{
+		// Implement generic case
+	}
+	else
+	{
+		// Normal case
+	}
 }
 
 void DerivativeRules(std::unique_ptr<Expr>& expr)
@@ -217,7 +224,7 @@ void DerivativeRules(std::unique_ptr<Expr>& expr)
 		else if (expr->Param()->IsLn())
 			expr = std::make_unique<Pow>(std::move(expr->Param()->Param()), std::make_unique<Integer>(-1));
 		else if (expr->Param()->IsLog())
-			expr = std::make_unique<Pow>(std::make_unique<Mul>(std::move(expr->Param()->Base()), std::make_unique<Ln>(std::move(expr->Param()->Param()))), std::make_unique<Integer>(-1));
+			expr = std::make_unique<Pow>(std::make_unique<Mul>(std::move(expr->Param()->Param()), std::make_unique<Ln>(std::move(expr->Param()->Base()))), std::make_unique<Integer>(-1));
 	}
 }
 

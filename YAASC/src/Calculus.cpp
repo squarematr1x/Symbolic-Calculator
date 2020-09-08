@@ -7,7 +7,9 @@ namespace calculus {
 		if (expr->IsTerminal())
 			return;
 
-		if (expr->IsGeneric())
+		if (expr->IsFunc())
+			Differentiate(expr->Param());
+		else if (expr->IsGeneric())
 		{
 			for (int i = 0; i < expr->ChildrenSize(); i++)
 				Differentiate(expr->ChildAt(i));
@@ -130,7 +132,7 @@ void DifferentiateSum(std::unique_ptr<Expr>& expr)
 	}
 }
 
-void DifferentiateMul(std::unique_ptr<Expr>& expr)
+void ProductRule(std::unique_ptr<Expr>& expr)
 {
 	if (!expr->IsDerivative())
 		return;
@@ -140,7 +142,30 @@ void DifferentiateMul(std::unique_ptr<Expr>& expr)
 
 	if (expr->Param()->IsGeneric())
 	{
-		// Generic case
+		std::unique_ptr<Expr> add_node = std::make_unique<Add>();
+		int children_size = expr->Param()->ChildrenSize();
+
+		for (int i = 0; i < children_size; i++)
+		{
+			std::unique_ptr<Expr> mul_node = std::make_unique<Mul>();
+			std::unique_ptr<Expr> derivative_child;
+			tree_util::DeepCopy(derivative_child, expr->Param()->ChildAt(i));
+			mul_node->AddChild(std::make_unique<Derivative>(std::move(derivative_child), "x"));
+
+			for (int j = 0; j < children_size; j++)
+			{
+				if (i != j)
+				{
+					std::unique_ptr<Expr> other_child;
+					tree_util::DeepCopy(other_child, expr->Param()->ChildAt(j));
+					mul_node->AddChild(std::move(other_child));
+				}
+			}
+
+			add_node->AddChild(std::move(mul_node));
+		}
+		
+		expr = std::move(add_node);
 	}
 	else
 	{
@@ -152,6 +177,17 @@ void DifferentiateMul(std::unique_ptr<Expr>& expr)
 		std::unique_ptr<Expr> right = std::make_unique<Mul>(std::move(copy_right), std::make_unique<Derivative>(std::move(expr->Param()->Left()), "x"));
 		expr = std::make_unique<Add>(std::move(left), std::move(right));
 	}
+}
+
+void QuotientRule(std::unique_ptr<Expr>& expr)
+{
+	if (!expr->IsDerivative())
+		return;
+
+	if (!expr->Param()->IsMul())
+		return;
+
+
 }
 
 void DerivativeRules(std::unique_ptr<Expr>& expr)
@@ -167,7 +203,7 @@ void DerivativeRules(std::unique_ptr<Expr>& expr)
 	if (expr->Param()->IsAdd())
 		DifferentiateSum(expr);
 	else if (expr->Param()->IsMul())
-		DifferentiateMul(expr);
+		ProductRule(expr);
 	else if (expr->Param()->IsPow())
 		PowerRule(expr);
 	else if (expr->Param()->IsFunc())

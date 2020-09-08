@@ -80,6 +80,7 @@ public:
 	virtual bool IsGeneric() { return false; }
 	virtual bool IsZero() { return false; }
 	virtual bool IsOne() { return false; }
+	virtual bool IsNegOne() { return false; }
 
 	virtual bool HasLeftChild();
 	virtual bool HasRightChild();
@@ -164,6 +165,7 @@ public:
 	bool IsNumber() const { return true; }
 	bool IsZero();
 	bool IsOne();
+	bool IsNegOne();
 };
 
 class Float : public Atomic<float>
@@ -186,6 +188,7 @@ public:
 	bool IsNumber() const { return true; }
 	bool IsZero();
 	bool IsOne();
+	bool IsNegOne();
 };
 
 class Var : public Atomic<std::string>
@@ -224,7 +227,7 @@ public:
 class Pi : public Special
 {
 public:
-	Pi() : Special("PI")
+	Pi() : Special("pi")
 	{
 	}
 
@@ -243,6 +246,80 @@ public:
 	int Eval(std::map<std::string, int> env) { return 0; }
 	ExprType ExpressionType() const { return ExprType::e; }
 	bool IsE() const { return true; }
+};
+
+class Associative : public Expr
+{
+protected:
+	std::vector<std::unique_ptr<Expr>> m_children;
+
+public:
+	Associative(std::unique_ptr<Expr> left = nullptr, std::unique_ptr<Expr> right = nullptr)
+		: Expr(std::move(left), std::move(right))
+	{
+	}
+
+	virtual ~Associative()
+	{
+	}
+
+	void ClearChildren() { m_children.clear(); }
+	void SortChildren();
+	void SortAddChildren();
+	void SortMulChildren();
+	void RemoveChildren(int from, int to);
+	void RemoveChild(int i);
+	void AddChild(std::unique_ptr<Expr> expr) { m_children.push_back(std::move(expr)); }
+	void SetChildAt(int i, std::unique_ptr<Expr> child);
+
+	int ChildrenSize() const { return (int)m_children.size(); }
+
+	std::unique_ptr<Expr>& ChildAt(int i);
+
+	bool IsAssociative() const { return true; }
+	bool IsGeneric();
+};
+
+class Mul : public Associative
+{
+public:
+	Mul(std::unique_ptr<Expr> left = nullptr, std::unique_ptr<Expr> right = nullptr)
+		: Associative(std::move(left), std::move(right))
+	{
+	}
+
+	int Eval(std::map<std::string, int> env) { return Left()->Eval(env) * Right()->Eval(env); }
+	std::string Name() const { return "*"; }
+	ExprType ExpressionType() const { return ExprType::MUL; }
+	bool IsMul() const { return true; }
+};
+
+class Add : public Associative
+{
+public:
+	Add(std::unique_ptr<Expr> left = nullptr, std::unique_ptr<Expr> right = nullptr)
+		: Associative(std::move(left), std::move(right))
+	{
+	}
+
+	int Eval(std::map<std::string, int> env) { return Left()->Eval(env) + Right()->Eval(env); }
+	std::string Name() const { return "+"; }
+	ExprType ExpressionType() const { return ExprType::ADD; }
+	bool IsAdd() const { return true; }
+};
+
+class Pow : public Expr
+{
+public:
+	Pow(std::unique_ptr<Expr> left, std::unique_ptr<Expr> right)
+		: Expr(std::move(left), std::move(right))
+	{
+	}
+
+	int Eval(std::map<std::string, int> env) { return (int)std::pow(Left()->Eval(env), Right()->Eval(env)); }
+	std::string Name() const { return "^"; }
+	ExprType ExpressionType() const { return ExprType::POW; }
+	bool IsPow() const { return true; }
 };
 
 class Func : public Expr
@@ -303,7 +380,8 @@ class Ln : public Log
 {
 public:
 	Ln(std::unique_ptr<Expr> param)
-		: Log(std::move(param), std::move(std::make_unique<E>()))
+		: Log(std::move(param),
+		  std::move(std::make_unique<Pow>(std::make_unique<E>(), std::make_unique<Integer>(1))))
 	{
 	}
 
@@ -397,78 +475,4 @@ public:
 	int Eval(std::map<std::string, int> env) { return 0; }
 	bool IsIntegral() const { return true; }
 	std::string Name() const { return "I"; }
-};
-
-class Associative : public Expr
-{
-protected:
-	std::vector<std::unique_ptr<Expr>> m_children;
-
-public:
-	Associative(std::unique_ptr<Expr> left = nullptr, std::unique_ptr<Expr> right = nullptr)
-		: Expr(std::move(left), std::move(right))
-	{
-	}
-
-	virtual ~Associative()
-	{
-	}
-
-	void ClearChildren() { m_children.clear(); }
-	void SortChildren();
-	void SortAddChildren();
-	void SortMulChildren();
-	void RemoveChildren(int from, int to);
-	void RemoveChild(int i);
-	void AddChild(std::unique_ptr<Expr> expr) { m_children.push_back(std::move(expr)); }
-	void SetChildAt(int i, std::unique_ptr<Expr> child);
-
-	int ChildrenSize() const { return (int)m_children.size(); }
-
-	std::unique_ptr<Expr>& ChildAt(int i);
-
-	bool IsAssociative() const { return true; }
-	bool IsGeneric();
-};
-
-class Mul : public Associative
-{
-public:
-	Mul(std::unique_ptr<Expr> left = nullptr, std::unique_ptr<Expr> right = nullptr)
-		: Associative(std::move(left), std::move(right))
-	{
-	}
-
-	int Eval(std::map<std::string, int> env){ return Left()->Eval(env) * Right()->Eval(env); }
-	std::string Name() const { return "*"; }
-	ExprType ExpressionType() const { return ExprType::MUL; }
-	bool IsMul() const { return true; }
-};
-
-class Add : public Associative
-{
-public:
-	Add(std::unique_ptr<Expr> left = nullptr, std::unique_ptr<Expr> right = nullptr)
-		: Associative(std::move(left), std::move(right))
-	{
-	}
-
-	int Eval(std::map<std::string, int> env){ return Left()->Eval(env) + Right()->Eval(env); }
-	std::string Name() const { return "+"; }
-	ExprType ExpressionType() const { return ExprType::ADD; }
-	bool IsAdd() const { return true; }
-};
-
-class Pow : public Expr
-{
-public:
-	Pow(std::unique_ptr<Expr> left, std::unique_ptr<Expr> right)
-		: Expr(std::move(left), std::move(right))
-	{
-	}
-
-	int Eval(std::map<std::string, int> env){ return (int)std::pow(Left()->Eval(env), Right()->Eval(env)); }
-	std::string Name() const { return "^"; }
-	ExprType ExpressionType() const { return ExprType::POW; }
-	bool IsPow() const { return true; }
 };

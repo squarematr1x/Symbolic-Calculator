@@ -205,6 +205,14 @@ bool Integer::IsOne()
 	return false;
 }
 
+bool Integer::IsNegOne()
+{
+	if (Name() == "-1")
+		return true;
+
+	return false;
+}
+
 bool Float::IsZero()
 {
 	if (Name() == "0")
@@ -217,6 +225,14 @@ bool Float::IsZero()
 bool Float::IsOne()
 {
 	if (Name() == "1")
+		return true;
+
+	return false;
+}
+
+bool Float::IsNegOne()
+{
+	if (Name() == "-1")
 		return true;
 
 	return false;

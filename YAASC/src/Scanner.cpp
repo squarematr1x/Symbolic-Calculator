@@ -7,6 +7,7 @@ void HandleInput(std::string& input)
 	CleanInput(input);
 	AddMultiplySign(input);
 	AddFunctionToken(input);
+	AddPiToken(input);
 	AddUnaryToken(input);
 	InfixToPostfix(input);
 	UnaryTokenOff(input);
@@ -107,8 +108,35 @@ void AddFunctionToken(std::string& input)
 	{
 		if (IsFunction(input, i))
 		{
+			if (input[i] == '*')
+				new_string += input[i];
+
 			new_string += '#';
 			FunctionTokenHelper(input, i, new_string);
+		}
+		else
+			new_string += input[i];
+	}
+
+	input = new_string;
+}
+
+void AddPiToken(std::string& input)
+{
+	std::string new_string = "";
+
+	for (unsigned int i = 0; i < input.length(); i++)
+	{
+		if (input[i] == 'p')
+		{
+			if (i + 2 < input.length())
+			{
+				if (input[i + 2] == 'i')
+				{
+					new_string += '~';
+					i += 2;
+				}
+			}
 		}
 		else
 			new_string += input[i];
@@ -274,6 +302,9 @@ void FunctionToStack(std::string input, unsigned int& start_index, std::stack<st
 bool IsVariable(char c)
 {
 	if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z')
+		return true;
+
+	if (c == '~') // when input is pi
 		return true;
 
 	return false;

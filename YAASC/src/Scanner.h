@@ -12,6 +12,7 @@ void HandleInput(std::string& input);
 void InfixToPostfix(std::string& input);
 void AddUnaryToken(std::string& input);
 void AddFunctionToken(std::string& input);
+void AddPiToken(std::string& input);
 void UnaryTokenOff(std::string& input);
 void AddMultiplySign(std::string& input);
 void RemoveMultiplySign(std::string& input);

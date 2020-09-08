@@ -15,20 +15,21 @@ void Calculate(std::unique_ptr<Expr>& root)
 
 	if (root->IsFunc())
 	{
+		Calculate(root->Param());
+
 		ComputeFactorial(root);
 		ComputeLogarithm(root);
 		ComputeTrigonometric(root);
 	}
-	else if (!root->IsGeneric())
-		CalculateBinNode(root);
-	else
+	else if (root->IsGeneric())
 	{
-		// Calculate children first
 		for (int i = 0; i < root->ChildrenSize(); i++)
 			Calculate(root->ChildAt(i));
 
 		CalculateGenNode(root);
 	}
+	else
+		CalculateBinNode(root);
 }
 
 void CalculateBinNode(std::unique_ptr<Expr>& root)

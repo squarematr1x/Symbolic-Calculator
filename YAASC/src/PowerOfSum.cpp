@@ -4,14 +4,22 @@ namespace algebra {
 
 void PowerOfSum(std::unique_ptr<Expr>& expr)
 {
-	if (expr->HasNoChildren())
+	if (expr->IsTerminal() || expr->IsFunc())
 		return;
 
-	if (!expr->Left()->IsTerminal())
-		PowerOfSum(expr->Left());
+	if (expr->IsGeneric())
+	{
+		for (int i = 0; i < expr->ChildrenSize(); i++)
+			PowerOfSum(expr->ChildAt(i));
+	}
+	else
+	{
+		if (!expr->Left()->IsTerminal())
+			PowerOfSum(expr->Left());
 
-	if (!expr->Right()->IsTerminal())
-		PowerOfSum(expr->Right());
+		if (!expr->Right()->IsTerminal())
+			PowerOfSum(expr->Right());
+	}
 
 	if (!expr->IsPow())
 		return;
@@ -28,8 +36,11 @@ void PowerOfSum(std::unique_ptr<Expr>& expr)
 }
 
 // (a+b)^n
-void ApplyBinomialTheorem(std::unique_ptr<Expr>& expr)
+void ApplyBinomialTheorem(std::unique_ptr<Expr>& expr) // FIXME: How about (a+b)^-n?
 {
+	if (expr->Right()->IsOne() || expr->Right()->IsNegOne())
+		return;
+
 	std::unique_ptr<Expr>& exponent = expr->Right();
 	std::unique_ptr<Expr> add_node = std::move(expr->Left());
 	std::unique_ptr<Expr> new_add_node = std::make_unique<Add>();

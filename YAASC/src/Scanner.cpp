@@ -129,14 +129,13 @@ void AddPiToken(std::string& input)
 	{
 		if (input[i] == 'p')
 		{
-			if (i + 2 < input.length())
+			if (i + 2 < input.length() && input[i + 2] == 'i')
 			{
-				if (input[i + 2] == 'i')
-				{
-					new_string += '~';
-					i += 2;
-				}
+				new_string += '~';
+				i += 2;
 			}
+			else
+				new_string += input[i];
 		}
 		else
 			new_string += input[i];

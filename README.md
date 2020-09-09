@@ -72,6 +72,8 @@ At this point some algebraic expression can be simplified with the CLI:
          simplified: xy
 >>> -4!+(x+y)^3+(xy)^0
          simplified: -23+3x^2y+3xy^2+x^3+y^3
+>>> (x+y)^9
+         simplified: x^9+9x^8y+36x^7y^2+84x^6y^3+126x^5y^4+126x^4y^5+84x^3y^6+36x^2y^7+9xy^8+y^9
 >>> D(x^3)
          simplified: 3x^2
 >>> D(x^3+x^4)

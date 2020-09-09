@@ -7,6 +7,7 @@
 
 namespace algebra {
 
+void ApplyExponentRules(std::unique_ptr<Expr>& root);
 void ExponentRuleMul(std::unique_ptr<Expr>& root);
 void ApplyExponentRuleMulBinNode(std::unique_ptr<Expr>& root);
 void ApplyExponentRuleMulGenNode(std::unique_ptr<Expr>& root);

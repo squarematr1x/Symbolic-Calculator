@@ -2,6 +2,16 @@
 
 namespace algebra {
 
+void ApplyExponentRules(std::unique_ptr<Expr>& root)
+{
+	// (ab)^n --> (a^n)(b^n)
+	ExponentRuleParenthesis(root);
+	// (a^n)^m --> a^(nm)
+	ExponentRulePow(root);
+	// (a^n)(a^m) --> a^(n+m)
+	ExponentRuleMul(root);
+}
+
 // (a^n)(a^m) --> a^(n+m)
 void ExponentRuleMul(std::unique_ptr<Expr>& root)
 {

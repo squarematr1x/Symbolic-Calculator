@@ -71,62 +71,49 @@ void CalculateGenNode(std::unique_ptr<Expr>& root)
 		UpdateChildren(root, false);
 }
 
-void UpdateChildren(std::unique_ptr<Expr>& root, bool isMul)
+void UpdateChildren(std::unique_ptr<Expr>& expr, bool isMul)
 {
-	int first_index = 0;
-	int last_index = 0;
 	int total_numbers = 0;
 	float value = 0.0f;
+	std::unique_ptr<Expr> gen_node;
 
 	if (isMul)
-		value = 1.0f;
-
-	for (int i = 0; i < root->ChildrenSize(); i++)
 	{
-		if (root->ChildAt(i)->IsNumber())
+		gen_node = std::make_unique<Mul>();
+		value = 1.0f;
+	}
+	else
+		gen_node = std::make_unique<Add>();
+
+	for (int i = 0; i < expr->ChildrenSize(); i++)
+	{
+		if (expr->ChildAt(i)->IsNumber())
 		{
 			if (isMul)
-			{
-				if (value == 1)
-					first_index = i;
-
-				value *= stof(root->ChildAt(i)->Name());
-			}
+				value *= stof(expr->ChildAt(i)->Name());
 			else
-			{
-				if (value == 0)
-					first_index = i;
+				value += stof(expr->ChildAt(i)->Name());
 
-				value += stof(root->ChildAt(i)->Name());
-			}
 			total_numbers++;
-
-			if (i == root->ChildrenSize() - 1)
-				last_index = i + 1;
-			else
-				last_index = i;
 		}
-		else if ((isMul && value != 1) || (!isMul && value != 0))
+		else
 		{
-			last_index = i;
-			break;
+			std::unique_ptr<Expr> child_copy;
+			tree_util::DeepCopy(child_copy, expr->ChildAt(i));
+			gen_node->AddChild(std::move(child_copy));
 		}
 	}
 
 	if (total_numbers > 1)
-		UpdateGenNode(root, value, first_index, last_index);
+	{
+		expr = std::move(gen_node);
+		UpdateGenNode(expr, value);
+	}
 }
 
-void UpdateGenNode(std::unique_ptr<Expr>& expr, float value, int first_index, int last_index)
+void UpdateGenNode(std::unique_ptr<Expr>& expr, float value)
 {
-	bool isInt = false;
-
 	if (abs(value - floor(value)) < 0.000001f)
-		isInt = true;
-
-	expr->RemoveChildren(first_index, last_index);
-
-	if (isInt)
 		expr->AddChild(std::make_unique<Integer>(static_cast<int>(value)));
 	else
 		expr->AddChild(std::make_unique<Float>(value));

@@ -4,6 +4,7 @@
 #include <string>
 
 #include "Expr.h"
+#include "TreeUtil.h"
 
 namespace calc {
 
@@ -11,7 +12,7 @@ namespace calc {
 	void CalculateBinNode(std::unique_ptr<Expr>& expr);
 	void CalculateGenNode(std::unique_ptr<Expr>& expr);
 	void UpdateChildren(std::unique_ptr<Expr>& root, bool isMul);
-	void UpdateGenNode(std::unique_ptr<Expr>& expr, float value, int first_index, int last_index);
+	void UpdateGenNode(std::unique_ptr<Expr>& expr, float value);
 
 	void ComputeFactorial(std::unique_ptr<Expr>& expr);
 	void ComputeLogarithm(std::unique_ptr<Expr>& expr);

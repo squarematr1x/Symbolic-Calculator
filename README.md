@@ -80,6 +80,10 @@ At this point some algebraic expression can be simplified with the CLI:
          simplified: 3x^2+4x^3
 >>> D(x^3sin(x)x^4)
          simplified: 7sin(x)x^6+cos(x)x^7
+>>> D(x^3/x^5)
+         simplified: -2x^-3
+>>> D(sin(x)/x^2)
+         simplified: cos(x)x^-2+-2sin(x)x^-3
 >>> D(ln(x+y+z))
          simplified: (x+y+z)^-1
 >>> D(log2(x))

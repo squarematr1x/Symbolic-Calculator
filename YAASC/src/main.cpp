@@ -1,5 +1,6 @@
 #include "SymbolicTool.h"
 #include "ExprTree.h"
+#include "Clear.h"
 
 int main()
 {
@@ -20,7 +21,9 @@ int main()
 		if (input == "exit")
 			break;
 
-		if (input.length() != 0 && !scanner::MissingParenthesis(input))
+		if (input == "clear")
+			ClearScreen();
+		else if (input.length() != 0 && !scanner::MissingParenthesis(input))
 		{
 			yaasc::ExprTree expr_tree(input);
 			yaasc::Simplify(expr_tree.Root());

@@ -2,29 +2,29 @@
 
 namespace calculus {
 
-	void Differentiate(std::unique_ptr<Expr>& expr)
+void Differentiate(std::unique_ptr<Expr>& expr)
+{
+	if (expr->IsTerminal())
+		return;
+
+	if (expr->IsFunc())
+		Differentiate(expr->Param());
+	else if (expr->IsGeneric())
 	{
-		if (expr->IsTerminal())
-			return;
-
-		if (expr->IsFunc())
-			Differentiate(expr->Param());
-		else if (expr->IsGeneric())
-		{
-			for (int i = 0; i < expr->ChildrenSize(); i++)
-				Differentiate(expr->ChildAt(i));
-		}
-		else
-		{
-			if (!expr->LeftIsTerminal())
-				Differentiate(expr->Left());
-
-			if (!expr->RightIsTerminal())
-				Differentiate(expr->Right());
-		}
-
-		DerivativeRules(expr);
+		for (int i = 0; i < expr->ChildrenSize(); i++)
+			Differentiate(expr->ChildAt(i));
 	}
+	else
+	{
+		if (!expr->LeftIsTerminal())
+			Differentiate(expr->Left());
+
+		if (!expr->RightIsTerminal())
+			Differentiate(expr->Right());
+	}
+
+	DerivativeRules(expr);
+}
 
 // d/dx(x^n) --> nx^(n-1)
 void PowerRule(std::unique_ptr<Expr>& expr)
@@ -104,6 +104,7 @@ void CanDifferentiate(const std::unique_ptr<Expr>& root, const std::unique_ptr<E
 		is_constant = false;
 }
 
+// d/dx(a1+a2+...+an) --> d/dx(a1)+d/dx(a2)+...+d/dx(an)
 void DifferentiateSum(std::unique_ptr<Expr>& expr)
 {
 	if (!expr->IsDerivative())
@@ -132,6 +133,7 @@ void DifferentiateSum(std::unique_ptr<Expr>& expr)
 	}
 }
 
+// d/dx(a1a2) --> d/dx(a1)a2+d/dx(a2)a1
 void ProductRule(std::unique_ptr<Expr>& expr)
 {
 	if (!expr->IsDerivative())
@@ -173,12 +175,13 @@ void ProductRule(std::unique_ptr<Expr>& expr)
 		tree_util::DeepCopy(copy_left, expr->Param()->Left());
 		tree_util::DeepCopy(copy_right, expr->Param()->Right());
 
-		std::unique_ptr<Expr> left = std::make_unique<Mul>(std::move(copy_left), std::make_unique<Derivative>(std::move(expr->Param()->Right()), "x"));
-		std::unique_ptr<Expr> right = std::make_unique<Mul>(std::move(copy_right), std::make_unique<Derivative>(std::move(expr->Param()->Left()), "x"));
+		std::unique_ptr<Expr> left = std::make_unique<Mul>(std::make_unique<Derivative>(std::move(expr->Param()->Left()), "x"), std::move(copy_right));
+		std::unique_ptr<Expr> right = std::make_unique<Mul>(std::make_unique<Derivative>(std::move(expr->Param()->Right()), "x"), std::move(copy_left));
 		expr = std::make_unique<Add>(std::move(left), std::move(right));
 	}
 }
 
+// d/dx(a1/a2) --> (d/dx(a1)a2-d/dx(a2)a1)/(a2^2)
 void QuotientRule(std::unique_ptr<Expr>& expr)
 {
 	if (!expr->IsDerivative())
@@ -188,13 +191,25 @@ void QuotientRule(std::unique_ptr<Expr>& expr)
 		return;
 
 	if (expr->Param()->IsGeneric())
-	{
-		// Implement generic case
-	}
-	else
-	{
-		// Normal case
-	}
+		return;
+
+	if (!expr->Param()->Right()->IsPow())
+		return;
+
+	if (!expr->Param()->Right()->Right()->IsNegOne())
+		return;
+
+	std::unique_ptr<Expr> copy_left, copy_right_a, copy_right_b, numerator, denominator;
+
+	tree_util::DeepCopy(copy_left, expr->Param()->Left());
+	tree_util::DeepCopy(copy_right_a, expr->Param()->Right()->Left());
+	tree_util::DeepCopy(copy_right_b, expr->Param()->Right()->Left());
+
+	std::unique_ptr<Expr> left = std::make_unique<Mul>(std::make_unique<Derivative>(std::move(expr->Param()->Left()), "x"), std::move(copy_right_a));
+	std::unique_ptr<Expr> right = std::make_unique<Mul>(std::make_unique<Derivative>(std::move(expr->Param()->Right()->Left()), "x"), std::move(copy_left));
+	numerator = std::make_unique<Add>(std::move(left), std::make_unique<Mul>(std::make_unique<Integer>(-1), std::move(right)));
+	denominator = std::make_unique<Pow>(std::move(copy_right_b), std::make_unique<Integer>(-2));
+	expr = std::make_unique<Mul>(std::move(numerator), std::move(denominator));
 }
 
 void DerivativeRules(std::unique_ptr<Expr>& expr)
@@ -210,7 +225,15 @@ void DerivativeRules(std::unique_ptr<Expr>& expr)
 	if (expr->Param()->IsAdd())
 		DifferentiateSum(expr);
 	else if (expr->Param()->IsMul())
-		ProductRule(expr);
+	{
+		if (expr->Param()->IsGeneric())
+			ProductRule(expr);
+		else
+		{
+			QuotientRule(expr);
+			ProductRule(expr);
+		}
+	}
 	else if (expr->Param()->IsPow())
 		PowerRule(expr);
 	else if (expr->Param()->IsFunc())

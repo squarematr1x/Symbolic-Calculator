@@ -222,10 +222,15 @@ void ExprTree::UpdateStack(std::stack<std::unique_ptr<Expr>>& expr_stack, ExprTy
 		expr_stack.push(std::make_unique<Mul>(std::move(left), std::move(right)));
 	else if (type == ExprType::ADD)
 		expr_stack.push(std::make_unique<Add>(std::move(left), std::move(right)));
-	else if (type == ExprType::DIV) // NOTE: Fractions can be made here
-		expr_stack.push(std::make_unique<Mul>(std::move(left), std::make_unique<Pow>(std::move(right), std::make_unique<Integer>(-1))));
 	else if (type == ExprType::POW)
 		expr_stack.push(std::make_unique<Pow>(std::move(left), std::move(right)));
+	else if (type == ExprType::DIV)
+	{
+		if (left->IsInteger() && right->IsInteger())
+			expr_stack.push(std::make_unique<Fraction>(std::stoi(left->Name()), std::stoi(right->Name())));
+		else
+			expr_stack.push(std::make_unique<Mul>(std::move(left), std::make_unique<Pow>(std::move(right), std::make_unique<Integer>(-1))));
+	}
 	else if (type == ExprType::SUB)
 	{
 		std::unique_ptr<Mul> new_expression{ std::make_unique<Mul>(std::make_unique<Integer>(-1), std::move(right)) };

@@ -70,6 +70,7 @@ public:
 	virtual bool IsVar() const { return false; }
 	virtual bool IsInteger() const { return false; }
 	virtual bool IsFloat() const { return false; }
+	virtual bool IsFraction() const { return false; }
 	virtual bool IsNumber() const { return false; }
 	virtual bool IsMul() const { return false; }
 	virtual bool IsAdd() const { return false; }
@@ -81,6 +82,7 @@ public:
 	virtual bool IsZero() { return false; }
 	virtual bool IsOne() { return false; }
 	virtual bool IsNegOne() { return false; }
+	virtual bool IsNeg() { return false; }
 
 	virtual bool HasLeftChild();
 	virtual bool HasRightChild();
@@ -166,6 +168,7 @@ public:
 	bool IsZero();
 	bool IsOne();
 	bool IsNegOne();
+	bool IsNeg();
 };
 
 class Float : public Atomic<float>
@@ -189,6 +192,26 @@ public:
 	bool IsZero();
 	bool IsOne();
 	bool IsNegOne();
+	bool IsNeg();
+};
+
+class Fraction : public Atomic<std::string>
+{
+private:
+	int m_numerator;
+	int m_denominator;
+
+public:
+	Fraction(int numerator, int denominator)
+		: m_numerator(numerator), m_denominator(denominator),
+		  Atomic(std::to_string(numerator) + "/" + std::to_string(denominator))
+	{
+	}
+
+	int Eval(std::map<std::string, int> env) { return m_numerator / m_denominator; }
+	bool IsFraction() const{ return true; }
+	bool IsNumber() const { return true; }
+	std::string Name() const { return m_atom; }
 };
 
 class Var : public Atomic<std::string>

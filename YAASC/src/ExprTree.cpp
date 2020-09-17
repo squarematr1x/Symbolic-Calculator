@@ -103,7 +103,6 @@ void ExprTree::HandleVariableInput(std::string input, int& index, std::stack<std
 
 void ExprTree::HandleDigitInput(std::string input, int& index, std::stack<std::unique_ptr<Expr>>& expr_stack)
 {
-	int first_index = index;
 	int length = input.length();
 	bool is_float = false;
 	std::string number = "";
@@ -128,16 +127,22 @@ void ExprTree::HandleDigitInput(std::string input, int& index, std::stack<std::u
 	if (!is_float)
 	{
 		int value = std::stoi(number);
-		if (first_index - 1 >= 0 && input[first_index - 1] == '-')
+		if (index + 2 <= length && input[index + 2] == '-')
+		{
 			expr_stack.push(std::make_unique<Integer>(value * -1));
+			index += 3;
+		}
 		else
 			expr_stack.push(std::make_unique<Integer>(value));
 	}
 	else
 	{
 		float value = std::stof(number);
-		if (first_index - 1 >= 0 && input[first_index - 1] == '-')
+		if (index + 2 <= length && input[index + 2] == '-')
+		{
 			expr_stack.push(std::make_unique<Float>(value * -1.0f));
+			index += 3;
+		}
 		else
 			expr_stack.push(std::make_unique<Float>(value));
 	}

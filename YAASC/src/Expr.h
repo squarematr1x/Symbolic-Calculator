@@ -96,6 +96,12 @@ public:
 	virtual bool LeftIsTerminal();
 	virtual bool RightIsTerminal();
 
+	virtual int iValue() const { return 0; }
+	virtual int Numerator() const { return 0; }
+	virtual int Denominator() const { return 0; }
+
+	virtual float fValue() const { return 0.0f; }
+
 	virtual std::unique_ptr<Expr>& Left() { return m_left; }
 	virtual std::unique_ptr<Expr>& Right(){ return m_right; }
 	virtual std::unique_ptr<Expr>& ChildAt(int i) { (void)i; return m_left; }
@@ -161,6 +167,9 @@ public:
 		return m_atom;
 	}
 
+	int iValue() const { return m_atom; }
+	float fValue() const { return static_cast<float>(m_atom); }
+
 	std::string Name() const { return std::to_string(m_atom); }
 	ExprType ExpressionType() const { return ExprType::INTEGER; }
 	bool IsInteger() const { return true; }
@@ -185,6 +194,8 @@ public:
 		return (int)m_atom;
 	}
 
+	float fValue() const { return m_atom; }
+
 	std::string Name() const;
 	ExprType ExpressionType() const { return ExprType::FLOAT; }
 	bool IsFloat() const { return true; }
@@ -207,6 +218,11 @@ public:
 		  Atomic(std::to_string(numerator) + "/" + std::to_string(denominator))
 	{
 	}
+
+	int Numerator() const { return m_numerator; }
+	int Denominator() const { return m_denominator; }
+
+	float fValue() const { return static_cast<float>(m_numerator / m_denominator); }
 
 	int Eval(std::map<std::string, int> env) { return m_numerator / m_denominator; }
 	bool IsFraction() const{ return true; }

@@ -6,7 +6,7 @@ namespace yaasc
 std::unique_ptr<Expr> ExprTree::Construct(std::string input)
 {
 	scanner::HandleInput(input);
-
+	std::cout << input << '\n';
 	std::stack<std::unique_ptr<Expr>> expr_stack;
 	int length = input.length();
 
@@ -65,7 +65,8 @@ std::unique_ptr<Expr> ExprTree::Construct(std::string input)
 				{
 					std::unique_ptr<Expr> expr = std::move(expr_stack.top());
 					expr_stack.pop();
-					expr_stack.push(std::move(std::make_unique<Mul>(std::make_unique<Integer>(-1), std::move(expr))));
+					TurnToNegative(expr);
+					expr_stack.push(std::move(expr));
 				}
 			}
 		}
@@ -127,24 +128,12 @@ void ExprTree::HandleDigitInput(std::string input, int& index, std::stack<std::u
 	if (!is_float)
 	{
 		int value = std::stoi(number);
-		if (index + 2 <= length && input[index + 2] == '-')
-		{
-			expr_stack.push(std::make_unique<Integer>(value * -1));
-			index += 3;
-		}
-		else
-			expr_stack.push(std::make_unique<Integer>(value));
+		expr_stack.push(std::make_unique<Integer>(value));
 	}
 	else
 	{
 		float value = std::stof(number);
-		if (index + 2 <= length && input[index + 2] == '-')
-		{
-			expr_stack.push(std::make_unique<Float>(value * -1.0f));
-			index += 3;
-		}
-		else
-			expr_stack.push(std::make_unique<Float>(value));
+		expr_stack.push(std::make_unique<Float>(value));
 	}
 }
 
@@ -232,20 +221,35 @@ void ExprTree::UpdateStack(std::stack<std::unique_ptr<Expr>>& expr_stack, ExprTy
 	else if (type == ExprType::DIV)
 	{
 		if (left->IsInteger() && right->IsInteger())
-			expr_stack.push(std::make_unique<Fraction>(std::stoi(left->Name()), std::stoi(right->Name())));
+			expr_stack.push(std::make_unique<Fraction>(left->iValue(), right->iValue()));
 		else
 			expr_stack.push(std::make_unique<Mul>(std::move(left), std::make_unique<Pow>(std::move(right), std::make_unique<Integer>(-1))));
 	}
 	else if (type == ExprType::SUB)
 	{
-		std::unique_ptr<Mul> new_expression{ std::make_unique<Mul>(std::make_unique<Integer>(-1), std::move(right)) };
-		expr_stack.push(std::make_unique<Add>(std::move(left), std::move(new_expression)));
+		TurnToNegative(right);
+		expr_stack.push(std::make_unique<Add>(std::move(left), std::move(right)));
 	}
 	else if (type == ExprType::FAC)
 	{
 		expr_stack.push(std::move(left));
 		expr_stack.push(std::make_unique<Fac>(std::move(right)));
 	}
+}
+
+void ExprTree::TurnToNegative(std::unique_ptr<Expr>& expr)
+{
+	if (expr->IsNumber())
+	{
+		if (expr->IsInteger())
+			expr = std::make_unique<Integer>(expr->iValue() * -1);
+		else if (expr->IsFloat())
+			expr = std::make_unique<Float>(expr->fValue() * -1.0f);
+		else if (expr->IsFraction())
+			expr = std::make_unique<Fraction>(expr->Numerator() * -1, expr->Denominator());
+	}
+	else
+		expr = std::make_unique<Mul>(std::make_unique<Integer>(-1), std::move(expr));
 }
 
 void ExprTree::PrintParenthesis(const std::unique_ptr<Expr>& expr, const std::unique_ptr<Expr>& child, bool left_paranthesis)

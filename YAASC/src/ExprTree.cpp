@@ -6,7 +6,6 @@ namespace yaasc
 std::unique_ptr<Expr> ExprTree::Construct(std::string input)
 {
 	scanner::HandleInput(input);
-	std::cout << input << '\n';
 	std::stack<std::unique_ptr<Expr>> expr_stack;
 	int length = input.length();
 
@@ -105,6 +104,7 @@ void ExprTree::HandleVariableInput(std::string input, int& index, std::stack<std
 void ExprTree::HandleDigitInput(std::string input, int& index, std::stack<std::unique_ptr<Expr>>& expr_stack)
 {
 	int length = input.length();
+	int first_index = index;
 	bool is_float = false;
 	std::string number = "";
 	number += input[index];
@@ -128,12 +128,20 @@ void ExprTree::HandleDigitInput(std::string input, int& index, std::stack<std::u
 	if (!is_float)
 	{
 		int value = std::stoi(number);
-		expr_stack.push(std::make_unique<Integer>(value));
+
+		if (first_index - 1 >= 0 && input[first_index - 1] == '-')
+			expr_stack.push(std::make_unique<Integer>(value * -1));
+		else
+			expr_stack.push(std::make_unique<Integer>(value));
 	}
 	else
 	{
 		float value = std::stof(number);
-		expr_stack.push(std::make_unique<Float>(value));
+
+		if (first_index - 1 >= 0 && input[first_index - 1] == '-')
+			expr_stack.push(std::make_unique<Float>(value * -1.0f));
+		else
+			expr_stack.push(std::make_unique<Float>(value));
 	}
 }
 

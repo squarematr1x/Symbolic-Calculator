@@ -155,10 +155,33 @@ std::unique_ptr<Expr>& AddNumbers(std::unique_ptr<Expr>& expr_a, std::unique_ptr
 
 std::unique_ptr<Expr>& MulNumbers(std::unique_ptr<Expr>& expr_a, std::unique_ptr<Expr>& expr_b)
 {
-	(void)expr_a;
-	(void)expr_b;
 	std::unique_ptr<Expr> result{ std::make_unique<Integer>(0) };
 
+	if (expr_a->IsFloat() || expr_b->IsFloat())
+		result = std::make_unique<Float>(expr_a->fValue() * expr_b->fValue());
+	else if (expr_a->IsInteger())
+	{
+		if (expr_b->IsInteger())
+			result = std::make_unique<Integer>(expr_a->iValue() * expr_b->iValue());
+		else if (expr_b->IsFraction())
+			result = std::make_unique<Fraction>(expr_b->Numerator() * expr_a->iValue(), expr_b->Denominator());
+	}
+	else if (expr_a->IsFraction())
+	{
+		if (expr_b->IsInteger())
+			result = std::make_unique<Fraction>(expr_a->Numerator() * expr_b->iValue(), expr_a->Denominator());
+		else if (expr_b->IsFraction())
+		{
+			int numerator = expr_a->Numerator() * expr_b->Numerator();
+			int denominator = expr_a->Denominator() * expr_b->Denominator();
+			result = std::make_unique<Fraction>(numerator, denominator);
+		}
+	}
+
+	if (result->IsFraction())
+		ReduceFraction(result);
+
+	expr_a = std::move(result);
 	return expr_a;
 }
 

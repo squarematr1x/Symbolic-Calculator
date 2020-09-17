@@ -121,19 +121,33 @@ void UpdateGenNode(std::unique_ptr<Expr>& expr, float value)
 	expr->SortChildren();
 }
 
-std::unique_ptr<Expr>& AddNumbers(std::unique_ptr<Expr>& expr_a, std::unique_ptr<Expr>& expr_b)
+std::unique_ptr<Expr>& AddNumbers(std::unique_ptr<Expr>& expr_a, std::unique_ptr<Expr>& expr_b) // Add int to fac or to float, etc.
 {
 	std::unique_ptr<Expr> result{ std::make_unique<Integer>(0) };
 
-	if (expr_a->IsInteger())
+	if (expr_a->IsFloat() || expr_b->IsFloat())
+		result = std::make_unique<Float>(expr_a->fValue() + expr_b->fValue());
+	else if (expr_a->IsInteger())
 	{
 		if (expr_b->IsInteger())
 			result = std::make_unique<Integer>(expr_a->iValue() + expr_b->iValue());
-		else if (expr_b->IsFloat())
-			result = std::make_unique<Float>(expr_a->iValue() + expr_b->fValue());
 		else if (expr_b->IsFraction())
 			result = std::make_unique<Fraction>(expr_b->Numerator() + expr_a->iValue() * expr_b->Denominator(), expr_b->Denominator());
 	}
+	else if (expr_a->IsFraction())
+	{
+		if (expr_b->IsInteger())
+			result = std::make_unique<Fraction>(expr_a->Numerator() + expr_b->iValue() * expr_a->Denominator(), expr_a->Denominator());
+		else if (expr_b->IsFraction())
+		{
+			int numerator = expr_a->Numerator() * expr_b->Denominator() + expr_b->Numerator() * expr_a->Denominator();
+			int denominator = expr_a->Denominator() * expr_b->Denominator();
+			result = std::make_unique<Fraction>(numerator, denominator);
+		}
+	}
+
+	if (result->IsFraction())
+		ReduceFraction(result);
 
 	expr_a = std::move(result);
 	return expr_a;
@@ -146,6 +160,53 @@ std::unique_ptr<Expr>& MulNumbers(std::unique_ptr<Expr>& expr_a, std::unique_ptr
 	std::unique_ptr<Expr> result{ std::make_unique<Integer>(0) };
 
 	return expr_a;
+}
+
+void ReduceFraction(std::unique_ptr<Expr>& expr)
+{
+	int smaller_fraction = 0;
+	int larger_fraction = 0;
+	int result = -1;
+
+	if (std::abs(expr->Numerator()) > std::abs(expr->Denominator()))
+	{
+		larger_fraction = std::abs(expr->Numerator());
+		smaller_fraction = std::abs(expr->Denominator());
+	}
+	else
+	{
+		larger_fraction = std::abs(expr->Denominator());
+		smaller_fraction = std::abs(expr->Numerator());
+	}
+
+	if (larger_fraction % smaller_fraction == 0)
+		expr = std::make_unique<Integer>(expr->Numerator() / expr->Denominator());
+	else
+	{
+		while (true)
+		{
+			result = larger_fraction - smaller_fraction;
+
+			if (result == 0)
+			{
+				result = smaller_fraction;
+				break;
+			}
+
+			if (result > smaller_fraction)
+				larger_fraction = result;
+			else
+			{
+				larger_fraction = smaller_fraction;
+				smaller_fraction = result;
+			}
+		}
+
+		int numerator = expr->Numerator() / result;
+		int denominator = expr->Denominator() / result;
+
+		expr = std::make_unique<Fraction>(numerator, denominator);
+	}
 }
 
 void ComputeFactorial(std::unique_ptr<Expr>& expr)

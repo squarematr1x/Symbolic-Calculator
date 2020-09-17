@@ -232,7 +232,7 @@ void Canonize(std::unique_ptr<Expr>& root)
 	else
 	{
 		CanonizeGenNode(root);
-		ReduceGenNodeToBinNode(root);
+		// ReduceGenNodeToBinNode(root);
 	}
 }
 

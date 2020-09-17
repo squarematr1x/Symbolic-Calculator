@@ -46,7 +46,7 @@ void ApplyBinomialTheorem(std::unique_ptr<Expr>& expr) // FIXME: How about (a+b)
 	std::unique_ptr<Expr> new_add_node = std::make_unique<Add>();
 
 	int coefficient = 1;
-	int n = stoi(exponent->Name());
+	int n = exponent->iValue();
 	int numerator = calc::Factorial(n);
 
 	for (int i = 0; i <= n; i++)

@@ -48,8 +48,7 @@ void ApplyExponentRuleMulBinNode(std::unique_ptr<Expr>& root)
 		std::string var = root->Left()->Left()->Name();
 		if (CanApplyExponentRule(root, var))
 		{
-			float exponent = std::stof(root->Left()->Right()->Name());
-			exponent += std::stof(root->Right()->Right()->Name());
+			float exponent = root->Left()->Right()->fValue() + root->Right()->Right()->fValue();
 
 			if (abs(exponent - floor(exponent)) < 0.000001f)
 				root = std::move(std::make_unique<Pow>(std::make_unique<Var>(var), std::make_unique<Float>(exponent)));
@@ -76,10 +75,10 @@ void ApplyExponentRuleMulGenNode(std::unique_ptr<Expr>& root)
 					if (exponent == 0)
 					{
 						modified = true;
-						exponent += std::stoi(root->ChildAt(i)->Right()->Name());
+						exponent += root->ChildAt(i)->Right()->iValue();
 					}
 
-					exponent += std::stoi(root->ChildAt(i + 1)->Right()->Name());
+					exponent += root->ChildAt(i + 1)->Right()->iValue();
 				}
 				else if (!modified)
 					new_children.push(std::move(root->ChildAt(i)));
@@ -147,7 +146,7 @@ void ExponentRulePow(std::unique_ptr<Expr>& root)
 		{
 			if (root->Left()->Right()->IsInteger() && value != "")
 			{
-				int exponent = std::stoi(root->Right()->Name()) * std::stoi(root->Left()->Right()->Name());
+				int exponent = root->Right()->iValue() * root->Left()->Right()->iValue();
 
 				root = std::move(std::make_unique<Pow>(std::make_unique<Var>(value),
 				       std::make_unique<Integer>(exponent)));
@@ -184,8 +183,8 @@ void ExponentRuleParenthesis(std::unique_ptr<Expr>& root)
 		if (root->Left()->IsGeneric())
 		{
 			std::queue<std::unique_ptr<Expr>> new_children;
-
-			for (int i = 0; i != root->Left()->ChildrenSize(); i++)
+			int length = root->Left()->ChildrenSize();
+			for (int i = 0; i != length; i++)
 			{
 				std::unique_ptr<Expr> expr = std::move(root->Left()->ChildAt(i));
 				HandleExponentRuleParenthesis(expr, root->Right(), true);
@@ -201,47 +200,39 @@ void ExponentRuleParenthesis(std::unique_ptr<Expr>& root)
 	}
 }
 
-void HandleExponentRuleParenthesis(std::unique_ptr<Expr>& base, std::unique_ptr<Expr>& exponent, bool generic)
+void HandleExponentRuleParenthesis(std::unique_ptr<Expr>& base, std::unique_ptr<Expr>& exponent, bool generic) // FIXME: How about (abc)^(n^1)?
 {
-	std::string value = exponent->Name();
 	std::unique_ptr<Expr> new_root;
 
 	if (generic)
 	{
-		if (base->Right()->IsInteger())
-		{
-			int i_exponent = std::stoi(value);
-			new_root = std::make_unique<Pow>(std::move(base), std::make_unique<Integer>(i_exponent));
-		}
-		else if (base->Right()->IsFloat())
-		{
-			float f_exponent = std::stof(value);
-			new_root = std::make_unique<Pow>(std::move(base), std::make_unique<Float>(f_exponent));
-		}
-		else if (base->Right()->IsVar())
-			new_root = std::make_unique<Pow>(std::move(base), std::make_unique<Var>(value));
+		if (exponent->IsInteger())
+			new_root = std::make_unique<Pow>(std::move(base), std::make_unique<Integer>(exponent->iValue()));
+		else if (exponent->IsFloat())
+			new_root = std::make_unique<Pow>(std::move(base), std::make_unique<Float>(exponent->fValue()));
+		else if (exponent->IsVar())
+			new_root = std::make_unique<Pow>(std::move(base), std::make_unique<Var>(exponent->Name()));
 	}
 	else
 	{
 		new_root = std::move(base->Left());
-		if (base->Right()->IsInteger())
+		if (exponent->IsInteger())
 		{
-			int i_exponent = std::stoi(value);
-			new_root->SetLeft(std::make_unique<Pow>(std::move(new_root->Left()), std::make_unique<Integer>(i_exponent)));
-			new_root->SetRight(std::make_unique<Pow>(std::move(new_root->Right()), std::make_unique<Integer>(i_exponent)));
+			new_root->SetLeft(std::make_unique<Pow>(std::move(new_root->Left()), std::make_unique<Integer>(exponent->iValue())));
+			new_root->SetRight(std::make_unique<Pow>(std::move(new_root->Right()), std::make_unique<Integer>(exponent->iValue())));
 		}
-		else if (base->Right()->IsFloat())
+		else if (exponent->IsFloat())
 		{
-			float f_exponent = std::stof(value);
-			new_root->SetLeft(std::make_unique<Pow>(std::move(new_root->Left()), std::make_unique<Float>(f_exponent)));
-			new_root->SetRight(std::make_unique<Pow>(std::move(new_root->Right()), std::make_unique<Float>(f_exponent)));
+			new_root->SetLeft(std::make_unique<Pow>(std::move(new_root->Left()), std::make_unique<Float>(exponent->fValue())));
+			new_root->SetRight(std::make_unique<Pow>(std::move(new_root->Right()), std::make_unique<Float>(exponent->fValue())));
 		}
-		else if (base->Right()->IsVar())
+		else if (exponent->IsVar())
 		{
-			new_root->SetLeft(std::make_unique<Pow>(std::move(new_root->Left()), std::make_unique<Var>(value)));
-			new_root->SetRight(std::make_unique<Pow>(std::move(new_root->Right()), std::make_unique<Var>(value)));
+			new_root->SetLeft(std::make_unique<Pow>(std::move(new_root->Left()), std::make_unique<Var>(exponent->Name())));
+			new_root->SetRight(std::make_unique<Pow>(std::move(new_root->Right()), std::make_unique<Var>(exponent->Name())));
 		}
 	}
+
 	base = std::move(new_root);
 }
 

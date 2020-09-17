@@ -46,7 +46,7 @@ void AddBinNodes(std::unique_ptr<Expr>& root, std::unique_ptr<Expr>& left, std::
 	{
 		if (left->Right() == right->Right())
 		{
-			multiplier += std::stoi(left->Left()->Name()) + std::stoi(right->Left()->Name());
+			multiplier += left->Left()->iValue() + right->Left()->iValue();
 			root = std::make_unique<Mul>(std::make_unique<Integer>(multiplier), std::move(left->Right()));
 		}
 	}
@@ -54,7 +54,7 @@ void AddBinNodes(std::unique_ptr<Expr>& root, std::unique_ptr<Expr>& left, std::
 	{
 		if (left->Right() == right)
 		{
-			multiplier += std::stoi(left->Left()->Name()) + 1;
+			multiplier += left->Left()->iValue() + 1;
 			root = std::make_unique<Mul>(std::make_unique<Integer>(multiplier), std::move(right));
 		}
 	}
@@ -62,25 +62,25 @@ void AddBinNodes(std::unique_ptr<Expr>& root, std::unique_ptr<Expr>& left, std::
 	{
 		if (right->Right() == left)
 		{
-			multiplier += std::stoi(right->Left()->Name()) + 1;
+			multiplier += right->Left()->iValue() + 1;
 			root = std::make_unique<Mul>(std::make_unique<Integer>(multiplier), std::move(left));
 		}
 	}
 	else if (CanAddGenNode(left, right))
 	{
-		multiplier += std::stoi(left->ChildAt(0)->Name()) + std::stoi(right->ChildAt(0)->Name());
+		multiplier += left->ChildAt(0)->iValue() + right->ChildAt(0)->iValue();
 		left->SetChildAt(0, std::make_unique<Integer>(multiplier));
 		root = std::move(left);
 	}
 	else if (SameGenVariables(left, right))
 	{
-		multiplier += std::stoi(left->ChildAt(0)->Name()) + 1;
+		multiplier += left->ChildAt(0)->iValue() + 1;
 		left->SetChildAt(0, std::make_unique<Integer>(multiplier));
 		root = std::move(left);
 	}
 	else if (SameGenVariables(right, left))
 	{
-		multiplier += std::stoi(right->ChildAt(0)->Name()) + 1;
+		multiplier += right->ChildAt(0)->iValue() + 1;
 		right->SetChildAt(0, std::make_unique<Integer>(multiplier));
 		root = std::move(right);
 	}
@@ -140,7 +140,7 @@ void AddGenNodes(std::unique_ptr<Expr>& root, int index, std::unique_ptr<Expr>& 
 	{
 		if (child_a->Right() == child_b->Right())
 		{
-			multiplier += std::stoi(child_a->Left()->Name()) + std::stoi(child_b->Left()->Name());
+			multiplier += child_a->Left()->iValue() + child_b->Left()->iValue();
 			root->SetChildAt(index, std::make_unique<Mul>(std::make_unique<Integer>(multiplier), std::move(child_a->Right())));
 		}
 	}
@@ -148,7 +148,7 @@ void AddGenNodes(std::unique_ptr<Expr>& root, int index, std::unique_ptr<Expr>& 
 	{
 		if (child_a->Right() == child_b)
 		{
-			multiplier += std::stoi(child_a->Left()->Name()) + 1;
+			multiplier += child_a->Left()->iValue() + 1;
 			root->SetChildAt(index, std::make_unique<Mul>(std::make_unique<Integer>(multiplier), std::move(child_b)));
 		}
 	}
@@ -156,25 +156,25 @@ void AddGenNodes(std::unique_ptr<Expr>& root, int index, std::unique_ptr<Expr>& 
 	{
 		if (child_b->Right() == child_a)
 		{
-			multiplier += std::stoi(child_b->Left()->Name()) + 1;
+			multiplier += child_b->Left()->iValue() + 1;
 			root->SetChildAt(index, std::make_unique<Mul>(std::make_unique<Integer>(multiplier), std::move(child_a)));
 		}
 	}
 	else if (CanAddGenNode(child_a, child_b))
 	{
-		multiplier += std::stoi(child_a->ChildAt(0)->Name()) + std::stoi(child_b->ChildAt(0)->Name());
+		multiplier += child_a->ChildAt(0)->iValue() + child_b->ChildAt(0)->iValue();
 		child_a->SetChildAt(0, std::make_unique<Integer>(multiplier));
 		root->SetChildAt(index, std::move(child_a));
 	}
 	else if (SameGenVariables(child_a, child_b))
 	{
-		multiplier += std::stoi(child_a->ChildAt(0)->Name()) + 1;
+		multiplier += child_a->ChildAt(0)->iValue() + 1;
 		child_a->SetChildAt(0, std::make_unique<Integer>(multiplier));
 		root->SetChildAt(index, std::move(child_a));
 	}
 	else if (SameGenVariables(child_b, child_a))
 	{
-		multiplier += std::stoi(child_b->ChildAt(0)->Name()) + 1;
+		multiplier += child_b->ChildAt(0)->iValue() + 1;
 		child_b->SetChildAt(0, std::make_unique<Integer>(multiplier));
 		root->SetChildAt(index, std::move(child_b));
 	}

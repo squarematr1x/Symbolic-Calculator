@@ -195,6 +195,7 @@ public:
 	}
 
 	float fValue() const { return m_atom; }
+	int iValue() const { return static_cast<int>(m_atom); }
 
 	std::string Name() const;
 	ExprType ExpressionType() const { return ExprType::FLOAT; }
@@ -221,8 +222,8 @@ public:
 
 	int Numerator() const { return m_numerator; }
 	int Denominator() const { return m_denominator; }
-
-	float fValue() const { return static_cast<float>(m_numerator / m_denominator); }
+	int iValue() const { return m_numerator / m_denominator; }
+	float fValue() const { return static_cast<float>(m_numerator * 1.0f / m_denominator); }
 
 	int Eval(std::map<std::string, int> env) { return m_numerator / m_denominator; }
 	bool IsFraction() const{ return true; }

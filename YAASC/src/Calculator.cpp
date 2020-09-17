@@ -38,8 +38,8 @@ void CalculateBinNode(std::unique_ptr<Expr>& root)
 	{
 		if (root->HasFloatChild())
 		{
-			float left = std::stof(root->Left()->Name());
-			float right = std::stof(root->Right()->Name());
+			float left = root->Left()->fValue();
+			float right = root->Right()->fValue();
 
 			if (root->IsMul())
 				root = std::make_unique<Float>(left * right);
@@ -50,8 +50,8 @@ void CalculateBinNode(std::unique_ptr<Expr>& root)
 		}
 		else
 		{
-			int left = std::stoi(root->Left()->Name());
-			int right = std::stoi(root->Right()->Name());
+			int left = root->Left()->iValue();
+			int right = root->Right()->iValue();
 
 			if (root->IsMul())
 				root = std::make_unique<Integer>(left * right);
@@ -90,9 +90,9 @@ void UpdateChildren(std::unique_ptr<Expr>& expr, bool isMul)
 		if (expr->ChildAt(i)->IsNumber())
 		{
 			if (isMul)
-				value *= stof(expr->ChildAt(i)->Name());
+				value *= expr->ChildAt(i)->fValue();
 			else
-				value += stof(expr->ChildAt(i)->Name());
+				value += expr->ChildAt(i)->fValue();
 
 			total_numbers++;
 		}
@@ -121,6 +121,33 @@ void UpdateGenNode(std::unique_ptr<Expr>& expr, float value)
 	expr->SortChildren();
 }
 
+std::unique_ptr<Expr>& AddNumbers(std::unique_ptr<Expr>& expr_a, std::unique_ptr<Expr>& expr_b)
+{
+	std::unique_ptr<Expr> result{ std::make_unique<Integer>(0) };
+
+	if (expr_a->IsInteger())
+	{
+		if (expr_b->IsInteger())
+			result = std::make_unique<Integer>(expr_a->iValue() + expr_b->iValue());
+		else if (expr_b->IsFloat())
+			result = std::make_unique<Float>(expr_a->iValue() + expr_b->fValue());
+		else if (expr_b->IsFraction())
+			result = std::make_unique<Fraction>(expr_b->Numerator() + expr_a->iValue() * expr_b->Denominator(), expr_b->Denominator());
+	}
+
+	expr_a = std::move(result);
+	return expr_a;
+}
+
+std::unique_ptr<Expr>& MulNumbers(std::unique_ptr<Expr>& expr_a, std::unique_ptr<Expr>& expr_b)
+{
+	(void)expr_a;
+	(void)expr_b;
+	std::unique_ptr<Expr> result{ std::make_unique<Integer>(0) };
+
+	return expr_a;
+}
+
 void ComputeFactorial(std::unique_ptr<Expr>& expr)
 {
 	if (!expr->IsFac())
@@ -129,7 +156,7 @@ void ComputeFactorial(std::unique_ptr<Expr>& expr)
 	if (expr->Param()->IsInteger())
 	{
 		int result = 1;
-		int lim = stoi(expr->Param()->Name());
+		int lim = expr->Param()->iValue();
 
 		if (lim < 0)
 		{

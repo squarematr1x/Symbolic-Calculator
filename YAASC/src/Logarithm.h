@@ -11,6 +11,6 @@ void LogarithmProductHelper(std::unique_ptr<Expr>& expr, bool generic);
 void LogarithmPower(std::unique_ptr<Expr>& expr);
 void SimplifySpecialLogarithm(std::unique_ptr<Expr>& expr);
 
-bool RaisedToLog(std::unique_ptr<Expr>& expr);
+bool RaisedToLog(const std::unique_ptr<Expr>& expr);
 
 }

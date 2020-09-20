@@ -167,13 +167,8 @@ void SimplifySpecialLogarithm(std::unique_ptr<Expr>& expr)
 	// a^(loga(b)) --> b
 	if (RaisedToLog(expr))
 	{
-		std::cout << "Hei\n";
-
 		if (expr->Left() == expr->Right()->Base())
-		{
-			std::cout << "Hoi\n";
 			expr = std::move(expr->Right()->Param());
-		}
 	}
 
 	if (!expr->IsLog())
@@ -193,7 +188,7 @@ void SimplifySpecialLogarithm(std::unique_ptr<Expr>& expr)
 	}
 }
 
-bool RaisedToLog(std::unique_ptr<Expr>& expr)
+bool RaisedToLog(const std::unique_ptr<Expr>& expr)
 {
 	if (!expr->IsPow())
 		return false;

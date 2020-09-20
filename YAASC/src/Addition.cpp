@@ -2,6 +2,7 @@
 
 namespace algebra {
 
+// abc+3bca+4cab+...
 void AddVariables(std::unique_ptr<Expr>& expr)
 {
 	if (expr->IsTerminal())
@@ -38,7 +39,7 @@ void AddVariables(std::unique_ptr<Expr>& expr)
 */
 void AddBinNodes(std::unique_ptr<Expr>& root, std::unique_ptr<Expr>& left, std::unique_ptr<Expr>& right)
 {
-	int multiplier = 0;
+	std::unique_ptr<Expr> multiplier = std::make_unique<Integer>(1);
 
 	if (left == right)
 		root = std::make_unique<Mul>(std::make_unique<Integer>(2), std::move(left));
@@ -46,42 +47,42 @@ void AddBinNodes(std::unique_ptr<Expr>& root, std::unique_ptr<Expr>& left, std::
 	{
 		if (left->Right() == right->Right())
 		{
-			multiplier += left->Left()->iValue() + right->Left()->iValue();
-			root = std::make_unique<Mul>(std::make_unique<Integer>(multiplier), std::move(left->Right()));
+			multiplier = std::move(calc::AddNumbers(left->Left(), right->Left()));
+			root = std::make_unique<Mul>(std::move(multiplier), std::move(left->Right()));
 		}
 	}
 	else if (IsMultipliedByNumber(left))
 	{
 		if (left->Right() == right)
 		{
-			multiplier += left->Left()->iValue() + 1;
-			root = std::make_unique<Mul>(std::make_unique<Integer>(multiplier), std::move(right));
+			multiplier = std::move(calc::AddNumbers(multiplier, left->Left()));
+			root = std::make_unique<Mul>(std::move(multiplier), std::move(right));
 		}
 	}
 	else if (IsMultipliedByNumber(right))
 	{
 		if (right->Right() == left)
 		{
-			multiplier += right->Left()->iValue() + 1;
-			root = std::make_unique<Mul>(std::make_unique<Integer>(multiplier), std::move(left));
+			multiplier = std::move(calc::AddNumbers(multiplier, right->Left()));
+			root = std::make_unique<Mul>(std::move(multiplier), std::move(left));
 		}
 	}
 	else if (CanAddGenNode(left, right))
 	{
-		multiplier += left->ChildAt(0)->iValue() + right->ChildAt(0)->iValue();
-		left->SetChildAt(0, std::make_unique<Integer>(multiplier));
+		multiplier = std::move(calc::AddNumbers(left->ChildAt(0), right->ChildAt(0)));
+		left->SetChildAt(0, std::move(multiplier));
 		root = std::move(left);
 	}
 	else if (SameGenVariables(left, right))
 	{
-		multiplier += left->ChildAt(0)->iValue() + 1;
-		left->SetChildAt(0, std::make_unique<Integer>(multiplier));
+		multiplier = std::move(calc::AddNumbers(multiplier, left->ChildAt(0)));
+		left->SetChildAt(0, std::move(multiplier));
 		root = std::move(left);
 	}
 	else if (SameGenVariables(right, left))
 	{
-		multiplier += right->ChildAt(0)->iValue() + 1;
-		right->SetChildAt(0, std::make_unique<Integer>(multiplier));
+		multiplier = std::move(calc::AddNumbers(multiplier, right->ChildAt(0)));
+		right->SetChildAt(0, std::move(multiplier));
 		root = std::move(right);
 	}
 }

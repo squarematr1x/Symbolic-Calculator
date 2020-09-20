@@ -6,7 +6,7 @@ void ApplyExponentRules(std::unique_ptr<Expr>& root)
 {
 	// (ab)^n --> (a^n)(b^n)
 	ExponentRuleParenthesis(root);
-	// (a^n)^m --> a^(nm)
+	// a^n^m --> a^(nm)
 	ExponentRulePow(root);
 	// (a^n)(a^m) --> a^(n+m)
 	ExponentRuleMul(root);
@@ -46,14 +46,12 @@ void ApplyExponentRuleMulBinNode(std::unique_ptr<Expr>& root)
 	if (SameVariables(root->Left()->Left(), root->Right()->Left()))
 	{
 		std::string var = root->Left()->Left()->Name();
+
 		if (CanApplyExponentRule(root, var))
 		{
-			float exponent = root->Left()->Right()->fValue() + root->Right()->Right()->fValue();
-
-			if (abs(exponent - floor(exponent)) < 0.000001f)
-				root = std::move(std::make_unique<Pow>(std::make_unique<Var>(var), std::make_unique<Float>(exponent)));
-			else
-				root = std::move(std::make_unique<Pow>(std::make_unique<Var>(var), std::make_unique<Integer>(static_cast<int>(exponent))));
+			std::unique_ptr<Expr> exponent;
+			exponent = std::move(calc::AddNumbers(root->Left()->Right(), root->Right()->Right()));
+			root = std::move(std::make_unique<Pow>(std::make_unique<Var>(var), std::move(exponent)));
 		}
 	}
 }
@@ -61,7 +59,7 @@ void ApplyExponentRuleMulBinNode(std::unique_ptr<Expr>& root)
 void ApplyExponentRuleMulGenNode(std::unique_ptr<Expr>& root)
 {
 	std::queue<std::unique_ptr<Expr>> new_children;
-	int exponent = 0;
+	std::unique_ptr<Expr> exponent = nullptr;
 	bool modified = false;
 
 	for (int i = 0; i != root->ChildrenSize(); i++)
@@ -72,48 +70,49 @@ void ApplyExponentRuleMulGenNode(std::unique_ptr<Expr>& root)
 			{
 				if (root->ChildAt(i)->Left() == root->ChildAt(i + 1)->Left())
 				{
-					if (exponent == 0)
+					if (!exponent)
 					{
 						modified = true;
-						exponent += root->ChildAt(i)->Right()->iValue();
+						exponent = std::move(root->ChildAt(i)->Right());
 					}
 
-					exponent += root->ChildAt(i + 1)->Right()->iValue();
+					exponent = std::move(calc::AddNumbers(exponent, root->ChildAt(i + 1)->Right()));
 				}
-				else if (!modified)
-					new_children.push(std::move(root->ChildAt(i)));
 			}
-			else if (!modified)
-				new_children.push(std::move(root->ChildAt(i)));
 
-			if (modified && root->ChildAt(i)->Left() != root->ChildAt(i + 1)->Left())
+			if (!modified)
+				new_children.push(std::move(root->ChildAt(i)));
+			else if (modified && root->ChildAt(i)->Left() != root->ChildAt(i + 1)->Left())
 			{
-				if (exponent != 0)
+				if (!exponent->IsZero())
 				{
-					new_children.push(std::make_unique<Pow>(move(root->ChildAt(i)->Left()), std::make_unique<Integer>(exponent)));
-					exponent = 0;
+					std::unique_ptr<Expr> copy_exponent;
+					tree_util::DeepCopy(copy_exponent, exponent);
+					new_children.push(std::make_unique<Pow>(move(root->ChildAt(i)->Left()), std::move(copy_exponent)));
+					exponent = nullptr;
 				}
 
 				modified = false;
 			}
 
 		}
-		else if (modified && exponent != 0)
-		{
-			new_children.push(std::make_unique<Pow>(move(root->ChildAt(i)->Left()), std::make_unique<Integer>(exponent)));
-			modified = false;
-			exponent = 0;
-		}
+		else if (modified && !exponent->IsZero())
+			new_children.push(std::make_unique<Pow>(move(root->ChildAt(i)->Left()), std::move(exponent)));
 		else if (!modified)
 			new_children.push(std::move(root->ChildAt(i)));
 	}
 
-	root->ClearChildren();
-	tree_util::MoveQueueToGenericNode(root, new_children);
-	root->SortChildren();
+	if (new_children.size() > 1)
+	{
+		root->ClearChildren();
+		tree_util::MoveQueueToGenericNode(root, new_children);
+		root->SortChildren();
+	}
+	else if (new_children.size() != 0)
+		root = std::move(new_children.front());
 }
 
-// (a^n)^m --> a^(nm)
+// a^n^m --> a^(nm)
 void ExponentRulePow(std::unique_ptr<Expr>& root)
 {
 	if (root->IsTerminal())
@@ -133,9 +132,10 @@ void ExponentRulePow(std::unique_ptr<Expr>& root)
 			ExponentRulePow(root->Right());
 	}
 
-	std::string value = "";
-	if (root->IsPow() && root->Left()->IsPow() && root->Right()->IsInteger())
+	if (root->IsPow() && root->Left()->IsPow() && root->Right()->IsNumber())
 	{
+		std::string value = "";
+
 		if (root->Left()->HasLeftChild())
 		{
 			if (root->Left()->Left()->IsVar())
@@ -144,12 +144,10 @@ void ExponentRulePow(std::unique_ptr<Expr>& root)
 
 		if (root->Left()->HasRightChild())
 		{
-			if (root->Left()->Right()->IsInteger() && value != "")
+			if (root->Left()->Right()->IsNumber() && value != "")
 			{
-				int exponent = root->Right()->iValue() * root->Left()->Right()->iValue();
-
-				root = std::move(std::make_unique<Pow>(std::make_unique<Var>(value),
-				       std::make_unique<Integer>(exponent)));
+				std::unique_ptr<Expr> exponent = std::move(calc::MulNumbers(root->Right(), root->Left()->Right()));
+				root = std::move(std::make_unique<Pow>(std::make_unique<Var>(value), std::move(exponent)));
 			}
 		}
 	}

@@ -52,6 +52,8 @@ void CopyToStack(std::stack<std::unique_ptr<Expr>>& expr_stack, const std::uniqu
 			expr_stack.push(std::make_unique<Integer>(expr->iValue()));
 		else if (expr->IsFloat())
 			expr_stack.push(std::make_unique<Float>(expr->fValue()));
+		else if (expr->IsFraction())
+			expr_stack.push(std::make_unique<Fraction>(expr->Numerator(), expr->Denominator()));
 	}
 	else if (expr->IsFunc())
 	{

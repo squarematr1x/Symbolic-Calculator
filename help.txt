@@ -1,0 +1,73 @@
+
+YAASC help.txt
+
+Simplifying algebraic expressions:
+
+	For simplifying expressions just type the expression by using the CLI:
+
+	>> x^2yx
+
+	The output of the simplification process should be next shown below:
+
+	   simplified: x^3y
+
+	Multiplication and spaces are optional, but they can be used if desired
+
+	>> x^2 * y * x
+	   simplified: x^3y
+
+Functions:
+	
+	In this section 'expr' means any algebraic expression (it can also be just a numeric value)
+
+	Trigonometric functions:
+	
+	- sin(expr)	sine of expr
+	- cos(expr)	cosine of expr
+	- tan(expr)	tangent of expr
+	
+	Example:
+	
+	>> sin(0)+cos(0)
+	   simplified: 1
+
+	Logarithms:
+	
+	- ln(expr)	natural logarithm
+	- log(expr)	logarithm with base 10
+	- log10(expr)	logartihm with base 10
+	- log2(expr)	logarithm with base 2
+	
+	Example:
+	
+	>> ln(xe)
+	   simplified: ln(x)+1
+	
+	Derivative:
+
+	- D(expr)	derivative of expr with respect to x
+	
+	Example:
+
+	>> D(x^2+x^3)
+	   simplified: 2x+3x^2
+
+Special characters and strings:
+
+	Character 'e' is used for Euler's number (approx. 2.71828)
+	String "pi" (in lower case) is used for pi (approx. 3.14159)
+	Character '!' is used for factorial
+
+Other commands:
+
+	For clearing the console type:
+
+	>> clear
+
+	To quit the software type:
+
+	>> exit
+
+	help.txt is opened with
+
+	>> help

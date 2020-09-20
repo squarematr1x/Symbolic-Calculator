@@ -1,3 +1,5 @@
+#include<fstream>
+
 #include "SymbolicTool.h"
 #include "ExprTree.h"
 #include "Clear.h"
@@ -23,9 +25,26 @@ int main()
 
 		if (input == "clear")
 			ClearScreen();
+		else if (input == "help")
+		{
+			std::string line;
+			std::ifstream help_file("..\\help.txt");
+
+			if (help_file.is_open())
+			{
+				while (getline(help_file, line))
+					std::cout << line << '\n';
+
+				help_file.close();
+				std::cout << '\n';
+			}
+			else 
+				std::cout << "Unable to open help file\n";
+		}
 		else if (input.length() != 0 && !scanner::MissingParenthesis(input))
 		{
 			yaasc::ExprTree expr_tree(input);
+			// expr_tree.ReplaceRoot(std::move(calc::MulNumbers(expr_tree.Root()->Left(), expr_tree.Root()->Right())));
 			yaasc::Simplify(expr_tree.Root());
 			output = expr_tree.TreeString();
 

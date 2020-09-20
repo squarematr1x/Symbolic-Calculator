@@ -34,33 +34,15 @@ void Calculate(std::unique_ptr<Expr>& root)
 
 void CalculateBinNode(std::unique_ptr<Expr>& root)
 {
-	if (root->HasNumberChildren())
-	{
-		if (root->HasFloatChild())
-		{
-			float left = root->Left()->fValue();
-			float right = root->Right()->fValue();
-
-			if (root->IsMul())
-				root = std::make_unique<Float>(left * right);
-			else if (root->IsAdd())
-				root = std::make_unique<Float>(left + right);
-			else if (root->IsPow())
-				root = std::make_unique<Float>(pow(left, right));
-		}
-		else
-		{
-			int left = root->Left()->iValue();
-			int right = root->Right()->iValue();
-
-			if (root->IsMul())
-				root = std::make_unique<Integer>(left * right);
-			else if (root->IsAdd())
-				root = std::make_unique<Integer>(left + right);
-			else if (root->IsPow())
-				root = std::make_unique<Float>(static_cast<float>(pow(left, right)));
-		}
-	}
+	if (!root->HasNumberChildren())
+		return;
+	
+	if (root->IsMul())
+		root = std::move(MulNumbers(root->Left(), root->Right()));
+	else if (root->IsAdd())
+		root = std::move(AddNumbers(root->Left(), root->Right()));
+	else if (root->IsPow())
+		root = std::make_unique<Float>(pow(root->Left()->fValue(), root->Right()->fValue()));
 }
 
 void CalculateGenNode(std::unique_ptr<Expr>& root)
@@ -113,7 +95,7 @@ void UpdateChildren(std::unique_ptr<Expr>& expr, bool isMul)
 
 void UpdateGenNode(std::unique_ptr<Expr>& expr, float value)
 {
-	if (abs(value - floor(value)) < 0.000001f)
+	if (std::abs(value - std::floor(value)) < 0.000001f)
 		expr->AddChild(std::make_unique<Integer>(static_cast<int>(value)));
 	else
 		expr->AddChild(std::make_unique<Float>(value));
@@ -121,7 +103,7 @@ void UpdateGenNode(std::unique_ptr<Expr>& expr, float value)
 	expr->SortChildren();
 }
 
-std::unique_ptr<Expr>& AddNumbers(std::unique_ptr<Expr>& expr_a, std::unique_ptr<Expr>& expr_b) // Add int to fac or to float, etc.
+std::unique_ptr<Expr>& AddNumbers(std::unique_ptr<Expr>& expr_a, std::unique_ptr<Expr>& expr_b)
 {
 	std::unique_ptr<Expr> result{ std::make_unique<Integer>(0) };
 

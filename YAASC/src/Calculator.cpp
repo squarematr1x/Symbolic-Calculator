@@ -55,15 +55,12 @@ void CalculateGenNode(std::unique_ptr<Expr>& root)
 
 void UpdateChildren(std::unique_ptr<Expr>& expr, bool isMul)
 {
-	int total_numbers = 0;
-	float value = 0.0f;
+	bool is_first_number = true;
+	std::unique_ptr<Expr> previous_number = nullptr;
 	std::unique_ptr<Expr> gen_node;
 
 	if (isMul)
-	{
 		gen_node = std::make_unique<Mul>();
-		value = 1.0f;
-	}
 	else
 		gen_node = std::make_unique<Add>();
 
@@ -71,12 +68,18 @@ void UpdateChildren(std::unique_ptr<Expr>& expr, bool isMul)
 	{
 		if (expr->ChildAt(i)->IsNumber())
 		{
-			if (isMul)
-				value *= expr->ChildAt(i)->fValue();
+			if (is_first_number)
+			{
+				is_first_number = false;
+				previous_number = std::move(expr->ChildAt(i));
+			}
 			else
-				value += expr->ChildAt(i)->fValue();
-
-			total_numbers++;
+			{
+				if (isMul)
+					previous_number = std::move(MulNumbers(previous_number, expr->ChildAt(i)));
+				else
+					previous_number = std::move(AddNumbers(previous_number, expr->ChildAt(i)));
+			}
 		}
 		else
 		{
@@ -86,21 +89,13 @@ void UpdateChildren(std::unique_ptr<Expr>& expr, bool isMul)
 		}
 	}
 
-	if (total_numbers > 1)
+	if (previous_number)
 	{
-		expr = std::move(gen_node);
-		UpdateGenNode(expr, value);
+		gen_node->AddChild(std::move(previous_number));
+		gen_node->SortChildren();
 	}
-}
 
-void UpdateGenNode(std::unique_ptr<Expr>& expr, float value)
-{
-	if (std::abs(value - std::floor(value)) < 0.000001f)
-		expr->AddChild(std::make_unique<Integer>(static_cast<int>(value)));
-	else
-		expr->AddChild(std::make_unique<Float>(value));
-
-	expr->SortChildren();
+	expr = std::move(gen_node);
 }
 
 std::unique_ptr<Expr>& AddNumbers(std::unique_ptr<Expr>& expr_a, std::unique_ptr<Expr>& expr_b)

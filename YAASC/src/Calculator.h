@@ -12,7 +12,6 @@ void Calculate(std::unique_ptr<Expr>& expr);
 void CalculateBinNode(std::unique_ptr<Expr>& expr);
 void CalculateGenNode(std::unique_ptr<Expr>& expr);
 void UpdateChildren(std::unique_ptr<Expr>& root, bool isMul);
-void UpdateGenNode(std::unique_ptr<Expr>& expr, float value);
 
 std::unique_ptr<Expr>& AddNumbers(std::unique_ptr<Expr>& expr_a, std::unique_ptr<Expr>& expr_b);
 std::unique_ptr<Expr>& MulNumbers(std::unique_ptr<Expr>& expr_a, std::unique_ptr<Expr>& expr_b);

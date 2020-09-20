@@ -55,7 +55,6 @@ void CalculateGenNode(std::unique_ptr<Expr>& root)
 
 void UpdateChildren(std::unique_ptr<Expr>& expr, bool isMul)
 {
-	bool is_first_number = true;
 	std::unique_ptr<Expr> previous_number = nullptr;
 	std::unique_ptr<Expr> gen_node;
 
@@ -68,11 +67,8 @@ void UpdateChildren(std::unique_ptr<Expr>& expr, bool isMul)
 	{
 		if (expr->ChildAt(i)->IsNumber())
 		{
-			if (is_first_number)
-			{
-				is_first_number = false;
+			if (!previous_number)
 				previous_number = std::move(expr->ChildAt(i));
-			}
 			else
 			{
 				if (isMul)
@@ -132,7 +128,7 @@ std::unique_ptr<Expr>& AddNumbers(std::unique_ptr<Expr>& expr_a, std::unique_ptr
 
 std::unique_ptr<Expr>& MulNumbers(std::unique_ptr<Expr>& expr_a, std::unique_ptr<Expr>& expr_b)
 {
-	std::unique_ptr<Expr> result{ std::make_unique<Integer>(0) };
+	std::unique_ptr<Expr> result{ std::make_unique<Integer>(1) };
 
 	if (expr_a->IsFloat() || expr_b->IsFloat())
 		result = std::make_unique<Float>(expr_a->fValue() * expr_b->fValue());
@@ -159,6 +155,7 @@ std::unique_ptr<Expr>& MulNumbers(std::unique_ptr<Expr>& expr_a, std::unique_ptr
 		ReduceFraction(result);
 
 	expr_a = std::move(result);
+
 	return expr_a;
 }
 
@@ -168,7 +165,9 @@ void ReduceFraction(std::unique_ptr<Expr>& expr)
 	int larger_fraction = 0;
 	int result = -1;
 
-	if (std::abs(expr->Numerator()) > std::abs(expr->Denominator()))
+	if (expr->Numerator() == 1 && expr->Denominator() > 1)
+		return;
+	else if (std::abs(expr->Numerator()) > std::abs(expr->Denominator()))
 	{
 		larger_fraction = std::abs(expr->Numerator());
 		smaller_fraction = std::abs(expr->Denominator());

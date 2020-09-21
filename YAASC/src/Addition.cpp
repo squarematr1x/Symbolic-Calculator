@@ -133,7 +133,7 @@ void AddGenNode(std::unique_ptr<Expr>& expr)
 */
 void AddGenNodes(std::unique_ptr<Expr>& root, int index, std::unique_ptr<Expr>& child_a, std::unique_ptr<Expr>& child_b)
 {
-	int multiplier = 0;
+	std::unique_ptr<Expr> multiplier = std::make_unique<Integer>(1);
 
 	if (child_a == child_b)
 		root->SetChildAt(index, std::make_unique<Mul>(std::make_unique<Integer>(2), std::move(child_a)));
@@ -141,42 +141,42 @@ void AddGenNodes(std::unique_ptr<Expr>& root, int index, std::unique_ptr<Expr>& 
 	{
 		if (child_a->Right() == child_b->Right())
 		{
-			multiplier += child_a->Left()->iValue() + child_b->Left()->iValue();
-			root->SetChildAt(index, std::make_unique<Mul>(std::make_unique<Integer>(multiplier), std::move(child_a->Right())));
+			multiplier = std::move(calc::AddNumbers(child_a->Left(), child_b->Left()));
+			root->SetChildAt(index, std::make_unique<Mul>(std::move(multiplier), std::move(child_a->Right())));
 		}
 	}
 	else if (IsMultipliedByNumber(child_a))
 	{
 		if (child_a->Right() == child_b)
 		{
-			multiplier += child_a->Left()->iValue() + 1;
-			root->SetChildAt(index, std::make_unique<Mul>(std::make_unique<Integer>(multiplier), std::move(child_b)));
+			multiplier = std::move(calc::AddNumbers(multiplier, child_a->Left()));
+			root->SetChildAt(index, std::make_unique<Mul>(std::move(multiplier), std::move(child_b)));
 		}
 	}
 	else if (IsMultipliedByNumber(child_b))
 	{
 		if (child_b->Right() == child_a)
 		{
-			multiplier += child_b->Left()->iValue() + 1;
-			root->SetChildAt(index, std::make_unique<Mul>(std::make_unique<Integer>(multiplier), std::move(child_a)));
+			multiplier = std::move(calc::AddNumbers(multiplier, child_b->Left()));
+			root->SetChildAt(index, std::make_unique<Mul>(std::move(multiplier), std::move(child_a)));
 		}
 	}
 	else if (CanAddGenNode(child_a, child_b))
 	{
-		multiplier += child_a->ChildAt(0)->iValue() + child_b->ChildAt(0)->iValue();
-		child_a->SetChildAt(0, std::make_unique<Integer>(multiplier));
+		multiplier = std::move(calc::AddNumbers(child_a->ChildAt(0), child_b->ChildAt(0)));
+		child_a->SetChildAt(0, std::move(multiplier));
 		root->SetChildAt(index, std::move(child_a));
 	}
 	else if (SameGenVariables(child_a, child_b))
 	{
-		multiplier += child_a->ChildAt(0)->iValue() + 1;
-		child_a->SetChildAt(0, std::make_unique<Integer>(multiplier));
+		multiplier = std::move(calc::AddNumbers(multiplier, child_a->ChildAt(0)));
+		child_a->SetChildAt(0, std::move(multiplier));
 		root->SetChildAt(index, std::move(child_a));
 	}
 	else if (SameGenVariables(child_b, child_a))
 	{
-		multiplier += child_b->ChildAt(0)->iValue() + 1;
-		child_b->SetChildAt(0, std::make_unique<Integer>(multiplier));
+		multiplier = std::move(calc::AddNumbers(multiplier, child_b->ChildAt(0)));
+		child_b->SetChildAt(0, std::move(multiplier));
 		root->SetChildAt(index, std::move(child_b));
 	}
 }

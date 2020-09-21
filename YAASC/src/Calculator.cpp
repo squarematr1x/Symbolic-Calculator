@@ -165,7 +165,7 @@ void ReduceFraction(std::unique_ptr<Expr>& expr)
 	int larger_fraction = 0;
 	int result = -1;
 
-	if (expr->Numerator() == 1 && expr->Denominator() > 1)
+	if (std::abs(expr->Numerator()) == 1 && expr->Denominator() > 1)
 		return;
 	else if (std::abs(expr->Numerator()) > std::abs(expr->Denominator()))
 	{
@@ -263,10 +263,20 @@ void ComputeTrigonometric(std::unique_ptr<Expr>& expr)
 	if (!expr->IsTrig())
 		return;
 
-	if (!expr->Param()->IsNumber())
-		return;
+	double number = 0;
 
-	double number = std::stod(expr->Param()->Name());
+	if (!expr->Param()->IsNumber())
+	{
+		if (expr->Param()->IsPow())
+		{
+			if (expr->Param()->Left()->IsPi())
+				number = expr->Param()->Left()->fValue();
+			else
+				return;
+		}
+	}
+	else
+		number = expr->Param()->fValue();
 
 	if (expr->IsSin())
 	{

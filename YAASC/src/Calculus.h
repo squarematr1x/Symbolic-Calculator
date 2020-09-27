@@ -17,6 +17,6 @@ void DifferentiateSum(std::unique_ptr<Expr>& expr);
 void ProductRule(std::unique_ptr<Expr>& expr);
 void QuotientRule(std::unique_ptr<Expr>& expr);
 
-void DerivativeRules(std::unique_ptr<Expr>& expr);
+void ApplyDerivativeRules(std::unique_ptr<Expr>& expr);
 
 }

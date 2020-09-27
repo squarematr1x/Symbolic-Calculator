@@ -23,7 +23,7 @@ void Differentiate(std::unique_ptr<Expr>& expr)
 			Differentiate(expr->Right());
 	}
 
-	DerivativeRules(expr);
+	ApplyDerivativeRules(expr);
 }
 
 // d/dx(x^n) --> nx^(n-1)
@@ -124,12 +124,18 @@ void DifferentiateSum(std::unique_ptr<Expr>& expr)
 		}
 
 		expr = std::move(add_node);
+
+		for (int i = 0; i < expr->ChildrenSize(); i++)
+			ApplyDerivativeRules(expr->ChildAt(i));
 	}
 	else
 	{
 		std::unique_ptr<Expr> left = std::make_unique<Derivative>(std::move(expr->Param()->Left()), "x");
 		std::unique_ptr<Expr> right = std::make_unique<Derivative>(std::move(expr->Param()->Right()), "x");
 		expr = std::make_unique<Add>(std::move(left), std::move(right));
+
+		ApplyDerivativeRules(expr->Left());
+		ApplyDerivativeRules(expr->Right());
 	}
 }
 
@@ -164,6 +170,9 @@ void ProductRule(std::unique_ptr<Expr>& expr)
 				}
 			}
 
+			for (int k = 0; k < mul_node->ChildrenSize(); k++)
+				ApplyDerivativeRules(mul_node->ChildAt(k));
+
 			add_node->AddChild(std::move(mul_node));
 		}
 		
@@ -177,6 +186,12 @@ void ProductRule(std::unique_ptr<Expr>& expr)
 
 		std::unique_ptr<Expr> left = std::make_unique<Mul>(std::make_unique<Derivative>(std::move(expr->Param()->Left()), "x"), std::move(copy_right));
 		std::unique_ptr<Expr> right = std::make_unique<Mul>(std::make_unique<Derivative>(std::move(expr->Param()->Right()), "x"), std::move(copy_left));
+
+		ApplyDerivativeRules(left->Left());
+		ApplyDerivativeRules(left->Right());
+		ApplyDerivativeRules(right->Left());
+		ApplyDerivativeRules(right->Right());
+
 		expr = std::make_unique<Add>(std::move(left), std::move(right));
 	}
 }
@@ -212,7 +227,7 @@ void QuotientRule(std::unique_ptr<Expr>& expr)
 	expr = std::make_unique<Mul>(std::move(numerator), std::move(denominator));
 }
 
-void DerivativeRules(std::unique_ptr<Expr>& expr)
+void ApplyDerivativeRules(std::unique_ptr<Expr>& expr)
 {
 	if (!expr->IsDerivative())
 		return;

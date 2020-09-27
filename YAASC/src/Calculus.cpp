@@ -29,7 +29,7 @@ void Differentiate(std::unique_ptr<Expr>& expr)
 // d/dx(x^n) --> nx^(n-1)
 void PowerRule(std::unique_ptr<Expr>& expr)
 {
-	if (!expr->IsDerivative())
+	if (!expr->IsDerivative()) // FIXME: Trim these?
 		return;
 	
 	if (!expr->Param()->IsPow())
@@ -58,6 +58,16 @@ void PowerRule(std::unique_ptr<Expr>& expr)
 	                                 std::make_unique<Add>(std::move(expr->Param()->Right()), std::make_unique<Integer>(-1))));
 
 	expr = std::move(new_expr);
+}
+
+void ExponentialRule(std::unique_ptr<Expr>& expr)
+{
+	std::unique_ptr<Expr> base;
+	tree_util::DeepCopy(base, expr->Param()->Left());
+
+	expr = std::make_unique<Mul>(std::move(expr->Param()), std::make_unique<Ln>(std::move(base)));
+
+	// FIXME: Handle case D(-a^x)
 }
 
 // d/dx(k) --> 0
@@ -249,7 +259,12 @@ void ApplyDerivativeRules(std::unique_ptr<Expr>& expr)
 		}
 	}
 	else if (expr->Param()->IsPow())
-		PowerRule(expr);
+	{
+		if (!IsConstant(expr->Param()->Left(), expr->RespectTo()))
+			PowerRule(expr);
+		else if (!IsConstant(expr->Param()->Right(), expr->RespectTo()))
+			ExponentialRule(expr);
+	}
 	else if (expr->Param()->IsFunc())
 	{
 		if (expr->Param()->IsSin())
@@ -263,6 +278,14 @@ void ApplyDerivativeRules(std::unique_ptr<Expr>& expr)
 		else if (expr->Param()->IsLog())
 			expr = std::make_unique<Pow>(std::make_unique<Mul>(std::move(expr->Param()->Param()), std::make_unique<Ln>(std::move(expr->Param()->Base()))), std::make_unique<Integer>(-1));
 	}
+}
+
+bool IsConstant(const std::unique_ptr<Expr>& expr, std::string respect_to)
+{
+	bool is_constant = true;
+	CanDifferentiate(expr, respect_to, is_constant);
+
+	return is_constant;
 }
 
 void Integrate(std::unique_ptr<Expr>& expr)

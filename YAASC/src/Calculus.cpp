@@ -68,7 +68,7 @@ void SetToZero(std::unique_ptr<Expr>& expr)
 
 	bool is_zero = true;
 
-	CanDifferentiate(expr, expr->Param(), is_zero);
+	CanDifferentiate(expr->Param(), expr->RespectTo(), is_zero);
 
 	if (is_zero)
 		expr = std::make_unique<Integer>(0);
@@ -80,27 +80,27 @@ void SetToOne(std::unique_ptr<Expr>& expr)
 	(void)expr;
 }
 
-void CanDifferentiate(const std::unique_ptr<Expr>& root, const std::unique_ptr<Expr>& expr, bool& is_constant)
+void CanDifferentiate(const std::unique_ptr<Expr>& expr, std::string respect_to, bool& is_constant)
 {
 	if (!is_constant)
 		return;
 
 	if (expr->IsFunc())
-		CanDifferentiate(root, expr->Param(), is_constant);
+		CanDifferentiate(expr->Param(), respect_to, is_constant);
 	else if (expr->IsGeneric())
 	{
 		for (int i = 0; i < expr->ChildrenSize(); i++)
-			CanDifferentiate(root, expr->ChildAt(i), is_constant);
+			CanDifferentiate(expr->ChildAt(i), respect_to, is_constant);
 	}
 	else
 	{
 		if (expr->HasLeftChild())
-			CanDifferentiate(root, expr->Left(), is_constant);
+			CanDifferentiate(expr->Left(), respect_to, is_constant);
 		if (expr->HasRightChild())
-			CanDifferentiate(root, expr->Right(), is_constant);
+			CanDifferentiate(expr->Right(), respect_to, is_constant);
 	}
 
-	if (root->RespectTo() == expr->Name())
+	if (respect_to == expr->Name())
 		is_constant = false;
 }
 
@@ -158,7 +158,6 @@ void ProductRule(std::unique_ptr<Expr>& expr)
 			std::unique_ptr<Expr> mul_node = std::make_unique<Mul>();
 			std::unique_ptr<Expr> derivative_child;
 			tree_util::DeepCopy(derivative_child, expr->Param()->ChildAt(i));
-			mul_node->AddChild(std::make_unique<Derivative>(std::move(derivative_child), "x"));
 
 			for (int j = 0; j < children_size; j++)
 			{
@@ -168,6 +167,8 @@ void ProductRule(std::unique_ptr<Expr>& expr)
 					tree_util::DeepCopy(other_child, expr->Param()->ChildAt(j));
 					mul_node->AddChild(std::move(other_child));
 				}
+				else
+					mul_node->AddChild(std::make_unique<Derivative>(std::move(derivative_child), "x"));
 			}
 
 			for (int k = 0; k < mul_node->ChildrenSize(); k++)
@@ -188,9 +189,7 @@ void ProductRule(std::unique_ptr<Expr>& expr)
 		std::unique_ptr<Expr> right = std::make_unique<Mul>(std::make_unique<Derivative>(std::move(expr->Param()->Right()), "x"), std::move(copy_left));
 
 		ApplyDerivativeRules(left->Left());
-		ApplyDerivativeRules(left->Right());
 		ApplyDerivativeRules(right->Left());
-		ApplyDerivativeRules(right->Right());
 
 		expr = std::make_unique<Add>(std::move(left), std::move(right));
 	}
@@ -272,4 +271,4 @@ void Integrate(std::unique_ptr<Expr>& expr)
 	// Apply integration rules
 }
 
-}
+} // namespace calculus

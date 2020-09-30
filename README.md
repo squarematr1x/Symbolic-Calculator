@@ -24,8 +24,14 @@ At this point some algebraic expression can be simplified with the CLI:
          simplified: 10.5+3x^2
 >>> 15+x-15.7
          simplified: -0.7+x
+>>> 7/6-5
+         simplified: -23/6
+>>> 3/2+1/4+7/4
+         simplified: 7/2
 >>> xx+yyy+zz
          simplified: x^2+y^3+z^2
+>>> (x+y)^2
+         simplified: x^2+2xy+y^2
 >>> (xyz)(5/(xyz))
          simplified: 5
 >>> (xy^2z)^2
@@ -61,7 +67,9 @@ At this point some algebraic expression can be simplified with the CLI:
 >>> 2xyz+3yxz+4zxy
          simplified: 9xyz   
 >>> x2yz+zyx+zyx5
-         simplified: 8xyz        
+         simplified: 8xyz 
+>>> 3/4x-5y+4x
+         simplified: -5y+19/4x       
 >>> (x^2yz/(x^2y))
          simplified: z
 >>> x^2yx^3zy^5
@@ -83,13 +91,21 @@ At this point some algebraic expression can be simplified with the CLI:
 >>> D(x^3/x^5)
          simplified: -2x^-3
 >>> D(sin(x)/x^2)
-         simplified: cos(x)x^-2+-2sin(x)x^-3
+         simplified: cos(x)x^-2-2sin(x)x^-3
 >>> D(ln(x+y+z))
          simplified: (x+y+z)^-1
 >>> D(log2(x))
          simplified: (xln(2))^-1
 >>> D(2.4)
-         simplified: 0   
+         simplified: 0
+>>> D(sin(sin(x)))
+         simplified: cos(sin(x))cos(x)
+>>> D(sin(sin(sin(x))))
+         simplified: cos(sin(sin(x)))cos(sin(x))cos(x)   
+>>> D(ln(sin(x)))
+         simplified: (sin(x))^-1cos(x)
+>>> D(cos(ln(x)))
+         simplified: -sin(ln(x))x^-1
 ```
 
 Multiplication sign ( * ) and spaces are optional, but however, those can be added into the input string:
@@ -101,4 +117,4 @@ Multiplication sign ( * ) and spaces are optional, but however, those can be add
          simplified: 2xy^2+x^2y+xyz         
 ```
 
-Future plans include: fractions (and roots), trigonometric functions and calculus.
+Future plans include: Integration, trigonometric identities and perhaps later complex algebra.

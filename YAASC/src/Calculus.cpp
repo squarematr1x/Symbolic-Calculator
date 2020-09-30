@@ -236,6 +236,59 @@ void QuotientRule(std::unique_ptr<Expr>& expr)
 	expr = std::make_unique<Mul>(std::move(numerator), std::move(denominator));
 }
 
+void ChainRule(std::unique_ptr<Expr>& expr)
+{
+	if (!expr->IsDerivative())
+		return;
+
+	if (!expr->Param()->IsFunc())
+		return;
+
+	std::unique_ptr<Expr> mul_node{ std::make_unique<Mul>() };
+	ApplyChainRule(expr->Param(), mul_node, true);
+
+	if (mul_node->ChildrenSize() != 0)
+		expr = std::move(mul_node);
+}
+
+void ApplyChainRule(std::unique_ptr<Expr>& expr, std::unique_ptr<Expr>& mul_node, bool is_outermost)
+{
+	if (CanApplyChainRule(expr->Param()))
+	{
+		std::unique_ptr<Expr> copy_param;
+		tree_util::DeepCopy(copy_param, expr->Param());
+		ApplyChainRule(copy_param, mul_node, false);
+	}
+
+	if (expr->Param()->IsFunc())
+	{
+		if (is_outermost && mul_node->ChildrenSize() != 0)
+		{
+			std::unique_ptr<Expr> a;
+			tree_util::DeepCopy(a, expr);
+			a = std::make_unique<Derivative>(std::move(a), "x");
+
+			ApplyDerivativeRules(a);
+			mul_node->AddChild(std::move(a));
+		}
+		else
+		{
+			std::unique_ptr<Expr> a, b;
+			tree_util::DeepCopy(a, expr);
+			tree_util::DeepCopy(b, expr->Param());
+
+			a = std::make_unique<Derivative>(std::move(a), "x");
+			b = std::make_unique<Derivative>(std::move(b), "x");
+
+			ApplyDerivativeRules(a);
+			ApplyDerivativeRules(b);
+
+			mul_node->AddChild(std::move(a));
+			mul_node->AddChild(std::move(b));
+		}
+	}
+}
+
 void ApplyDerivativeRules(std::unique_ptr<Expr>& expr)
 {
 	if (!expr->IsDerivative())
@@ -286,6 +339,17 @@ bool IsConstant(const std::unique_ptr<Expr>& expr, std::string respect_to)
 	CanDifferentiate(expr, respect_to, is_constant);
 
 	return is_constant;
+}
+
+bool CanApplyChainRule(const std::unique_ptr<Expr>& expr)
+{
+	if (!expr->IsFunc())
+		return false;
+
+	if (!expr->Param()->IsFunc())
+		return false;
+
+	return true;
 }
 
 void Integrate(std::unique_ptr<Expr>& expr)

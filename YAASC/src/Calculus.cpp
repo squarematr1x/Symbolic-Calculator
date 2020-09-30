@@ -248,7 +248,10 @@ void ChainRule(std::unique_ptr<Expr>& expr)
 	ApplyChainRule(expr->Param(), mul_node, true);
 
 	if (mul_node->ChildrenSize() != 0)
+	{
+		mul_node->ReverseChildren();
 		expr = std::move(mul_node);
+	}
 }
 
 void ApplyChainRule(std::unique_ptr<Expr>& expr, std::unique_ptr<Expr>& mul_node, bool is_outermost)
@@ -283,8 +286,8 @@ void ApplyChainRule(std::unique_ptr<Expr>& expr, std::unique_ptr<Expr>& mul_node
 			ApplyDerivativeRules(a);
 			ApplyDerivativeRules(b);
 
-			mul_node->AddChild(std::move(a));
 			mul_node->AddChild(std::move(b));
+			mul_node->AddChild(std::move(a));
 		}
 	}
 }

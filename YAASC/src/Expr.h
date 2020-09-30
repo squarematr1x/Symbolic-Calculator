@@ -114,6 +114,7 @@ public:
 	virtual void SortChildren() {}
 	virtual void SortAddChildren() {}
 	virtual void SortMulChildren() {}
+	virtual void ReverseChildren() {}
 	virtual void ClearChildren() {}
 	virtual void RemoveChildren(int from, int to) { (void)from; (void)to; }
 	virtual void RemoveChild(int i) { (void)i; }
@@ -228,6 +229,7 @@ public:
 	int Eval(std::map<std::string, int> env) { return m_numerator / m_denominator; }
 	bool IsFraction() const{ return true; }
 	bool IsNumber() const { return true; }
+	bool IsNeg();
 	std::string Name() const { return m_atom; }
 };
 
@@ -266,10 +268,15 @@ public:
 
 class Pi : public Special
 {
+private:
+	const float m_pi{ 3.14159f };
+
 public:
 	Pi() : Special("pi")
 	{
 	}
+
+	float fValue() const { return m_pi; }
 
 	int Eval(std::map<std::string, int> env) { return 0; }
 	ExprType ExpressionType() const { return ExprType::PI; }
@@ -307,6 +314,7 @@ public:
 	void SortChildren();
 	void SortAddChildren();
 	void SortMulChildren();
+	void ReverseChildren();
 	void RemoveChildren(int from, int to);
 	void RemoveChild(int i);
 	void AddChild(std::unique_ptr<Expr> expr) { m_children.push_back(std::move(expr)); }

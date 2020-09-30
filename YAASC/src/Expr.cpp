@@ -161,6 +161,11 @@ void Associative::SortAddChildren()
 	// Implement sorting of add node
 }
 
+void Associative::ReverseChildren()
+{
+	std::reverse(m_children.begin(), m_children.end());
+}
+
 void Associative::RemoveChild(int i)
 {
 	if (i < ChildrenSize())
@@ -280,6 +285,14 @@ std::string Float::Name() const // FIXME: This could probably be simplified
 		new_str += "0";
 
 	return new_str;
+}
+
+bool Fraction::IsNeg()
+{
+	if (fValue() < 0)
+		return true;
+
+	return false;
 }
 
 std::ostream& operator<< (std::ostream& out, const std::unique_ptr<Expr>& expr)

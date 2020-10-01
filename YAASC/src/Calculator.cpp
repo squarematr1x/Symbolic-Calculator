@@ -263,6 +263,9 @@ void ComputeTrigonometric(std::unique_ptr<Expr>& expr)
 	if (!expr->IsTrig())
 		return;
 
+	if (expr->Param()->IsFunc())
+		return;
+
 	double number = 0;
 
 	if (!expr->Param()->IsNumber())

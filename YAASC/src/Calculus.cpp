@@ -271,7 +271,7 @@ void ApplyChainRule(std::unique_ptr<Expr>& expr, std::unique_ptr<Expr>& mul_node
 			tree_util::DeepCopy(a, expr);
 			a = std::make_unique<Derivative>(std::move(a), "x");
 
-			ApplyDerivativeRules(a);
+			ApplyDerivativeRules(a, true);
 			mul_node->AddChild(std::move(a));
 		}
 		else
@@ -283,8 +283,8 @@ void ApplyChainRule(std::unique_ptr<Expr>& expr, std::unique_ptr<Expr>& mul_node
 			a = std::make_unique<Derivative>(std::move(a), "x");
 			b = std::make_unique<Derivative>(std::move(b), "x");
 
-			ApplyDerivativeRules(a);
-			ApplyDerivativeRules(b);
+			ApplyDerivativeRules(a, true);
+			ApplyDerivativeRules(b, true);
 
 			mul_node->AddChild(std::move(b));
 			mul_node->AddChild(std::move(a));
@@ -292,7 +292,7 @@ void ApplyChainRule(std::unique_ptr<Expr>& expr, std::unique_ptr<Expr>& mul_node
 	}
 }
 
-void ApplyDerivativeRules(std::unique_ptr<Expr>& expr)
+void ApplyDerivativeRules(std::unique_ptr<Expr>& expr, bool skip_chain_rule)
 {
 	if (!expr->IsDerivative())
 		return;
@@ -302,7 +302,9 @@ void ApplyDerivativeRules(std::unique_ptr<Expr>& expr)
 	if (expr->IsZero())
 		return;
 
-	if (expr->Param()->IsAdd())
+	if (!skip_chain_rule && CanApplyChainRule(expr->Param()))
+		ChainRule(expr);
+	else if (expr->Param()->IsAdd())
 		DifferentiateSum(expr);
 	else if (expr->Param()->IsMul())
 	{

@@ -19,7 +19,7 @@ void ProductRule(std::unique_ptr<Expr>& expr);
 void QuotientRule(std::unique_ptr<Expr>& expr);
 void ChainRule(std::unique_ptr<Expr>& expr);
 void ApplyChainRule(std::unique_ptr<Expr>& expr, std::unique_ptr<Expr>& mul_node, bool is_outermost);
-void ApplyDerivativeRules(std::unique_ptr<Expr>& expr);
+void ApplyDerivativeRules(std::unique_ptr<Expr>& expr, bool skip_chain_rule = false);
 
 bool IsConstant(const std::unique_ptr<Expr>& expr, std::string respect_to);
 bool CanApplyChainRule(const std::unique_ptr<Expr>& expr);

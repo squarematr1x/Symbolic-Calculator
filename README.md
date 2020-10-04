@@ -108,7 +108,7 @@ At this point some algebraic expression can be simplified with the CLI:
          simplified: -sin(ln(x))x^-1
 ```
 
-Multiplication sign ( * ) and spaces are optional, but however, those can be added into the input string:
+Multiplication sign ( * ) and spaces are optional. However, those can be added into the input string:
 
 ```
 >>> x*x^2 + y + y
@@ -117,4 +117,4 @@ Multiplication sign ( * ) and spaces are optional, but however, those can be add
          simplified: 2xy^2+x^2y+xyz         
 ```
 
-Future plans include: Integration, trigonometric identities and perhaps later complex algebra.
+Future plans include: Integration, trigonometric identities and complex algebra.

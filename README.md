@@ -24,8 +24,12 @@ yaasc:1> 4.5+7*2
          simplified: 18.5
 yaasc:2> 4-6+1.1
          simplified: -0.9
-yaasc:3> 9^2+15.25
+yaasc:3> 16/(2^3)
+         simplified: 2
+yaasc:4> 9^2+15.25
          simplified: 96.25
+yaasc:5> sin(4)
+         simplified: -0.756802
 ```
 
 Fractions:
@@ -61,8 +65,8 @@ yaasc:3> x^2+y+2x^2
          simplified: 3x^2+y
 yaasc:4> 3/2x+y+5x
          simplified: 13/2x+y
-yaasc:5> (x+y)!+3!+4!
-         simplified: (x+y)!+30
+yaasc:5> 3!+(x+yz)!+4!
+         simplified: (x+yz)!+30
 ```
 
 Exponents:
@@ -78,6 +82,8 @@ yaasc:4> x^3^4
          simplified: x^12
 yaasc:5> (xy^3)^2
          simplified: x^2y^6
+yaasc:6> xxx+yxy+zz
+         simplified: x^3+xy^2+z^2
 ```
 
 Expand:
@@ -89,6 +95,8 @@ yaasc:2> xy(2x+4+z)
          simplified: 2x^2y+4xy+xyz
 yaasc:3> y^2(x-4)
          simplified: xy^2-4y^2
+yaasc:4> (x+y)(x+y)
+         simplified: x^2+2xy+y^2
 ```
 
 Binomial theorem:

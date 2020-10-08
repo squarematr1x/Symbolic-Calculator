@@ -6,9 +6,9 @@
 
 int main()
 {
-	std::cout << "Welcome to use YAASC.\n";
+	std::cout << "Welcome to use YAASC\n";
 	std::cout << "Source code at: https://github.com/squarematr1x/YAASC";
-	std::cout << "\n\n";
+	std::cout << "\nEnter the expression you want to simplify\n\n";
 
 	std::string input = "";
 	std::string output = "";
@@ -44,7 +44,7 @@ int main()
 		else if (input.length() != 0 && !scanner::MissingParenthesis(input))
 		{
 			yaasc::ExprTree expr_tree(input);
-			// expr_tree.ReplaceRoot(std::move(calc::MulNumbers(expr_tree.Root()->Left(), expr_tree.Root()->Right())));
+
 			yaasc::Simplify(expr_tree.Root());
 			output = expr_tree.TreeString();
 

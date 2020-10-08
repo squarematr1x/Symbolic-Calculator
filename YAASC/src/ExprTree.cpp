@@ -433,10 +433,15 @@ void ExprTree::RootToString(const std::unique_ptr<Expr>& expr, std::string& inpu
 	}
 	else if (expr->IsFunc())
 	{
-		input += expr->Name();
+		if (!expr->IsFac())
+			input += expr->Name();
+
 		input += '(';
 		RootToString(expr->Param(), input);
 		input += ')';
+
+		if (expr->IsFac())
+			input += expr->Name();
 	}
 	else
 	{

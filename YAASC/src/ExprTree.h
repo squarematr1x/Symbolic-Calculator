@@ -1,5 +1,7 @@
 #pragma once
 
+#include <regex>
+
 #include "Expr.h"
 #include "Scanner.h"
 
@@ -29,6 +31,7 @@ public:
 	void UpdateFunctionStack(std::string input, int& index, std::stack<std::unique_ptr<Expr>>& expr_stack);
 	void AddFunctionToStack(std::string func_name, std::unique_ptr<Expr>& expr, std::stack<std::unique_ptr<Expr>>& expr_stack);
 	void TurnToNegative(std::unique_ptr<Expr>& expr);
+	void AddParenthesisToString(const std::unique_ptr<Expr>& expr, const std::unique_ptr<Expr>& child, std::string& input, bool left_parenthesis);
 	void RootToString(const std::unique_ptr<Expr>& expr, std::string& input);
 	void UpdateStack(std::stack<std::unique_ptr<Expr>>& expr_stack, ExprType type);
 	void ReplaceRoot(std::unique_ptr<Expr> new_root) { m_root = std::move(new_root); }

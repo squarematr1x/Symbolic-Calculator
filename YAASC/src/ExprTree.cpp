@@ -288,7 +288,12 @@ void ExprTree::PrintAssociative(const std::unique_ptr<Expr>& expr)
 		for (int i = 0; i < expr->ChildrenSize(); i++)
 		{
 			if (expr->ChildAt(i)->IsTerminal())
-				std::cout << expr->ChildAt(i);
+			{
+				if (expr->IsMul() && expr->ChildAt(i)->IsNegOne())
+					std::cout << "-";
+				else
+					std::cout << expr->ChildAt(i);
+			}
 			else
 			{
 				PrintParenthesis(expr, expr->ChildAt(i), true);
@@ -297,7 +302,9 @@ void ExprTree::PrintAssociative(const std::unique_ptr<Expr>& expr)
 			}
 
 			if (expr->IsAdd() && i < expr->ChildrenSize() - 1)
+			{
 				std::cout << "+";
+			}
 		}
 	}
 }
@@ -309,9 +316,14 @@ void ExprTree::PrintInorder(const std::unique_ptr<Expr>& expr)
 
 	if (expr->HasLeftChild())
 	{
-		PrintParenthesis(expr, expr->Left(), true);
-		PrintInorder(expr->Left());
-		PrintParenthesis(expr, expr->Left(), false);
+		if (expr->IsMul() && expr->Left()->IsNegOne())
+			std::cout << "-";
+		else
+		{
+			PrintParenthesis(expr, expr->Left(), true);
+			PrintInorder(expr->Left());
+			PrintParenthesis(expr, expr->Left(), false);
+		}
 	}
 
 	if (expr->IsGeneric())
@@ -341,9 +353,9 @@ void ExprTree::PrintInorder(const std::unique_ptr<Expr>& expr)
 
 	if (expr->HasRightChild())
 	{
-		PrintParenthesis(expr, expr->Right(), true);
-		PrintInorder(expr->Right());
-		PrintParenthesis(expr, expr->Right(), false);
+			PrintParenthesis(expr, expr->Right(), true);
+			PrintInorder(expr->Right());
+			PrintParenthesis(expr, expr->Right(), false);
 	}
 }
 
@@ -366,15 +378,65 @@ void ExprTree::PrintBinaryNodeOnly(const std::unique_ptr<Expr>& expr)
 		PrintBinaryNodeOnly(expr->Right());
 }
 
+void ExprTree::AddParenthesisToString(const std::unique_ptr<Expr>& expr, const std::unique_ptr<Expr>&  child, std::string& input, bool left_parenthesis)
+{
+	bool can_add_parenthesis = false;
+
+	if (expr->IsPow() && (child->IsAdd() || child->IsMul() || child->IsFunc()))
+		can_add_parenthesis = true;
+	else if (expr->IsMul() && child->IsAdd())
+		can_add_parenthesis = true;
+
+	if (can_add_parenthesis)
+	{
+		if (left_parenthesis)
+			input += '(';
+		else
+			input += ')';
+	}
+}
+
 void ExprTree::RootToString(const std::unique_ptr<Expr>& expr, std::string& input)
 {
 	if (expr->HasLeftChild())
-		RootToString(expr->Left(), input);
+	{
+		if (expr->IsMul() && expr->Left()->IsNegOne())
+			input += '-';
+		else
+		{
+			AddParenthesisToString(expr, expr->Left(), input, true);
+			RootToString(expr->Left(), input);
+			AddParenthesisToString(expr, expr->Left(), input, false);
+		}
+	}
 
 	if (expr->IsGeneric())
 	{
-		for (int i = 0; i < expr->ChildrenSize(); i++)
-			RootToString(expr->ChildAt(i), input);
+		int size = expr->ChildrenSize();
+
+		for (int i = 0; i < size; i++)
+		{
+			AddParenthesisToString(expr, expr->ChildAt(i), input, true);
+
+			if (expr->IsMul() && expr->ChildAt(i)->IsNegOne())
+				input += '-';
+			else
+			{
+				RootToString(expr->ChildAt(i), input);
+
+				if (i + 1 < size && expr->IsAdd())
+						input += '+';
+			}
+
+			AddParenthesisToString(expr, expr->ChildAt(i), input, false);
+		}
+	}
+	else if (expr->IsFunc())
+	{
+		input += expr->Name();
+		input += '(';
+		RootToString(expr->Param(), input);
+		input += ')';
 	}
 	else
 	{
@@ -383,7 +445,11 @@ void ExprTree::RootToString(const std::unique_ptr<Expr>& expr, std::string& inpu
 	}
 
 	if (expr->HasRightChild())
+	{
+		AddParenthesisToString(expr, expr->Right(), input, true);
 		RootToString(expr->Right(), input);
+		AddParenthesisToString(expr, expr->Right(), input, false);
+	}
 }
 
 std::string ExprTree::TreeString()
@@ -395,6 +461,8 @@ std::string ExprTree::TreeString()
 
 	RootToString(std::move(m_root), output);
 
+	std::regex pattern("\\+\\-");
+	output = std::regex_replace(output, pattern, "-");
 	return output;
 }
 

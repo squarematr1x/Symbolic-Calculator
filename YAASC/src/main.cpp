@@ -51,11 +51,16 @@ int main()
 			if (output == "")
 				std::cout << "\t couldn't simplify input";
 			else if (input != output)
-				std::cout << "\t simplified: ";
+			{
+				if (std::regex_search(input, std::regex("[a-zA-Z]+")))
+					std::cout << "\t simplified: ";
+				else
+					std::cout << "\t ans: ";
+			}
 			else
 				std::cout << "\t couldn't simplify further: ";
 
-			expr_tree.Print();
+			std::cout << expr_tree.TreeString() << '\n';
 		}
 
 		i++;

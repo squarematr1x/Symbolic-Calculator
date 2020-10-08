@@ -231,6 +231,10 @@ void QuotientRule(std::unique_ptr<Expr>& expr)
 
 	std::unique_ptr<Expr> left = std::make_unique<Mul>(std::make_unique<Derivative>(std::move(expr->Param()->Left()), "x"), std::move(copy_right_a));
 	std::unique_ptr<Expr> right = std::make_unique<Mul>(std::make_unique<Derivative>(std::move(expr->Param()->Right()->Left()), "x"), std::move(copy_left));
+
+	ApplyDerivativeRules(left->Left());
+	ApplyDerivativeRules(right->Left());
+
 	numerator = std::make_unique<Add>(std::move(left), std::make_unique<Mul>(std::make_unique<Integer>(-1), std::move(right)));
 	denominator = std::make_unique<Pow>(std::move(copy_right_b), std::make_unique<Integer>(-2));
 	expr = std::make_unique<Mul>(std::move(numerator), std::move(denominator));

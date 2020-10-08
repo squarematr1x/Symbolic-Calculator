@@ -1,5 +1,7 @@
 #include "SymbolicTool.h"
 
+#define SHOW_ITERATION_COUNT
+
 namespace yaasc {
 
 void Simplify(std::unique_ptr<Expr>& root) 
@@ -13,7 +15,6 @@ void Simplify(std::unique_ptr<Expr>& root)
 	while (true)
 	{
 		tree_util::DeepCopy(copy, root);
-
 		Flatten(root);
 		Canonize(root);
 		calculus::Differentiate(root);
@@ -33,7 +34,10 @@ void Simplify(std::unique_ptr<Expr>& root)
 		// When simplification is done
 		if (copy == root)
 		{
-			std::cout << "\t total iterations: " << i + 1 << '\n';
+			#if defined SHOW_ITERATION_COUNT
+				std::cout << "\t total iterations: " << i + 1 << '\n';
+			#endif
+
 			break;
 		}
 	}
@@ -107,7 +111,7 @@ void Flatten(std::unique_ptr<Expr>& root)
 *  a   b
 *
 */
-void ToGeneric(std::unique_ptr<Expr>& root, std::unique_ptr<Expr>& parent, std::queue<std::unique_ptr<Expr>>& children) // FIXME: Still has issues
+void ToGeneric(std::unique_ptr<Expr>& root, std::unique_ptr<Expr>& parent, std::queue<std::unique_ptr<Expr>>& children) // FIXME: Still has (some serious) issues
 {
 	if (root->IsTerminal())
 		return;

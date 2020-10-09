@@ -88,7 +88,9 @@ void AddUnaryToken(std::string& input)
 	{
 		if (i - 1 > 0 && input[i] == '-')
 		{
-			if (!IsOperand(input[i - 1]) && !IsRightParenthesis(input[i - 1]))
+			if (!IsOperand(input[i - 1]) &&
+				!IsRightParenthesis(input[i - 1]) &&
+				!IsFactorial(input[i - 1]))
 				new_string += '_';
 			else
 				new_string += input[i];

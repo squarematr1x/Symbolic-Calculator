@@ -1,4 +1,5 @@
 Debug/
+packages/
 
 **.vcxproj
 **.vcxproj.filters

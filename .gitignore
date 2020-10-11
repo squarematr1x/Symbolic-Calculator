@@ -5,6 +5,8 @@ packages/
 **.vcxproj.filters
 **.vcxproj.user
 
+**.config
+
 **.APS
 **.rc
 

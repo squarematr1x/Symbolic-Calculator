@@ -108,7 +108,7 @@ void AddGenNode(std::unique_ptr<Expr>& expr)
 			for (int j = i + 1; j < children_size; j++)
 			{
 				std::unique_ptr<Expr> old;
-				tree_util::DeepCopy(old, expr->ChildAt(i));
+				tree_util::Clone(old, expr->ChildAt(i));
 				AddGenNodes(expr, i, expr->ChildAt(i), expr->ChildAt(j));
 
 				if (old != expr->ChildAt(i))

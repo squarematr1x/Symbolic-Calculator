@@ -20,7 +20,7 @@ void MoveQueueToGenericNode(std::unique_ptr<Expr>& expr, std::queue<std::unique_
 	}
 }
 
-void DeepCopy(std::unique_ptr<Expr>& to_expr, const std::unique_ptr<Expr>& from_expr)
+void Clone(std::unique_ptr<Expr>& to_expr, const std::unique_ptr<Expr>& from_expr)
 {
 	std::stack<std::unique_ptr<Expr>> expr_stack;
 

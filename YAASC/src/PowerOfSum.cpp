@@ -58,8 +58,8 @@ void ApplyBinomialTheorem(std::unique_ptr<Expr>& expr) // FIXME: How about (a+b)
 		std::unique_ptr<Expr> expr_a;
 		std::unique_ptr<Expr> expr_b;
 
-		tree_util::DeepCopy(expr_a, add_node->Left());
-		tree_util::DeepCopy(expr_b, add_node->Right());
+		tree_util::Clone(expr_a, add_node->Left());
+		tree_util::Clone(expr_b, add_node->Right());
 
 		mul_node->AddChild(std::move(std::make_unique<Integer>(coefficient)));
 

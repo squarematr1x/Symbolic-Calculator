@@ -87,7 +87,7 @@ void ApplyExponentRuleMulGenNode(std::unique_ptr<Expr>& root)
 				if (!exponent->IsZero())
 				{
 					std::unique_ptr<Expr> copy_exponent;
-					tree_util::DeepCopy(copy_exponent, exponent);
+					tree_util::Clone(copy_exponent, exponent);
 					new_children.push(std::make_unique<Pow>(move(root->ChildAt(i)->Left()), std::move(copy_exponent)));
 					exponent = nullptr;
 				}
@@ -203,7 +203,7 @@ void HandleExponentRuleParenthesis(std::unique_ptr<Expr>& base, std::unique_ptr<
 {
 	std::unique_ptr<Expr> new_root;
 	std::unique_ptr<Expr> exponent_copy;
-	tree_util::DeepCopy(exponent_copy, exponent);
+	tree_util::Clone(exponent_copy, exponent);
 
 	if (generic)
 		new_root = std::make_unique<Pow>(std::move(base), std::move(exponent_copy));

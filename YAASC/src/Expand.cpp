@@ -37,13 +37,13 @@ void MultiplyBinNode(std::unique_ptr<Expr>& root)
 
 	if (CanMultiplyBinSumNode(root->Right()))
 	{
-		tree_util::DeepCopy(copy, root->Left());
+		tree_util::Clone(copy, root->Left());
 		root = std::make_unique<Add>(std::make_unique<Mul>(std::move(root->Left()), std::move(root->Right()->Left())),
 			std::make_unique<Mul>(std::move(copy), std::move(root->Right()->Right())));
 	}
 	else if (CanMultiplyBinSumNode(root->Left()))
 	{
-		tree_util::DeepCopy(copy, root->Right());
+		tree_util::Clone(copy, root->Right());
 		root = std::make_unique<Add>(std::make_unique<Mul>(std::move(root->Right()), std::move(root->Left()->Left())),
 			std::make_unique<Mul>(std::move(copy), std::move(root->Left()->Right())));
 	}
@@ -51,7 +51,7 @@ void MultiplyBinNode(std::unique_ptr<Expr>& root)
 	{
 		for (int i = 0; i < root->Right()->ChildrenSize(); i++)
 		{
-			tree_util::DeepCopy(copy, root->Left());
+			tree_util::Clone(copy, root->Left());
 			std::unique_ptr<Expr> new_child = std::make_unique<Mul>(std::move(copy), std::move(root->Right()->ChildAt(i)));
 			root->Right()->SetChildAt(i, std::move(new_child));
 		}
@@ -61,7 +61,7 @@ void MultiplyBinNode(std::unique_ptr<Expr>& root)
 	{
 		for (int i = 0; i < root->Left()->ChildrenSize(); i++)
 		{
-			tree_util::DeepCopy(copy, root->Right());
+			tree_util::Clone(copy, root->Right());
 			std::unique_ptr<Expr> new_child = std::make_unique<Mul>(std::move(copy), std::move(root->Left()->ChildAt(i)));
 			root->Left()->SetChildAt(i, std::move(new_child));
 		}
@@ -100,7 +100,7 @@ void MultiplyGenNode(std::unique_ptr<Expr>& root)
 
 			for (int j = 0; j < root->ChildrenSize(); j++)
 			{
-				tree_util::DeepCopy(copy, root->ChildAt(j));
+				tree_util::Clone(copy, root->ChildAt(j));
 				new_child->AddChild(std::move(copy));
 			}
 
@@ -115,7 +115,7 @@ void MultiplyGenNode(std::unique_ptr<Expr>& root)
 
 		for (int i = 0; i < root->ChildrenSize(); i++)
 		{
-			tree_util::DeepCopy(copy, root->ChildAt(i));
+			tree_util::Clone(copy, root->ChildAt(i));
 			new_left->AddChild(std::move(copy));
 			new_right->AddChild(std::move(root->ChildAt(i)));
 		}

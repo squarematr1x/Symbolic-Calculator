@@ -80,7 +80,7 @@ void UpdateChildren(std::unique_ptr<Expr>& expr, bool isMul)
 		else
 		{
 			std::unique_ptr<Expr> child_copy;
-			tree_util::DeepCopy(child_copy, expr->ChildAt(i));
+			tree_util::Clone(child_copy, expr->ChildAt(i));
 			gen_node->AddChild(std::move(child_copy));
 		}
 	}

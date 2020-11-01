@@ -52,7 +52,7 @@ void PowerRule(std::unique_ptr<Expr>& expr)
 		return;
 
 	std::unique_ptr<Expr> multiplier;
-	tree_util::DeepCopy(multiplier, expr->Param()->Right());
+	tree_util::Clone(multiplier, expr->Param()->Right());
 	std::unique_ptr<Expr> var = std::move(expr->Param()->Left()->Left());
 	std::unique_ptr<Expr> new_expr = std::make_unique<Mul>(std::move(multiplier), std::make_unique<Pow>(std::move(var),
 	                                 std::make_unique<Add>(std::move(expr->Param()->Right()), std::make_unique<Integer>(-1))));
@@ -63,7 +63,7 @@ void PowerRule(std::unique_ptr<Expr>& expr)
 void ExponentialRule(std::unique_ptr<Expr>& expr)
 {
 	std::unique_ptr<Expr> base;
-	tree_util::DeepCopy(base, expr->Param()->Left());
+	tree_util::Clone(base, expr->Param()->Left());
 
 	expr = std::make_unique<Mul>(std::move(expr->Param()), std::make_unique<Ln>(std::move(base)));
 
@@ -167,14 +167,14 @@ void ProductRule(std::unique_ptr<Expr>& expr)
 		{
 			std::unique_ptr<Expr> mul_node = std::make_unique<Mul>();
 			std::unique_ptr<Expr> derivative_child;
-			tree_util::DeepCopy(derivative_child, expr->Param()->ChildAt(i));
+			tree_util::Clone(derivative_child, expr->Param()->ChildAt(i));
 
 			for (int j = 0; j < children_size; j++)
 			{
 				if (i != j)
 				{
 					std::unique_ptr<Expr> other_child;
-					tree_util::DeepCopy(other_child, expr->Param()->ChildAt(j));
+					tree_util::Clone(other_child, expr->Param()->ChildAt(j));
 					mul_node->AddChild(std::move(other_child));
 				}
 				else
@@ -192,8 +192,8 @@ void ProductRule(std::unique_ptr<Expr>& expr)
 	else
 	{
 		std::unique_ptr<Expr> copy_left, copy_right;
-		tree_util::DeepCopy(copy_left, expr->Param()->Left());
-		tree_util::DeepCopy(copy_right, expr->Param()->Right());
+		tree_util::Clone(copy_left, expr->Param()->Left());
+		tree_util::Clone(copy_right, expr->Param()->Right());
 
 		std::unique_ptr<Expr> left = std::make_unique<Mul>(std::make_unique<Derivative>(std::move(expr->Param()->Left()), "x"), std::move(copy_right));
 		std::unique_ptr<Expr> right = std::make_unique<Mul>(std::make_unique<Derivative>(std::move(expr->Param()->Right()), "x"), std::move(copy_left));
@@ -225,9 +225,9 @@ void QuotientRule(std::unique_ptr<Expr>& expr)
 
 	std::unique_ptr<Expr> copy_left, copy_right_a, copy_right_b, numerator, denominator;
 
-	tree_util::DeepCopy(copy_left, expr->Param()->Left());
-	tree_util::DeepCopy(copy_right_a, expr->Param()->Right()->Left());
-	tree_util::DeepCopy(copy_right_b, expr->Param()->Right()->Left());
+	tree_util::Clone(copy_left, expr->Param()->Left());
+	tree_util::Clone(copy_right_a, expr->Param()->Right()->Left());
+	tree_util::Clone(copy_right_b, expr->Param()->Right()->Left());
 
 	std::unique_ptr<Expr> left = std::make_unique<Mul>(std::make_unique<Derivative>(std::move(expr->Param()->Left()), "x"), std::move(copy_right_a));
 	std::unique_ptr<Expr> right = std::make_unique<Mul>(std::make_unique<Derivative>(std::move(expr->Param()->Right()->Left()), "x"), std::move(copy_left));
@@ -263,7 +263,7 @@ void ApplyChainRule(std::unique_ptr<Expr>& expr, std::unique_ptr<Expr>& mul_node
 	if (CanApplyChainRule(expr->Param()))
 	{
 		std::unique_ptr<Expr> copy_param;
-		tree_util::DeepCopy(copy_param, expr->Param());
+		tree_util::Clone(copy_param, expr->Param());
 		ApplyChainRule(copy_param, mul_node, false);
 	}
 
@@ -272,7 +272,7 @@ void ApplyChainRule(std::unique_ptr<Expr>& expr, std::unique_ptr<Expr>& mul_node
 		if (is_outermost && mul_node->ChildrenSize() != 0)
 		{
 			std::unique_ptr<Expr> a;
-			tree_util::DeepCopy(a, expr);
+			tree_util::Clone(a, expr);
 			a = std::make_unique<Derivative>(std::move(a), "x");
 
 			ApplyDerivativeRules(a, true);
@@ -281,8 +281,8 @@ void ApplyChainRule(std::unique_ptr<Expr>& expr, std::unique_ptr<Expr>& mul_node
 		else
 		{
 			std::unique_ptr<Expr> a, b;
-			tree_util::DeepCopy(a, expr);
-			tree_util::DeepCopy(b, expr->Param());
+			tree_util::Clone(a, expr);
+			tree_util::Clone(b, expr->Param());
 
 			a = std::make_unique<Derivative>(std::move(a), "x");
 			b = std::make_unique<Derivative>(std::move(b), "x");

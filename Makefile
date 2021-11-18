@@ -1,4 +1,4 @@
-CXX      := -c++
+CXX      := -c++ -Wall
 CXXFLAGS := -std=c++17
 LDFLAGS  := -L/usr/lib -lstdc++ -lm
 BUILD    := ./build

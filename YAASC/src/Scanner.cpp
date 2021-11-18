@@ -302,7 +302,7 @@ void FunctionToStack(std::string input, unsigned int& start_index, std::stack<st
 
 bool IsVariable(char c)
 {
-	if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z')
+	if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
 		return true;
 
 	if (c == '~') // when input is pi

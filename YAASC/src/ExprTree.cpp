@@ -76,7 +76,7 @@ std::unique_ptr<Expr> ExprTree::Construct(std::string input)
 		std::unique_ptr<Expr> final_tree = std::move(expr_stack.top());
 		expr_stack.pop();
 
-		return std::move(final_tree);
+		return final_tree;
 	}
 
 	return nullptr;

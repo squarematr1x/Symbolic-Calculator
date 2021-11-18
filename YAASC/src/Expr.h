@@ -216,8 +216,8 @@ private:
 
 public:
 	Fraction(int numerator, int denominator)
-		: m_numerator(numerator), m_denominator(denominator),
-		  Atomic(std::to_string(numerator) + "/" + std::to_string(denominator))
+		: Atomic(std::to_string(numerator) + "/" + std::to_string(denominator)), 
+		m_numerator(numerator), m_denominator(denominator)
 	{
 	}
 
@@ -409,7 +409,7 @@ protected:
 
 public:
 	Log(std::unique_ptr<Expr> param, std::unique_ptr<Expr> base)
-		: m_base(std::move(base)), Func(std::move(param))
+		: Func(std::move(param)), m_base(std::move(base))
 	{
 	}
 
@@ -499,7 +499,7 @@ private:
 
 public:
 	Derivative(std::unique_ptr<Expr> param, std::string respect_to)
-		: m_respect_to(respect_to), Func(std::move(param))
+		: Func(std::move(param)), m_respect_to(respect_to)
 	{
 	}
 
@@ -516,7 +516,7 @@ private:
 
 public:
 	Integral(std::unique_ptr<Expr> param, std::string respect_to)
-		: m_respect_to(respect_to), Func(std::move(param))
+		: Func(std::move(param)), m_respect_to(respect_to)
 	{
 	}
 

@@ -162,3 +162,12 @@ yaasc:1> x*x^2 + y + y
 yaasc:2> (x*y)*(x + 2*y + z)
          simplified: 2xy^2+x^2y+xyz         
 ```
+
+### Building:
+On Ubuntu or similar just use script:
+
+```
+./build.sh
+```
+
+On Windows use Visual Studio (no patience for cmake yet).

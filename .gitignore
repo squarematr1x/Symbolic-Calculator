@@ -2,6 +2,7 @@ build/
 Debug/
 packages/
 
+**.vscode
 **.vcxproj
 **.vcxproj.filters
 **.vcxproj.user

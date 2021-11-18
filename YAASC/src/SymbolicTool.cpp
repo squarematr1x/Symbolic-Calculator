@@ -1,7 +1,5 @@
 #include "SymbolicTool.h"
 
-#define SHOW_ITERATION_COUNT
-
 namespace yaasc {
 
 void Simplify(std::unique_ptr<Expr>& root) 

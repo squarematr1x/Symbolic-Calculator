@@ -67,7 +67,3 @@ Other commands:
 	To quit the software type:
 
 	>> exit
-
-	help.txt is opened with
-
-	>> help

@@ -18,6 +18,6 @@ void ClearScreen()
 	);
 	SetConsoleCursorPosition(console, top_left);
 #elif defined (__LINUX__) || defined(__gnu_linux__) || defined(__linux__)
-	std::cout << "\033c";
+	printf("\033c");
 #endif
 }

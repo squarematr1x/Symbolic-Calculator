@@ -1,14 +1,15 @@
 # YAASC
 YAASC (Yet Another Aspiring Symbolic Calculator) is a primitive symbolic calculator made from scratch. It is designed for performing simplification operations on different algebraic expressions. All the expressions are stored in a tree (data structure).
 
-An expression tree is constructed from an input string given by the user. Expression nodes in the tree can be binary, generic, function or atomic. A binary node has two children, where as a generic node can have arbitrary number of children. A function node has only one child (parameter) and an atomic node doesn't have any children. By modifying the expression tree with different algorithms, the mathematical expression given by the user can be simplified.
+An expression tree is constructed from an input string given by the user. Expression nodes in the tree can be binary, generic, function or atomic (Example 1). A binary node has two children, where as a generic node can have arbitrary number of children. A function node has only one child (parameter) and an atomic node doesn't have any children. By modifying the expression tree with different algorithms, the mathematical expression given by the user can be simplified (Example 3).
 
 
 ### Example 1: Different nodes
 ![nodes](https://github.com/squarematr1x/YAASC/blob/master/Resources/img3.png?raw=true)
 
+Infix input string is first converted to postfix (a ^ 2 + b --> a 2 ^ b +). Next, the expression tree is constructed from the postfix input (Example 2). The scanner knows how to seperate between function input and variables. For example: sin(x) will be converted to x #sin, where as san(x) will be converted to s a * n * x * . At the moment hashtag symbol (#) acts as a function token.
+
 ### Example 2: an expression tree constructed from input a^2+b
-Infix input string is first converted to postfix (a ^ 2 + b --> a 2 ^ b +). Next, the expression tree is constructed from the postfix input. The scanner knows how to seperate between function input and variables. For example: sin(x) will be converted to x #sin, where as san(x) will be converted to s a * n * x * . At the moment hashtag symbol (#) acts as a function token.
 
 ![simple tree](https://github.com/squarematr1x/YAASC/blob/master/Resources/img1.png?raw=true)
 
@@ -171,3 +172,6 @@ On Ubuntu or similar just use script:
 ```
 
 On Windows use Visual Studio (no patience for cmake yet).
+
+### Notes:
+I'm not a mathematician nor a computer scientist. Therefore, some of the algorithms might be a bit naive. I'm just a simple engineer.

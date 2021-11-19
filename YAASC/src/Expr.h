@@ -49,7 +49,6 @@ public:
 	{
 	}
 
-	virtual int Eval(std::map<std::string, int> env) = 0;
 	virtual std::string Name() const = 0;
 
 	virtual int ChildrenSize() const { return 0; }
@@ -119,10 +118,10 @@ public:
 	virtual void RemoveChildren(int from, int to) { (void)from; (void)to; }
 	virtual void RemoveChild(int i) { (void)i; }
 	virtual void AddChild(std::unique_ptr<Expr> child) { (void)child; }
-	virtual void SetChildAt(int i, std::unique_ptr<Expr> child) { (void)i; }
+	virtual void SetChildAt(int i, std::unique_ptr<Expr> child) { (void)i; (void)child; }
 	virtual void SetLeft(std::unique_ptr<Expr> expr) { m_left = std::move(expr); }
 	virtual void SetRight(std::unique_ptr<Expr> expr) { m_right = std::move(expr); }
-	virtual void SetBase(std::unique_ptr<Expr> expr) {}
+	virtual void SetBase(std::unique_ptr<Expr> expr) { (void)expr; }
 
 	friend std::ostream& operator<< (std::ostream& out, const std::unique_ptr<Expr>& expr);
 
@@ -162,12 +161,6 @@ public:
 	{
 	}
 
-	int Eval(std::map<std::string, int> env)
-	{
-		(void)env;
-		return m_atom;
-	}
-
 	int iValue() const { return m_atom; }
 	float fValue() const { return static_cast<float>(m_atom); }
 
@@ -187,12 +180,6 @@ public:
 	Float(float value)
 		: Atomic(value)
 	{
-	}
-
-	int Eval(std::map<std::string, int> env)
-	{
-		(void)env;
-		return (int)m_atom;
 	}
 
 	float fValue() const { return m_atom; }
@@ -226,7 +213,6 @@ public:
 	int iValue() const { return m_numerator / m_denominator; }
 	float fValue() const { return static_cast<float>(m_numerator * 1.0f / m_denominator); }
 
-	int Eval(std::map<std::string, int> env) { return m_numerator / m_denominator; }
 	bool IsFraction() const{ return true; }
 	bool IsNumber() const { return true; }
 	bool IsNeg();
@@ -245,7 +231,6 @@ public:
 	{
 	}
 
-	int Eval(std::map<std::string, int> env) { return env.at(m_atom); }
 	std::string Name() const { return m_atom; }
 	ExprType ExpressionType() const { return ExprType::VARIABLE; }
 	bool IsVar() const { return true; }
@@ -278,7 +263,6 @@ public:
 
 	float fValue() const { return m_pi; }
 
-	int Eval(std::map<std::string, int> env) { return 0; }
 	ExprType ExpressionType() const { return ExprType::PI; }
 	bool IsPi() const { return true; }
 };
@@ -290,7 +274,6 @@ public:
 	{
 	}
 
-	int Eval(std::map<std::string, int> env) { return 0; }
 	ExprType ExpressionType() const { return ExprType::e; }
 	bool IsE() const { return true; }
 };
@@ -336,7 +319,6 @@ public:
 	{
 	}
 
-	int Eval(std::map<std::string, int> env) { return Left()->Eval(env) * Right()->Eval(env); }
 	std::string Name() const { return "*"; }
 	ExprType ExpressionType() const { return ExprType::MUL; }
 	bool IsMul() const { return true; }
@@ -350,7 +332,6 @@ public:
 	{
 	}
 
-	int Eval(std::map<std::string, int> env) { return Left()->Eval(env) + Right()->Eval(env); }
 	std::string Name() const { return "+"; }
 	ExprType ExpressionType() const { return ExprType::ADD; }
 	bool IsAdd() const { return true; }
@@ -364,7 +345,6 @@ public:
 	{
 	}
 
-	int Eval(std::map<std::string, int> env) { return (int)std::pow(Left()->Eval(env), Right()->Eval(env)); }
 	std::string Name() const { return "^"; }
 	ExprType ExpressionType() const { return ExprType::POW; }
 	bool IsPow() const { return true; }
@@ -397,7 +377,6 @@ public:
 	{
 	}
 
-	int Eval(std::map<std::string, int> env) { return 0; }
 	bool IsFac() const { return true; }
 	std::string Name() const { return "!"; }
 };
@@ -418,7 +397,6 @@ public:
 	}
 
 	void SetBase(std::unique_ptr<Expr> expr) { m_base = std::move(expr); }
-	int Eval(std::map<std::string, int> env) { return 0; }
 	std::unique_ptr<Expr>& Base() { return m_base; }
 	bool IsLog() const { return true; }
 	std::string Name() const { return "log"; }
@@ -433,7 +411,6 @@ public:
 	{
 	}
 
-	int Eval(std::map<std::string, int> env) { return 0; }
 	bool IsLn() const { return true; }
 	std::string Name() const { return "ln"; }
 };
@@ -461,7 +438,6 @@ public:
 	{
 	}
 
-	int Eval(std::map<std::string, int> env) { return 0; }
 	bool IsSin() const { return true; }
 	std::string Name() const { return "sin"; }
 };
@@ -474,7 +450,6 @@ public:
 	{
 	}
 
-	int Eval(std::map<std::string, int> env) { return 0; }
 	bool IsCos() const { return true; }
 	std::string Name() const { return "cos"; }
 };
@@ -487,7 +462,6 @@ public:
 	{
 	}
 
-	int Eval(std::map<std::string, int> env) { return 0; }
 	bool IsTan() const { return true; }
 	std::string Name() const { return "tan"; }
 };
@@ -504,7 +478,6 @@ public:
 	}
 
 	std::string RespectTo() const{ return m_respect_to; }
-	int Eval(std::map<std::string, int> env) { return 0; }
 	bool IsDerivative() const { return true; }
 	std::string Name() const { return "D"; }
 };
@@ -520,7 +493,6 @@ public:
 	{
 	}
 
-	int Eval(std::map<std::string, int> env) { return 0; }
 	bool IsIntegral() const { return true; }
 	std::string Name() const { return "I"; }
 };

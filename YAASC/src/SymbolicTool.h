@@ -1,11 +1,9 @@
 #pragma once
 
-#include "Addition.h"
-#include "PowerTransformation.h"
-#include "PowerOfSum.h"
-#include "Expand.h"
-#include "Logarithm.h"
-#include "Calculus.h"
+#include <memory>
+#include <queue>
+
+class Expr;
 
 namespace yaasc {
 

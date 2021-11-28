@@ -1,3 +1,4 @@
+#include "Scanner.h"
 #include "SymbolicTool.h"
 #include "ExprTree.h"
 #include "Clear.h"

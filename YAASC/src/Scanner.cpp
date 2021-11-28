@@ -1,5 +1,8 @@
 #include "Scanner.h"
 
+#include <algorithm>
+#include <iostream>
+
 namespace scanner {
 
 void HandleInput(std::string& input)

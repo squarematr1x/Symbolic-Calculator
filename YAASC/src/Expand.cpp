@@ -1,4 +1,5 @@
 #include "Expand.h"
+#include "TreeUtil.h"
 
 namespace algebra {
 

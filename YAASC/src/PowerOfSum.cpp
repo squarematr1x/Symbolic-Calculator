@@ -1,4 +1,6 @@
 #include "PowerOfSum.h"
+#include "TreeUtil.h"
+#include "Calculator.h"
 
 namespace algebra {
 

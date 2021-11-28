@@ -1,4 +1,8 @@
 #include "PowerTransformation.h"
+#include "TreeUtil.h"
+#include "Calculator.h"
+
+#include <queue>
 
 namespace algebra {
 

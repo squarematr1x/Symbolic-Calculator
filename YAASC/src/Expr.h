@@ -3,11 +3,9 @@
 #include <iostream>
 
 #include <map>
-#include <cmath>
 #include <string>
 #include <vector>
 #include <memory>
-#include <algorithm>
 
 enum class ExprType
 {

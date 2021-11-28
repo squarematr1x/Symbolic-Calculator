@@ -1,5 +1,8 @@
 #include "Expr.h"
 
+#include <cmath>
+#include <algorithm>
+
 bool Expr::HasLeftChild()
 {
 	if (m_left)

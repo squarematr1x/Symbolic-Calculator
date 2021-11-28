@@ -1,7 +1,6 @@
 #pragma once 
 
 #include "Expr.h"
-#include "TreeUtil.h"
 
 namespace algebra {
 

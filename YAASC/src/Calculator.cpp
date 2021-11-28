@@ -1,4 +1,8 @@
 #include "Calculator.h"
+#include "TreeUtil.h"
+
+#include <cmath>
+#include <string>
 
 namespace calc {
 

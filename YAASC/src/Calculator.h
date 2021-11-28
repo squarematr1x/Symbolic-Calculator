@@ -1,10 +1,6 @@
 #pragma once
 
-#include <cmath>
-#include <string>
-
 #include "Expr.h"
-#include "TreeUtil.h"
 
 namespace calc {
 

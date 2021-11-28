@@ -1,4 +1,5 @@
 #include "Logarithm.h"
+#include "TreeUtil.h"
 
 namespace algebra {
 

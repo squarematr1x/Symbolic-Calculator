@@ -3,7 +3,6 @@
 #include <regex>
 
 #include "Expr.h"
-#include "Scanner.h"
 
 namespace yaasc
 {

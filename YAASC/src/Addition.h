@@ -1,10 +1,8 @@
 #pragma once
 
-#include <queue>
+#include <memory>
 
-#include "Expr.h"
-#include "TreeUtil.h"
-#include "Calculator.h"
+class Expr;
 
 namespace algebra {
 

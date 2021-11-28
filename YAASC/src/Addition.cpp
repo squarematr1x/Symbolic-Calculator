@@ -1,4 +1,9 @@
 #include "Addition.h"
+#include "Expr.h"
+#include "TreeUtil.h"
+#include "Calculator.h"
+
+#include <queue>
 
 namespace algebra {
 

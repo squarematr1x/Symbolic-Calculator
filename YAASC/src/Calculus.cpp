@@ -1,4 +1,5 @@
 #include "Calculus.h"
+#include "TreeUtil.h"
 
 namespace calculus {
 

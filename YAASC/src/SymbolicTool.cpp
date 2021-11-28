@@ -38,6 +38,10 @@ void Simplify(std::unique_ptr<Expr>& root)
 
 			break;
 		}
+		else if (i > 15)
+		{
+			break; // In case of bugs stop infinete loop
+		}
 	}
 
 	// Finally simplifies variables that are raised to one: a^1 --> a

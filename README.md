@@ -183,6 +183,3 @@ On Windows use Visual Studio (no patience for cmake yet).
 
 * Cohen, J. S. (2002). Computer algebra and symbolic computation: elementary algorithms. AK Peters/CRC Press.
 * Cohen, J. S. (2003). Computer algebra and symbolic computation: Mathematical methods. AK Peters/CRC Press.
-
-### Notes:
-I'm not a mathematician nor a computer scientist. Therefore, some of the algorithms might be a bit naive. I'm just a simple engineer.

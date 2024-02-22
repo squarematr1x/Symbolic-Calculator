@@ -1,5 +1,5 @@
-# YAASC
-YAASC is a symbolic calculator made from scratch with C++. It is designed for performing simplification operations on different algebraic expressions. All the expressions are stored in a tree (data structure).
+# Symbolic Calculator
+This repo contains a symbolic calculator made from scratch with C++. It is designed for performing simplification operations on different algebraic expressions. All the expressions are stored in a tree (data structure).
 
 An expression tree is constructed from an input string given by the user. Expression nodes in the tree can be binary, generic, function or atomic (Example 1). A binary node has two children, where as a generic node can have arbitrary number of children. A function node has only one child (parameter) and an atomic node doesn't have any children. By modifying the expression tree with different algorithms, the mathematical expression given by the user can be simplified (Example 3).
 
